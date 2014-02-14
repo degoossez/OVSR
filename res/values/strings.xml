@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">OVSR</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="choose_image">Click to choose an image</string>
+    <string name="content_desc">Image not found</string>
+    
+</resources>

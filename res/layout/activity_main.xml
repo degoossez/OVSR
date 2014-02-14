@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:padding="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal"
+            android:text="@string/choose_image"
+            android:textStyle="bold|italic" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="2" >
+
+            <ImageButton
+                android:id="@+id/imageButton1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:adjustViewBounds="true"
+                android:contentDescription="@string/content_desc"
+                android:padding="0dp"
+                android:src="@drawable/ic_launcher" />
+
+            <ImageButton
+                android:id="@+id/imageButton2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:adjustViewBounds="true"
+                android:contentDescription="@string/content_desc"
+                android:padding="0dp"
+                android:src="@drawable/ic_launcher" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/EdgeButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:text="Edge" />
+
+            <Button
+                android:id="@+id/SharpenButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:text="Sharpen" />
+
+            <Button
+                android:id="@+id/MediaanButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:text="Mediaan" />
+
+        </LinearLayout>
+
+		<LinearLayout
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:layout_weight="2">
+	        <EditText
+	            android:id="@+id/editText1"
+	            android:layout_width="fill_parent"
+	            android:layout_height="fill_parent"
+	            android:background="#81aaae"
+	            android:ems="10"
+	            android:inputType="text|textMultiLine"
+	            android:layout_marginTop="5dp"
+	            android:paddingLeft="5dp"
+	            android:paddingRight="5dp"
+	            android:minLines="10" >
+
+	            <requestFocus />
+	        </EditText>
+        </LinearLayout>
+        
+    </LinearLayout>
+    
+</LinearLayout>
