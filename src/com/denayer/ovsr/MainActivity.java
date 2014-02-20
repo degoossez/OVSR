@@ -51,8 +51,25 @@ public class MainActivity extends Activity {
                 if (item == 0) {
                     Intent intent    = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
+                    //external storage check
+                    String SavePath;
+                    boolean mExternalStorageAvailable = false;
+                    boolean mExternalStorageWriteable = false;
+                    String state = Environment.getExternalStorageState();
+
+                    if (Environment.MEDIA_MOUNTED.equals(state)) {
+                        // We can read and write the media
+                        mExternalStorageAvailable = mExternalStorageWriteable = true;
+                        SavePath = Environment.getExternalStorageDirectory().toString();
+                    } else {
+                        // Something else is wrong. It may be one of many other states, but all we need
+                        //  to know is we can neither read nor write
+                        mExternalStorageAvailable = mExternalStorageWriteable = false;
+                        SavePath = Environment.getDataDirectory().toString();
+                    }
+                    
                     //save file
-                    String SavePath = Environment.getExternalStorageDirectory().toString();
+                    //SavePath = Environment.getExternalStorageDirectory().toString();
                     SimpleDateFormat formatter = new SimpleDateFormat("yyMMddHHmmss");
         	        Date now = new Date();
         	        String fileName = formatter.format(now) + ".jpg";
@@ -62,8 +79,7 @@ public class MainActivity extends Activity {
  
                     try {
                         intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, mImageCaptureUri);
-                        intent.putExtra("return-data", true);
- 
+                        intent.putExtra("return-data", true); 
                         startActivityForResult(intent, PICK_FROM_CAMERA);
                     } catch (Exception e) {
                         e.printStackTrace();
