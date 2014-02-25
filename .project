@@ -3,6 +3,7 @@
 	<name>OVSR</name>
 	<comment></comment>
 	<projects>
+		<project>openclexample1</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

@@ -3,14 +3,17 @@
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
 		<cconfiguration id="com.android.toolchain.gcc.420663850">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.android.toolchain.gcc.420663850" moduleId="org.eclipse.cdt.core.settings" name="Default">
+				<macros>
+					<stringMacro name="NDKROOT" type="VALUE_TEXT" value="/home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c"/>
+				</macros>
 				<externalSettings/>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -26,9 +29,22 @@
 							</builder>
 							<tool id="cdt.managedbuild.tool.gnu.archiver.base.15943850" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
 							<tool id="com.android.tool.compiler.g++.453534691" name="Android G++" superClass="com.android.tool.compiler.g++">
+								<option id="gnu.cpp.compiler.option.include.paths.633006107" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="/home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/platforms/android-19/arch-arm/usr/include"/>
+									<listOptionValue builtIn="false" value="/home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/sources/cxx-stl/gnu-libstdc++/4.6/include"/>
+									<listOptionValue builtIn="false" value="/home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/sources/cxx-stl/gnu-libstdc++/4.6/libs/armeabi-v7a/include"/>
+									<listOptionValue builtIn="false" value="/home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/sources/cxx-stl/gnu-libstdc++/4.6/include/backward"/>
+									<listOptionValue builtIn="false" value="/home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/platforms/android-14/arch-arm/usr/include"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/OVSR/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/OVSR/jni}&quot;"/>
+									<listOptionValue builtIn="false" value="/home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/toolchains/arm-linux-androideabi-4.6/prebuilt/linux-x86_64/lib/gcc/arm-linux-androideabi/4.6/include"/>
+								</option>
 								<inputType id="com.android.tool.compiler.g++.input.1861747789" superClass="com.android.tool.compiler.g++.input"/>
 							</tool>
 							<tool id="com.android.tool.compiler.c.1216075020" name="Android GCC" superClass="com.android.tool.compiler.c">
+								<option id="gnu.c.compiler.option.include.paths.1135109572" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="/home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/platforms/android-19/arch-arm/usr/include"/>
+								</option>
 								<inputType id="com.android.tool.compiler.c.input.1433743622" superClass="com.android.tool.compiler.c.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.754102415" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>
@@ -48,7 +64,9 @@
 					</sourceEntries>
 				</configuration>
 			</storageModule>
-			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings">
+				<externalSettings containerId="openclexample1;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier"/>
+			</storageModule>
 		</cconfiguration>
 	</storageModule>
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -60,6 +78,13 @@
 			<resource resourceType="PROJECT" workspacePath="/OVSR"/>
 		</configuration>
 	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
+	<storageModule moduleId="org.eclipse.cdt.core.language.mapping">
+		<project-mappings>
+			<content-type-mapping configuration="com.android.toolchain.gcc.420663850" content-type="org.eclipse.cdt.core.cxxHeader" language="org.eclipse.cdt.core.g++"/>
+		</project-mappings>
+	</storageModule>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		<scannerConfigBuildInfo instanceId="com.android.toolchain.gcc.420663850;com.android.toolchain.gcc.420663850.802748430;com.android.tool.compiler.g++.453534691;com.android.tool.compiler.g++.input.1861747789">
@@ -69,5 +94,4 @@
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.make.core.GCCStandardMakePerFileProfile"/>
 		</scannerConfigBuildInfo>
 	</storageModule>
-	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cproject>

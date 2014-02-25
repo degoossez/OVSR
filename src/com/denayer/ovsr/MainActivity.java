@@ -18,6 +18,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -33,14 +34,43 @@ public class MainActivity extends Activity {
     
     private static final int PICK_FROM_CAMERA = 1;
     private static final int PICK_FROM_FILE = 2;
- 
+    
+    static boolean sfoundLibrary = true;
+
+    static {
+        try {
+        	System.load("/system/vendor/lib/libPVROCL.so");
+        	//System.load("/system/vendor/lib/libOpenCL.so");
+      	
+        	//System.loadLibrary("CLDeviceTest");  
+        }
+        catch (UnsatisfiedLinkError e) {
+          sfoundLibrary = false;
+        }
+      }
+    
+    //Testing JNI
+	static boolean sfoundJNILib = true;  
+	
+	static {
+	  try {
+		  System.loadLibrary("OVSR");  
+	  }
+	  catch (UnsatisfiedLinkError e) {
+		  sfoundJNILib = false;
+	  }
+	}
+	public static native int runOpenCL();
+	//Test JNI
+	
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
  
         setContentView(R.layout.activity_main);
  
-        final String [] items           = new String [] {"From Camera", "From SD Card"};
+        final String [] items           = new String [] {"From Camera", "From Storage"};
         ArrayAdapter<String> adapter  = new ArrayAdapter<String> (this, android.R.layout.select_dialog_item,items);
         AlertDialog.Builder builder     = new AlertDialog.Builder(this);
  
@@ -181,6 +211,9 @@ public class MainActivity extends Activity {
 			public void onClick( DialogInterface dialogEdgeBox, int item ) {
                 if (item == 0) {
                 	//opencl
+                	int test = runOpenCL();
+                	
+                	Log.i("TEST",Integer.toString(test));
                 } else {
                 	//renderscipt
                 }
