@@ -1,0 +1,6 @@
+eclipse.preferences.version=1
+environment/project/com.android.toolchain.gcc.557502762/PATH/delimiter=\:
+environment/project/com.android.toolchain.gcc.557502762/PATH/operation=replace
+environment/project/com.android.toolchain.gcc.557502762/PATH/value=/home/dries/bin\:/usr/lib/lightdm/lightdm\:/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/usr/games\:/usr/local/games
+environment/project/com.android.toolchain.gcc.557502762/append=true
+environment/project/com.android.toolchain.gcc.557502762/appendContributed=true
