@@ -2,8 +2,14 @@ package com.denayer.ovsr;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import com.denayer.ovsr.R;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -14,14 +20,21 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
+import android.graphics.Bitmap.Config;
+import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 
 public class MainActivity extends Activity {
@@ -33,14 +46,78 @@ public class MainActivity extends Activity {
     
     private static final int PICK_FROM_CAMERA = 1;
     private static final int PICK_FROM_FILE = 2;
- 
+    
+    static boolean sfoundLibrary = true;
+    
+   
+    static {
+        try { 
+        	System.load("/system/vendor/lib/libPVROCL.so");
+        	 Log.i("Debug", "Libs Loaded");
+      	
+        	//System.loadLibrary("CLDeviceTest");  
+        }
+        catch (UnsatisfiedLinkError e) {
+          sfoundLibrary = false;
+        }
+      }
+	static boolean sfoundMyLibrary = true;  
+	
+	static {
+	  try {
+		  System.loadLibrary("OVSR");  
+		  Log.i("Debug","My Lib Loaded!");
+	  }
+	  catch (UnsatisfiedLinkError e) {
+	      sfoundMyLibrary = false;
+	      Log.e("Debug", "Error log", e);
+	  }
+	}
+    public static native int runOpenCL(Bitmap bmpIn, Bitmap bmpOut, int info[]);	
+    
+    //example camerafilter
+    private native int cameraFilter(int w, int h, ByteBuffer input, ByteBuffer output, ByteBuffer prog);  
+    
+	final int info[] = new int[3]; // Width, Height, Execution time (ms)
+
+    LinearLayout layout;
+    Bitmap bmpOrig, bmpOpenCL, bmpNativeC;
+    ImageView imageView;
+    TextView textView;
+    
+    //example camerafilter
+    int pictureWidth, pictureHeight;
+    ByteBuffer inputBuffer, outputBuffer, progBuffer;
+    byte[] pictureData;
+    Bitmap output;  
+    
+	private void copyFile(final String f) {
+		InputStream in;
+		try {
+			in = getAssets().open(f);
+			final File of = new File(getDir("execdir",MODE_PRIVATE), f);
+			
+			final OutputStream out = new FileOutputStream(of);
+
+			final byte b[] = new byte[65535];
+			int sz = 0;
+			while ((sz = in.read(b)) > 0) {
+				out.write(b, 0, sz);
+			}
+			in.close();
+			out.close();
+		} catch (IOException e) {       
+			e.printStackTrace();
+		}
+	}	
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
  
         setContentView(R.layout.activity_main);
  
-        final String [] items           = new String [] {"From Camera", "From SD Card"};
+        final String [] items           = new String [] {"From Camera", "From Storage"};
         ArrayAdapter<String> adapter  = new ArrayAdapter<String> (this, android.R.layout.select_dialog_item,items);
         AlertDialog.Builder builder     = new AlertDialog.Builder(this);
  
@@ -51,8 +128,21 @@ public class MainActivity extends Activity {
                 if (item == 0) {
                     Intent intent    = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
+                    //external storage check
+                    String SavePath;
+                    String state = Environment.getExternalStorageState();
+
+                    if (Environment.MEDIA_MOUNTED.equals(state)) {
+                        // We can read and write the media
+                        SavePath = Environment.getExternalStorageDirectory().toString();
+                    } else {
+                        // Something else is wrong. It may be one of many other states, but all we need
+                        //  to know is we can neither read nor write
+                        SavePath = Environment.getDataDirectory().toString();
+                    }
+                    
                     //save file
-                    String SavePath = Environment.getExternalStorageDirectory().toString();
+                    //SavePath = Environment.getExternalStorageDirectory().toString();
                     SimpleDateFormat formatter = new SimpleDateFormat("yyMMddHHmmss");
         	        Date now = new Date();
         	        String fileName = formatter.format(now) + ".jpg";
@@ -62,8 +152,7 @@ public class MainActivity extends Activity {
  
                     try {
                         intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, mImageCaptureUri);
-                        intent.putExtra("return-data", true);
- 
+                        intent.putExtra("return-data", true); 
                         startActivityForResult(intent, PICK_FROM_CAMERA);
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -132,11 +221,30 @@ public class MainActivity extends Activity {
         int height = size.y/2 - 15;
         
          
-        bitmap = Bitmap.createScaledBitmap(bitmap, width, height, false);
+        //bitmap = Bitmap.createScaledBitmap(bitmap, width, height, false);
+        bitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.brusigablommor);
         Input_button = (ImageButton)findViewById(R.id.imageButton1);
         Input_button.setImageBitmap(bitmap);
         Output_button = (ImageButton)findViewById(R.id.imageButton2);
-        Output_button.setImageBitmap(bitmap);
+        //Output_button.setImageBitmap(bitmap);
+        
+        //OpenCL Test
+        copyFile("bilateralKernel.cl"); //copy cl kernel file from assets to /data/data/...assets
+
+        //bmpOrig = bitmap;
+//        bmpOrig = BitmapFactory.decodeResource(this.getResources(), R.drawable.brusigablommor);
+//        info[0] = bmpOrig.getWidth();
+//        info[1] = bmpOrig.getHeight();
+//        bmpOpenCL = bitmap;
+        //OpenCL Test
+        
+        //example camerafilter
+        output = bitmap;
+        inputBuffer = ByteBuffer.allocateDirect(bitmap.getWidth() * bitmap.getHeight() * 4);
+        outputBuffer = ByteBuffer.allocateDirect(bitmap.getWidth() * bitmap.getHeight() * 4);
+        output.copyPixelsToBuffer(inputBuffer);
+        inputBuffer.rewind();
+        //example camerafilter
         
         System.gc();
     }
@@ -165,6 +273,17 @@ public class MainActivity extends Activity {
 			public void onClick( DialogInterface dialogEdgeBox, int item ) {
                 if (item == 0) {
                 	//opencl
+//                	Log.i("DEBUG","BEFORE runOpencl");
+//                	runOpenCL(bmpOrig, bmpOpenCL, info);
+//                	Log.i("DEBUG","AFTER runOpencl");
+//                	Output_button.setImageBitmap(bmpOpenCL);
+                	
+                	//example camerfilter
+                    int err = cameraFilter(pictureWidth, pictureHeight, inputBuffer, 
+                                           outputBuffer, progBuffer);
+                    output.copyPixelsFromBuffer(outputBuffer);
+                    outputBuffer.rewind();
+                    Output_button.setImageBitmap(output);
                 } else {
                 	//renderscipt
                 }

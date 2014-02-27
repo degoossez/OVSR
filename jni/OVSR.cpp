@@ -1,11 +1,9 @@
-
-
 #include <android/bitmap.h>
 #include <android/log.h>
 #define app_name "hello_OpenCL_Example1"
-//#define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, app_name, __VA_ARGS__))
-//#define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, app_name, __VA_ARGS__))
-//#define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, app_name, __VA_ARGS__))
+#define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, app_name, __VA_ARGS__))
+#define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, app_name, __VA_ARGS__))
+#define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, app_name, __VA_ARGS__))
 #include <jni.h>
 #include <stdio.h>
 #include <cstring>
@@ -26,8 +24,9 @@
 inline std::string loadProgram(std::string input)
 {
 	std::ifstream stream(input.c_str());
+	LOGI("input string: %s", input.c_str());
 	if (!stream.is_open()) {
-		//LOGE("Cannot open input file\n");
+		LOGE("Cannot open input file\n");
 		exit(1);
 	}
 	return std::string( std::istreambuf_iterator<char>(stream),
@@ -36,7 +35,7 @@ inline std::string loadProgram(std::string input)
 void openCLNR (unsigned char* bufIn, unsigned char* bufOut, int* info)
 {
 
-	//LOGI("\n\nStart openCLNR (i.e., OpenCL on the GPU)");
+	LOGI("\n\nStart openCLNR (i.e., OpenCL on the GPU)");
 
 	int width = info[0];
 	int height = info[1];
@@ -57,7 +56,7 @@ void openCLNR (unsigned char* bufIn, unsigned char* bufOut, int* info)
 		std::vector<cl::Device> devices = context.getInfo<CL_CONTEXT_DEVICES>();
 		cl::CommandQueue queue(context, devices[0], 0, &err);
 
-		std::string kernelSource = loadProgram("/data/data/com.denayer.OVSR/app_execdir/bilateralKernel.cl");
+		std::string kernelSource = loadProgram("/data/data/com.denayer.ovsr/app_execdir/bilateralKernel.cl");
 
 		cl::Program::Sources source(1, std::make_pair(kernelSource.c_str(),kernelSource.length()+1));
 
@@ -113,18 +112,19 @@ void openCLNR (unsigned char* bufIn, unsigned char* bufOut, int* info)
 		stopTimer1 = clock();
 		double elapse = 1000.0* (double)(stopTimer1 - startTimer1)/(double)CLOCKS_PER_SEC;
 		info[2] = (int)elapse;
-		//LOGI("OpenCL code on the GPU took %g ms\n\n", 1000.0* (double)(stopTimer1 - startTimer1)/(double)CLOCKS_PER_SEC) ;
+		LOGI("OpenCL code on the GPU took %g ms\n\n", 1000.0* (double)(stopTimer1 - startTimer1)/(double)CLOCKS_PER_SEC) ;
 
-		//queue.enqueueReadBuffer(bufferOut, CL_TRUE, 0, imageSize, bufOut);
+		queue.enqueueReadBuffer(bufferOut, CL_TRUE, 0, imageSize, bufOut);
 	}
 	catch (cl::Error err) {
-		//LOGE("ERROR: %s\n", err.what());
+		LOGE("ERROR: %s\n", err.what());
 	}
 	return;
 }
 
-extern "C" jint
-Java_com_denayer_OVSR_MainActivity_runOpenCL(JNIEnv* env, jclass clazz, jobject bitmapIn, jobject bitmapOut, jintArray info)
+//extern "C" jint
+extern "C" JNIEXPORT jint JNICALL
+Java_com_denayer_ovsr_MainActivity_runOpenCL(JNIEnv* env, jclass clazz, jobject bitmapIn, jobject bitmapOut, jintArray info)
 {
 
     void*	bi;

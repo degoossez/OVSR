@@ -9,11 +9,11 @@ LOCAL_CFLAGS    += -O3 -ffast-math
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../include
 
-LOCAL_SRC_FILES := OVSR.cpp
+LOCAL_SRC_FILES := OVSR.cpp camera_filter.c
 
-LOCAL_LDFLAGS += -ljnigraphics
+#LOCAL_LDFLAGS += -ljnigraphics
 LOCAL_LDLIBS 	:= -llog -ljnigraphics
-LOCAL_LDLIBS 	:= $(LOCAL_PATH)/../external/libPVROCL.so
+LOCAL_LDLIBS 	+= $(LOCAL_PATH)/../external/libPVROCL.so
 
 LOCAL_ARM_MODE  := arm
 
