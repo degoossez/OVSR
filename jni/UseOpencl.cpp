@@ -234,8 +234,7 @@ void initOpenCL
 
     LOGD("Platform names:");
 
-    for(cl_uint i = 0; i < num_of_platforms; ++i)
-    {
+    cl_uint i = 0;
         // Get the length for the i-th platform name.
         size_t platform_name_length = 0;
         err = clGetPlatformInfo(
@@ -258,35 +257,9 @@ void initOpenCL
         );
         SAMPLE_CHECK_ERRORS(err);
 
-        // Decide if the found i-th platform is the required one.
-        // In this example only the first match is selected,
-        // while the rest matches are ignored.
-        if(
-            strstr(&platform_name[0], required_platform_subname) &&
-            selected_platform_index == num_of_platforms // have not selected yet
-        )
-        {
-            LOGD("    [%u] %s  [Selected]", i, &platform_name[0]);
-            selected_platform_index = i;
-            // Do not exit here and continue the numeration to see all available platforms,
-        }
-        else
-        {
-            LOGD("    [%u] %s", i, &platform_name[0]);
-        }
-    }
-
-    if(selected_platform_index == num_of_platforms)
-    {
-        LOGE
-        (
-            "There is no found platform with name containing \"%s\"as a substring.",
-            required_platform_subname
-        );
-        return;
-    }
-
+    selected_platform_index = 0;
     openCLObjects.platform = platforms[selected_platform_index];
+
 
     /* -----------------------------------------------------------------------
      * Step 2: Create context with a device of the specified type.
@@ -640,16 +613,6 @@ void nativeStepOpenCL
         );
     SAMPLE_CHECK_ERRORS(err);
 
-    /* Convert function arguments passed from Java side to prepare them
-     * to be passed as OpenCL kernel arguments.
-     *
-     * You need this step because you don't know for sure
-     * that, for example, jint and cl_int type are the same.
-     * The first one (jint) is used for passing integer values from Java side,
-     * and the second one (cl_int) is for passing those argument into OpenCL kernel.
-     */
-
-
     /* Passing arguments into OpenCL kernel.
      *
      * Consider comparing the sequence of clSetKernelArg calls
@@ -743,26 +706,6 @@ void nativeStepOpenCL
     		0,
     		0,
     		0);
-//    clEnqueueMapBuffer
-//    (
-//        openCLObjects.queue,
-//        outputBuffer,
-//        CL_FALSE,
-//        CL_MAP_READ,
-//        0,
-//        bufferSize,
-//        0, 0, 0,
-//        &err
-//    );
-//    SAMPLE_CHECK_ERRORS(err);
-//
-//    err = clEnqueueUnmapMemObject
-//    (
-//        openCLObjects.queue,
-//        outputBuffer,
-//        outputPixels,
-//        0, 0, 0
-//    );
     SAMPLE_CHECK_ERRORS(err);
 
     // Call clFinish to guarantee that the output region is updated.
