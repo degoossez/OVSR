@@ -1,4 +1,5 @@
-obj/local/armeabi-v7a/objs-debug/OVSR/UseOpencl.o: jni/UseOpencl.cpp \
+obj/local/armeabi-v7a/objs-debug/OVSR/InverseOpenCL.o: \
+ jni/InverseOpenCL.cpp \
  /home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/platforms/android-14/arch-arm/usr/include/jni.h \
  /home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/platforms/android-14/arch-arm/usr/include/sys/cdefs.h \
  /home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/platforms/android-14/arch-arm/usr/include/sys/cdefs_elf.h \

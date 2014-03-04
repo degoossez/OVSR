@@ -379,7 +379,7 @@ void initOpenCL
      * in an OpenCL program.
      */
 
-    openCLObjects.kernel = clCreateKernel(openCLObjects.program, "stepKernel", &err);
+    openCLObjects.kernel = clCreateKernel(openCLObjects.program, "inverseKernel", &err);
     SAMPLE_CHECK_ERRORS(err);
 
     /* -----------------------------------------------------------------------
@@ -492,7 +492,7 @@ extern "C" void Java_com_denayer_ovsr_MainActivity_shutdownOpenCL
  *   - running OpenCL kernel on the input image
  *   - reading results of image processing
  */
-void nativeStepOpenCL
+void nativeInverseOpenCL
 (
     JNIEnv* env,
     jobject thisObject,
@@ -719,10 +719,10 @@ void nativeStepOpenCL
     // pixels in the output bitmap object.
     AndroidBitmap_unlockPixels(env, outputBitmap);
 
-    LOGD("nativeStepOpenCL ends successfully");
+    LOGD("nativeInverseOpenCL ends successfully");
 }
 
-extern "C" void Java_com_denayer_ovsr_MainActivity_nativeStepOpenCL
+extern "C" void Java_com_denayer_ovsr_MainActivity_nativeInverseOpenCL
 (
     JNIEnv* env,
     jobject thisObject,
@@ -730,7 +730,7 @@ extern "C" void Java_com_denayer_ovsr_MainActivity_nativeStepOpenCL
     jobject outputBitmap
 )
 {
-    nativeStepOpenCL
+    nativeInverseOpenCL
     (
         env,
         thisObject,

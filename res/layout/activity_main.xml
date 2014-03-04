@@ -70,6 +70,13 @@
                 android:layout_weight="2"
                 android:text="Mediaan" />
 
+            <Button
+                android:id="@+id/InverseButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:text="Inverse" />
+
         </LinearLayout>
 
 		<LinearLayout

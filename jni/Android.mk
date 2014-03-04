@@ -9,7 +9,7 @@ LOCAL_CFLAGS    += -O3 -ffast-math
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../include
 
-LOCAL_SRC_FILES := OVSR.cpp UseOpencl.cpp
+LOCAL_SRC_FILES := OVSR.cpp InverseOpenCL.cpp
 
 #LOCAL_LDFLAGS += -ljnigraphics
 LOCAL_LDLIBS 	:= -llog -ljnigraphics

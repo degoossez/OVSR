@@ -76,7 +76,7 @@ public class MainActivity extends Activity {
     
     //Intel example OPENCL functions
     private native void initOpenCL (String openCLProgramText);
-    private native void nativeStepOpenCL (
+    private native void nativeInverseOpenCL (
             Bitmap inputBitmap,
             Bitmap outputBitmap
         );
@@ -258,21 +258,10 @@ public class MainActivity extends Activity {
     }
     private String getOpenCLProgram ()
     {
-        /* OpenCL program text is stored in a separate file in
-         * assets directory. Here you need to load it as a single
-         * string.
-         *
-         * In fact, the program may be directly built into
-         * native source code where OpenCL API is used,
-         * it is useful for short kernels (few lines) because it doesn't
-         * involve loading code and you don't need to pass it from Java to
-         * native side.
-         */
-
         try
         {
             StringBuilder buffer = new StringBuilder();
-            InputStream stream = getAssets().open("step.cl");
+            InputStream stream = getAssets().open("inverse.cl");
             BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
             String s;
 
@@ -303,17 +292,6 @@ public class MainActivity extends Activity {
 			public void onClick( DialogInterface dialogEdgeBox, int item ) {
                 if (item == 0) {
                 	//opencl
-                	Log.i("DEBUG","BEFORE runOpencl");
-                	initOpenCL(getOpenCLProgram());
-                    nativeStepOpenCL(
-                            bmpOrig,
-                            bmpOpenCL
-                        );
-                	//runConvolution(bmpOrig, bmpOpenCL, info);
-                	//runOpenCL(bmpOrig, bmpOpenCL, info);
-                	shutdownOpenCL();
-                	Log.i("DEBUG","AFTER runOpencl");
-                	Output_button.setImageBitmap(bmpOpenCL);
                 	
                 } else {
                 	//renderscipt
@@ -350,24 +328,57 @@ public class MainActivity extends Activity {
                 dialogSharpenBox.show();
             }
         });
+        
         ArrayAdapter<String> adapterMediaanBox  = new ArrayAdapter<String> (this, android.R.layout.select_dialog_item,itemsEdgeBox);        
         AlertDialog.Builder builderMediaanBox     = new AlertDialog.Builder(this);
         builderMediaanBox.setTitle("Select Language");
         builderMediaanBox.setAdapter( adapterMediaanBox, new DialogInterface.OnClickListener() {
 			public void onClick( DialogInterface dialogEdgeBox, int item ) {
                 if (item == 0) {
-                	//opencl
+                	//opencl       	
                 } else {
                 	//renderscipt
                 }
             }
         } );
-        final AlertDialog dialogMediaanBox = builderSharpenBox.create();
+        final AlertDialog dialogMediaanBox = builderMediaanBox.create();
         
         (findViewById(R.id.MediaanButton)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
             	dialogMediaanBox.show();
+            }
+        });
+        
+        ArrayAdapter<String> adapterInverseBox  = new ArrayAdapter<String> (this, android.R.layout.select_dialog_item,itemsEdgeBox);        
+        AlertDialog.Builder builderInverseBox     = new AlertDialog.Builder(this);
+        builderInverseBox.setTitle("Select Language");
+        builderInverseBox.setAdapter( adapterMediaanBox, new DialogInterface.OnClickListener() {
+			public void onClick( DialogInterface dialogEdgeBox, int item ) {
+                if (item == 0) {
+                	//opencl
+                	Log.i("DEBUG","BEFORE runOpencl");
+                	initOpenCL(getOpenCLProgram());
+                    nativeInverseOpenCL(
+                            bmpOrig,
+                            bmpOpenCL
+                        );
+                	//runConvolution(bmpOrig, bmpOpenCL, info);
+                	//runOpenCL(bmpOrig, bmpOpenCL, info);
+                	shutdownOpenCL();
+                	Log.i("DEBUG","AFTER runOpencl");
+                	Output_button.setImageBitmap(bmpOpenCL);                	
+                } else {
+                	//renderscipt
+                }
+            }
+        } );
+        final AlertDialog dialogInverseBox = builderInverseBox.create();
+        
+        (findViewById(R.id.InverseButton)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            	dialogInverseBox.show();
             }
         });
         //einde choose box
