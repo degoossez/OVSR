@@ -1,11 +1,12 @@
 package com.denayer.ovsr;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -20,12 +21,9 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
-import android.graphics.Bitmap.Config;
-import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Display;
@@ -73,10 +71,17 @@ public class MainActivity extends Activity {
 	      Log.e("Debug", "Error log", e);
 	  }
 	}
-    public static native int runOpenCL(Bitmap bmpIn, Bitmap bmpOut, int info[]);	
+    public static native int runOpenCL(Bitmap bmpIn, Bitmap bmpOut, int info[]);
+    public static native int runConvolution(Bitmap bmpIn, Bitmap bmpOut, int info[]);
     
-    //example camerafilter
-    private native int cameraFilter(int w, int h, ByteBuffer input, ByteBuffer output, ByteBuffer prog);  
+    //Intel example OPENCL functions
+    private native void initOpenCL (String openCLProgramText);
+    private native void nativeStepOpenCL (
+            Bitmap inputBitmap,
+            Bitmap outputBitmap
+        );
+    private native void shutdownOpenCL ();
+    //End Intel example OPENCL
     
 	final int info[] = new int[3]; // Width, Height, Execution time (ms)
 
@@ -84,12 +89,7 @@ public class MainActivity extends Activity {
     Bitmap bmpOrig, bmpOpenCL, bmpNativeC;
     ImageView imageView;
     TextView textView;
-    
-    //example camerafilter
-    int pictureWidth, pictureHeight;
-    ByteBuffer inputBuffer, outputBuffer, progBuffer;
-    byte[] pictureData;
-    Bitmap output;  
+
     
 	private void copyFile(final String f) {
 		InputStream in;
@@ -221,30 +221,25 @@ public class MainActivity extends Activity {
         int height = size.y/2 - 15;
         
          
-        //bitmap = Bitmap.createScaledBitmap(bitmap, width, height, false);
-        bitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.brusigablommor);
+        bitmap = Bitmap.createScaledBitmap(bitmap, width, height, false);
+        //bitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.brusigablommor);
         Input_button = (ImageButton)findViewById(R.id.imageButton1);
         Input_button.setImageBitmap(bitmap);
         Output_button = (ImageButton)findViewById(R.id.imageButton2);
         //Output_button.setImageBitmap(bitmap);
         
         //OpenCL Test
-        copyFile("bilateralKernel.cl"); //copy cl kernel file from assets to /data/data/...assets
+        copyFile("ConvolutionKernel.cl");
+        //copyFile("EigenOpenCLKernel.cl");
+        //copyFile("bilateralKernel.cl"); //copy cl kernel file from assets to /data/data/...assets
 
-        //bmpOrig = bitmap;
-//        bmpOrig = BitmapFactory.decodeResource(this.getResources(), R.drawable.brusigablommor);
-//        info[0] = bmpOrig.getWidth();
-//        info[1] = bmpOrig.getHeight();
-//        bmpOpenCL = bitmap;
+        bmpOrig = Bitmap.createScaledBitmap(bitmap, width, height, false);
+        //bmpOrig = BitmapFactory.decodeResource(this.getResources(), R.drawable.brusigablommor);
+        info[0] = bmpOrig.getWidth();
+        info[1] = bmpOrig.getHeight();
+        bmpOpenCL = Bitmap.createBitmap(info[0], info[1], Bitmap.Config.ARGB_8888);
+        //bmpOpenCL = BitmapFactory.decodeResource(this.getResources(), R.drawable.brusigablommor);
         //OpenCL Test
-        
-        //example camerafilter
-        output = bitmap;
-        inputBuffer = ByteBuffer.allocateDirect(bitmap.getWidth() * bitmap.getHeight() * 4);
-        outputBuffer = ByteBuffer.allocateDirect(bitmap.getWidth() * bitmap.getHeight() * 4);
-        output.copyPixelsToBuffer(inputBuffer);
-        inputBuffer.rewind();
-        //example camerafilter
         
         System.gc();
     }
@@ -261,6 +256,41 @@ public class MainActivity extends Activity {
  
         return cursor.getString(column_index);
     }
+    private String getOpenCLProgram ()
+    {
+        /* OpenCL program text is stored in a separate file in
+         * assets directory. Here you need to load it as a single
+         * string.
+         *
+         * In fact, the program may be directly built into
+         * native source code where OpenCL API is used,
+         * it is useful for short kernels (few lines) because it doesn't
+         * involve loading code and you don't need to pass it from Java to
+         * native side.
+         */
+
+        try
+        {
+            StringBuilder buffer = new StringBuilder();
+            InputStream stream = getAssets().open("step.cl");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+            String s;
+
+            while((s = reader.readLine()) != null)
+            {
+                buffer.append(s);
+                buffer.append("\n");
+            }
+
+            reader.close();
+            return buffer.toString();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "";
+		
+    }
 	public void createBoxes()
 	{
         //choose box voor opencl of renderscript te selecteren
@@ -273,20 +303,22 @@ public class MainActivity extends Activity {
 			public void onClick( DialogInterface dialogEdgeBox, int item ) {
                 if (item == 0) {
                 	//opencl
-//                	Log.i("DEBUG","BEFORE runOpencl");
-//                	runOpenCL(bmpOrig, bmpOpenCL, info);
-//                	Log.i("DEBUG","AFTER runOpencl");
-//                	Output_button.setImageBitmap(bmpOpenCL);
+                	Log.i("DEBUG","BEFORE runOpencl");
+                	initOpenCL(getOpenCLProgram());
+                    nativeStepOpenCL(
+                            bmpOrig,
+                            bmpOpenCL
+                        );
+                	//runConvolution(bmpOrig, bmpOpenCL, info);
+                	//runOpenCL(bmpOrig, bmpOpenCL, info);
+                	shutdownOpenCL();
+                	Log.i("DEBUG","AFTER runOpencl");
+                	Output_button.setImageBitmap(bmpOpenCL);
                 	
-                	//example camerfilter
-                    int err = cameraFilter(pictureWidth, pictureHeight, inputBuffer, 
-                                           outputBuffer, progBuffer);
-                    output.copyPixelsFromBuffer(outputBuffer);
-                    outputBuffer.rewind();
-                    Output_button.setImageBitmap(output);
                 } else {
                 	//renderscipt
                 }
+
             }
         } );
         final AlertDialog dialogEdgeBox = builderEdgeBox.create();
@@ -341,3 +373,6 @@ public class MainActivity extends Activity {
         //einde choose box
 	}
 }
+
+
+

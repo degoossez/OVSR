@@ -18,7 +18,7 @@
 
 #define CL_USE_DEPRECATED_OPENCL_1_1_APIS
 #define __CL_ENABLE_EXCEPTIONS
-#include <CL/cl.h>
+//#include <CL/cl.h>
 #include <CL/cl.hpp>
 
 inline std::string loadProgram(std::string input)
@@ -43,7 +43,6 @@ void openCLNR (unsigned char* bufIn, unsigned char* bufOut, int* info)
 
 	cl_int err = CL_SUCCESS;
 	try {
-
 		std::vector<cl::Platform> platforms;
 		cl::Platform::get(&platforms);
 		if (platforms.size() == 0) {
@@ -56,7 +55,8 @@ void openCLNR (unsigned char* bufIn, unsigned char* bufOut, int* info)
 		std::vector<cl::Device> devices = context.getInfo<CL_CONTEXT_DEVICES>();
 		cl::CommandQueue queue(context, devices[0], 0, &err);
 
-		std::string kernelSource = loadProgram("/data/data/com.denayer.ovsr/app_execdir/bilateralKernel.cl");
+		std::string kernelSource = loadProgram("data/data/com.denayer.ovsr/app_execdir/EigenOpenCLKernel.cl");
+		//std::string kernelSource = loadProgram("/data/data/com.denayer.ovsr/app_execdir/bilateralKernel.cl");
 
 		cl::Program::Sources source(1, std::make_pair(kernelSource.c_str(),kernelSource.length()+1));
 
@@ -64,7 +64,8 @@ void openCLNR (unsigned char* bufIn, unsigned char* bufOut, int* info)
 		const char *options = "-cl-fast-relaxed-math";
 		program.build(devices, options);
 
-		cl::Kernel kernel(program, "bilateralFilterKernel", &err);
+		cl::Kernel kernel(program, "EigenOpenCLKernel", &err);
+		//cl::Kernel kernel(program, "bilateralFilterKernel", &err);
 
 		cl::Buffer bufferIn = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, imageSize, (void *) &bufIn[0], &err);
 		cl::Buffer bufferOut = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, imageSize, (void *) &bufOut[0], &err);
@@ -87,25 +88,25 @@ void openCLNR (unsigned char* bufIn, unsigned char* bufOut, int* info)
 				NULL,
 				&event);
 
-		//swap in and out buffer pointers and run a 2nd time
-		kernel.setArg(0,bufferOut);
-		kernel.setArg(1,bufferIn);
-		queue.enqueueNDRangeKernel(	kernel,
-				cl::NullRange,
-				cl::NDRange(width,height),
-				cl::NullRange,
-				NULL,
-				&event);
-
-		//swap in and out buffer pointers and run a 3rd time
-		kernel.setArg(0,bufferIn);
-		kernel.setArg(1,bufferOut);
-		queue.enqueueNDRangeKernel(	kernel,
-				cl::NullRange,
-				cl::NDRange(width,height),
-				cl::NullRange,
-				NULL,
-				&event);
+//		//swap in and out buffer pointers and run a 2nd time
+//		kernel.setArg(0,bufferOut);
+//		kernel.setArg(1,bufferIn);
+//		queue.enqueueNDRangeKernel(	kernel,
+//				cl::NullRange,
+//				cl::NDRange(width,height),
+//				cl::NullRange,
+//				NULL,
+//				&event);
+//
+//		//swap in and out buffer pointers and run a 3rd time
+//		kernel.setArg(0,bufferIn);
+//		kernel.setArg(1,bufferOut);
+//		queue.enqueueNDRangeKernel(	kernel,
+//				cl::NullRange,
+//				cl::NDRange(width,height),
+//				cl::NullRange,
+//				NULL,
+//				&event);
 
 		queue.finish();
 
@@ -115,6 +116,7 @@ void openCLNR (unsigned char* bufIn, unsigned char* bufOut, int* info)
 		LOGI("OpenCL code on the GPU took %g ms\n\n", 1000.0* (double)(stopTimer1 - startTimer1)/(double)CLOCKS_PER_SEC) ;
 
 		queue.enqueueReadBuffer(bufferOut, CL_TRUE, 0, imageSize, bufOut);
+		queue.finish();
 	}
 	catch (cl::Error err) {
 		LOGE("ERROR: %s\n", err.what());
