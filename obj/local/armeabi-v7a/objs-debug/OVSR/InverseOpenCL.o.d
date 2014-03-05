@@ -157,6 +157,14 @@ obj/local/armeabi-v7a/objs-debug/OVSR/InverseOpenCL.o: \
  /home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/sources/cxx-stl/stlport/stlport/stl/_vector.c \
  /home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/sources/cxx-stl/stlport/stlport/stl/_bvector.h \
  /home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/sources/cxx-stl/stlport/stlport/stl/_relops_cont.h \
+ /home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/sources/cxx-stl/stlport/stlport/iostream \
+ /home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/sources/cxx-stl/stlport/stlport/fstream \
+ /home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/sources/cxx-stl/stlport/stlport/stl/_fstream.h \
+ /home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/sources/cxx-stl/stlport/stlport/stl/_codecvt.h \
+ /home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/sources/cxx-stl/stlport/stlport/stl/_fstream.c \
+ /home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/sources/cxx-stl/stlport/stlport/cstdio \
+ /home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/sources/cxx-stl/stlport/stlport/stl/_cstdio.h \
+ /home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/sources/cxx-stl/stlport/stlport/cstdlib \
  jni/../include/CL/cl.h jni/../include/CL/cl_platform.h
 
 /home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/platforms/android-14/arch-arm/usr/include/jni.h:
@@ -472,6 +480,22 @@ obj/local/armeabi-v7a/objs-debug/OVSR/InverseOpenCL.o: \
 /home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/sources/cxx-stl/stlport/stlport/stl/_bvector.h:
 
 /home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/sources/cxx-stl/stlport/stlport/stl/_relops_cont.h:
+
+/home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/sources/cxx-stl/stlport/stlport/iostream:
+
+/home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/sources/cxx-stl/stlport/stlport/fstream:
+
+/home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/sources/cxx-stl/stlport/stlport/stl/_fstream.h:
+
+/home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/sources/cxx-stl/stlport/stlport/stl/_codecvt.h:
+
+/home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/sources/cxx-stl/stlport/stlport/stl/_fstream.c:
+
+/home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/sources/cxx-stl/stlport/stlport/cstdio:
+
+/home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/sources/cxx-stl/stlport/stlport/stl/_cstdio.h:
+
+/home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/sources/cxx-stl/stlport/stlport/cstdlib:
 
 jni/../include/CL/cl.h:
 

@@ -1,22 +1,3 @@
-// Copyright � 2014 Intel Corporation. All rights reserved.
-//
-// WARRANTY DISCLAIMER
-//
-// THESE MATERIALS ARE PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL INTEL OR ITS
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR TORT (INCLUDING
-// NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THESE
-// MATERIALS, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Intel Corporation is the author of the Materials, and requests that all
-// problem reports or change requests be submitted to it directly
-
 
 #include <jni.h>
 #include <android/bitmap.h>
@@ -26,6 +7,15 @@
 #include <cstring>
 #include <sstream>
 #include <vector>
+
+/*
+ * needed for loadProgram function
+ */
+#include <iostream>
+#include <fstream>
+#include <cstdio>
+#include <cstdlib>
+
 
 #include <sys/time.h>
 
@@ -69,6 +59,19 @@ struct OpenCLObjects
 // Hold all OpenCL objects.
 OpenCLObjects openCLObjects;
 
+/*
+ * Load the program out of the file in to a string for opencl compiling.
+ */
+inline std::string loadProgram(std::string input)
+{
+	std::ifstream stream(input.c_str());
+	if (!stream.is_open()) {
+		LOGE("Cannot open input file\n");
+		exit(1);
+	}
+	return std::string( std::istreambuf_iterator<char>(stream),
+						(std::istreambuf_iterator<char>()));
+}
 
 /* This function helps to create informative messages in
  * case when OpenCL errors occur. The function returns a string
@@ -171,7 +174,7 @@ void initOpenCL
 (
     JNIEnv* env,
     jobject thisObject,
-    jstring openCLProgramText,
+    jstring kernelName,
     cl_device_type required_device_type,
     OpenCLObjects& openCLObjects
 )
@@ -300,24 +303,24 @@ void initOpenCL
 
     /* -----------------------------------------------------------------------
      * Step 4: Create OpenCL program from its source code.
-     * Use program source code passed from Java side of the application.
-     * It comes as a jstring. First convert jstring with OpenCL program text
-     * to a regular usable char[], as it is processed incorrectly
-     * if represented as char*.
+     * The file name is passed bij java.
+     * Convert the jstring to const char* and append the needed directory path.
      */
-
-    const char* openCLProgramTextNative = env->GetStringUTFChars(openCLProgramText, 0);
-    LOGD("OpenCL program text:\n%s", openCLProgramTextNative);
-
-    // After obtaining a regular C string, call clCreateProgramWithSource
-    // to create an OpenCL program object.
+    const char* fileName = env->GetStringUTFChars(kernelName, 0);
+    std::string fileDir;
+    fileDir.append("/data/data/com.denayer.ovsr/app_execdir/");
+    fileDir.append(fileName);
+    fileDir.append(".cl");
+    std::string kernelSource = loadProgram(fileDir);
+    //std::string to const char* needed for the clCreateProgramWithSource function
+    const char* kernelSourceChar = kernelSource.c_str();
 
     openCLObjects.program =
         clCreateProgramWithSource
         (
             openCLObjects.context,
             1,
-            &openCLProgramTextNative,
+            &kernelSourceChar,
             0,
             &err
         );
@@ -378,8 +381,11 @@ void initOpenCL
      * Creating a kernel via clCreateKernel is similar to obtaining an entry point of a specific function
      * in an OpenCL program.
      */
-
-    openCLObjects.kernel = clCreateKernel(openCLObjects.program, "inverseKernel", &err);
+    fileName = env->GetStringUTFChars(kernelName, 0);
+    char result[100];   // array to hold the result.
+    std::strcpy(result,fileName); // copy string one into the result.
+    std::strcat(result,"Kernel"); // append string two to the result.
+    openCLObjects.kernel = clCreateKernel(openCLObjects.program, result, &err);
     SAMPLE_CHECK_ERRORS(err);
 
     /* -----------------------------------------------------------------------
@@ -404,8 +410,6 @@ void initOpenCL
     // -----------------------------------------------------------------------
 
     LOGD("initOpenCL finished successfully");
-
-    env->ReleaseStringUTFChars(openCLProgramText, openCLProgramTextNative);
 }
 
 
@@ -413,14 +417,14 @@ extern "C" void Java_com_denayer_ovsr_MainActivity_initOpenCL
 (
     JNIEnv* env,
     jobject thisObject,
-    jstring openCLProgramText
+    jstring kernelName
 )
 {
     initOpenCL
     (
         env,
         thisObject,
-        openCLProgramText,
+        kernelName,
         CL_DEVICE_TYPE_GPU,
         openCLObjects
     );
@@ -731,6 +735,259 @@ extern "C" void Java_com_denayer_ovsr_MainActivity_nativeInverseOpenCL
 )
 {
     nativeInverseOpenCL
+    (
+        env,
+        thisObject,
+        openCLObjects,
+        inputBitmap,
+        outputBitmap
+    );
+}
+void nativeEdgeOpenCL
+(
+    JNIEnv* env,
+    jobject thisObject,
+    OpenCLObjects& openCLObjects,
+    jobject inputBitmap,
+    jobject outputBitmap
+)
+{
+    using namespace std;
+
+    /* Using basic native Android SDK routines,
+     * you query dimensions of an input image
+     * and store it in bitmapInfo. This is not OpenCL-specific.
+     */
+    AndroidBitmapInfo bitmapInfo;
+    AndroidBitmap_getInfo(env, inputBitmap, &bitmapInfo);
+
+    /* Calculate the buffer size in bytes, which is enough to
+     * hold entire input or output image.
+     */
+    size_t bufferSize = bitmapInfo.height * bitmapInfo.stride;
+
+    /* Also calculate row pith _in_pixels_ for easy access
+     * of each pixel inside of an OpenCL kernel.
+     */
+    cl_uint rowPitch = bitmapInfo.stride / 4;
+
+    /* The following variables define inner and outer
+     * radius for circle that is drawn on the image.
+     */
+
+    cl_int err = CL_SUCCESS;
+
+    // In this application the input buffer is allocated and initialized on demand
+    // with the first call or when the Java side requests an update of the input image.
+
+        if(openCLObjects.isInputBufferInitialized)
+        {
+            /* If this is not the first time, you need to deallocate the previously
+             * allocated buffer as the new buffer will be allocated in
+             * the next statements.
+             *
+             * It is important to remember that unlike Java, there is no
+             * garbage collector for OpenCL objects, so deallocate all resources
+             * explicitly to avoid running out of memory.
+             *
+             * It is especially important in case of image buffers,
+             * because they are relatively large and even one lost buffer
+             * can significantly limit free resources for the application.
+             */
+
+            err = clReleaseMemObject(openCLObjects.inputBuffer);
+            SAMPLE_CHECK_ERRORS(err);
+        }
+
+        LOGD("Creating input buffer in OpenCL");
+
+        /* You receive input buffer as a Java bitmap.
+         * To use it in the native part, lock it and obtain a native pointer
+         * to the area with pixels.
+         */
+        void* inputPixels = 0;
+        AndroidBitmap_lockPixels(env, inputBitmap, &inputPixels);
+
+        /* Create a new OpenCL buffer object and copy the input image
+         * content to it.
+         *
+         * As the kernel uses this buffer for reading only,
+         * create the buffer with the CL_MEM_READ_ONLY flag.
+         * Always set minimal read/write flags for buffers, as using the flags
+         * enables the runtime to organize data copying better, which
+         * might provide better performance.
+         *
+         * Use CL_MEM_COPY_HOST_PTR here, because the buffer
+         * should be populated with bytes at inputPixels.
+         */
+
+        openCLObjects.inputBuffer =
+            clCreateBuffer
+            (
+                openCLObjects.context,
+                CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                bufferSize,   // Buffer size in bytes.
+                inputPixels,  // Bytes for initialization.
+                &err
+            );
+        SAMPLE_CHECK_ERRORS(err);
+
+        openCLObjects.isInputBufferInitialized = true;
+
+        // Do not forget to unlock pixels in the bitmap object.
+        AndroidBitmap_unlockPixels(env, inputBitmap);
+
+
+    /* Output buffer is created with using the CL_MEM_USE_HOST_PTR
+     * flag and providing pointer to locked pixels in the output
+     * image.
+     *
+     * CL_MEM_USE_HOST_PTR indicates that the application requests
+     * the OpenCL implementation to use the memory that is referenced
+     * by outputPixels as the storage bits for the memory object.
+     *
+     * OpenCL implementations are allowed to cache buffer contents pointed
+     * to by host_ptr in device memory. This cached copy can be used when
+     * kernels are executed on a device.
+     */
+    void* outputPixels = 0;
+    AndroidBitmap_lockPixels(env, outputBitmap, &outputPixels);
+
+    cl_mem outputBuffer =
+        clCreateBuffer
+        (
+            openCLObjects.context,
+            CL_MEM_WRITE_ONLY | CL_MEM_USE_HOST_PTR,
+            bufferSize,    // Buffer size in bytes, same as the input buffer.
+            outputPixels,  // Area, above which the buffer is created.
+            &err
+        );
+    SAMPLE_CHECK_ERRORS(err);
+
+    /* Passing arguments into OpenCL kernel.
+     *
+     * Consider comparing the sequence of clSetKernelArg calls
+     * with the order of arguments in stepKernel OpenCL kernel defined
+     * in assets/step.cl.
+     */
+
+    cl_uint edgeKernel[9] = {0,1,0,1,-4,1,0,1,0};
+
+    err = clSetKernelArg(openCLObjects.kernel, 0, sizeof(openCLObjects.inputBuffer), &openCLObjects.inputBuffer);
+    SAMPLE_CHECK_ERRORS(err);
+
+    err = clSetKernelArg(openCLObjects.kernel, 1, sizeof(outputBuffer), &outputBuffer);
+    SAMPLE_CHECK_ERRORS(err);
+
+    err = clSetKernelArg(openCLObjects.kernel, 2, sizeof(cl_uint), &rowPitch);
+    SAMPLE_CHECK_ERRORS(err);
+
+    err = clSetKernelArg(openCLObjects.kernel, 3, sizeof(cl_uint), &bitmapInfo.width);
+    SAMPLE_CHECK_ERRORS(err);
+
+    err = clSetKernelArg(openCLObjects.kernel, 4, sizeof(cl_uint), &bitmapInfo.height);
+    SAMPLE_CHECK_ERRORS(err);
+    /* Define the global iteration space for clEnqueueNDRangeKernel.
+     * Every work-item running a kernel processes a single pixel
+     * in the image. The global iteration space (globalSize)
+     * is two-dimensional and exactly matches the image dimensions.
+     *
+     * To learn more about the OpenCL NDRange and find details on how
+     * kernels are executed on OpenCL devices, refer to the
+     * OpenCL specification, chapter 3.2 Execution Model.
+     */
+    size_t globalSize[2] = { bitmapInfo.width, bitmapInfo.height };
+
+    /* Measure the OpenCL kernel execution time to define
+     * the performance improvement you gain using OpenCL in your
+     * application.
+     *
+     * To obtain the kernel execution time, measure the time spent
+     * starting with the call to clEnqueueNDRangeKernel and ending
+     * with the call to clFinish.
+     *
+     * clFinish is necessary to measure the entire time spent in the
+     * kernel, measuring just clEnqueueNDRangeKernel is not enough,
+     * as this call doesn't guarantee that kernel is finished.
+     * clEnqueueNDRangeKernel enqueues a new command in the OpenCL
+     * command queue and doesn't wait until it ends. clFinish waits
+     * until all commands in command queue are finished, which is
+     * exactly needed to measure the kernel execution time.
+     * gettimeofday gives enough resolution and suits well here.
+     */
+
+    timeval start;
+    timeval end;
+
+    gettimeofday(&start, NULL);
+
+    err =
+        clEnqueueNDRangeKernel
+        (
+            openCLObjects.queue,
+            openCLObjects.kernel,
+            2,
+            0,
+            globalSize,
+            0,
+            0, 0, 0
+        );
+    SAMPLE_CHECK_ERRORS(err);
+
+    err = clFinish(openCLObjects.queue);
+    SAMPLE_CHECK_ERRORS(err);
+
+    gettimeofday(&end, NULL);
+
+    /* The start and end timestamps are obtained, now calculate
+     * the elapsed time interval in seconds and print it out in
+     * LogCat.
+     */
+
+    float ndrangeDuration =
+        (end.tv_sec + end.tv_usec * 1e-6) - (start.tv_sec + start.tv_usec * 1e-6);
+
+    LOGD("NDRangeKernel time: %f", ndrangeDuration);
+
+    /* The last part of this function: getting processed results back.
+     * As you used the CL_MEM_USE_HOST_PTR flag while creating the output buffer,
+     * use the map-unmap sequence to update the original memory area with output
+     * image.
+     */
+    err = clEnqueueReadBuffer (openCLObjects.queue,
+    		outputBuffer,
+    		true,
+    		0,
+    		bufferSize,
+    		outputPixels,
+    		0,
+    		0,
+    		0);
+    SAMPLE_CHECK_ERRORS(err);
+
+    // Call clFinish to guarantee that the output region is updated.
+    err = clFinish(openCLObjects.queue);
+    SAMPLE_CHECK_ERRORS(err);
+
+    err = clReleaseMemObject(outputBuffer);
+    SAMPLE_CHECK_ERRORS(err);
+
+    // Make the output content be visible at the Java side by unlocking
+    // pixels in the output bitmap object.
+    AndroidBitmap_unlockPixels(env, outputBitmap);
+
+    LOGD("nativeEdgeOpenCL ends successfully");
+}
+
+extern "C" void Java_com_denayer_ovsr_MainActivity_nativeEdgeOpenCL
+(
+    JNIEnv* env,
+    jobject thisObject,
+    jobject inputBitmap,
+    jobject outputBitmap
+)
+{
+    nativeEdgeOpenCL
     (
         env,
         thisObject,

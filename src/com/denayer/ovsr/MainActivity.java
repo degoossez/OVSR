@@ -75,8 +75,12 @@ public class MainActivity extends Activity {
     public static native int runConvolution(Bitmap bmpIn, Bitmap bmpOut, int info[]);
     
     //Intel example OPENCL functions
-    private native void initOpenCL (String openCLProgramText);
+    private native void initOpenCL (String kernelName);
     private native void nativeInverseOpenCL (
+            Bitmap inputBitmap,
+            Bitmap outputBitmap
+        );
+    private native void nativeEdgeOpenCL (
             Bitmap inputBitmap,
             Bitmap outputBitmap
         );
@@ -229,16 +233,10 @@ public class MainActivity extends Activity {
         //Output_button.setImageBitmap(bitmap);
         
         //OpenCL Test
-        copyFile("ConvolutionKernel.cl");
-        //copyFile("EigenOpenCLKernel.cl");
-        //copyFile("bilateralKernel.cl"); //copy cl kernel file from assets to /data/data/...assets
-
         bmpOrig = Bitmap.createScaledBitmap(bitmap, width, height, false);
-        //bmpOrig = BitmapFactory.decodeResource(this.getResources(), R.drawable.brusigablommor);
         info[0] = bmpOrig.getWidth();
         info[1] = bmpOrig.getHeight();
         bmpOpenCL = Bitmap.createBitmap(info[0], info[1], Bitmap.Config.ARGB_8888);
-        //bmpOpenCL = BitmapFactory.decodeResource(this.getResources(), R.drawable.brusigablommor);
         //OpenCL Test
         
         System.gc();
@@ -256,30 +254,6 @@ public class MainActivity extends Activity {
  
         return cursor.getString(column_index);
     }
-    private String getOpenCLProgram ()
-    {
-        try
-        {
-            StringBuilder buffer = new StringBuilder();
-            InputStream stream = getAssets().open("inverse.cl");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-            String s;
-
-            while((s = reader.readLine()) != null)
-            {
-                buffer.append(s);
-                buffer.append("\n");
-            }
-
-            reader.close();
-            return buffer.toString();
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        return "";
-		
-    }
 	public void createBoxes()
 	{
         //choose box voor opencl of renderscript te selecteren
@@ -292,7 +266,20 @@ public class MainActivity extends Activity {
 			public void onClick( DialogInterface dialogEdgeBox, int item ) {
                 if (item == 0) {
                 	//opencl
-                	
+                	//opencl
+                	copyFile("edge.cl");
+                	String kernelName="edge";
+                	Log.i("DEBUG","BEFORE runOpencl");
+                	initOpenCL(kernelName);
+                    nativeEdgeOpenCL(
+                            bmpOrig,
+                            bmpOpenCL
+                        );
+                	//runConvolution(bmpOrig, bmpOpenCL, info);
+                	//runOpenCL(bmpOrig, bmpOpenCL, info);
+                	shutdownOpenCL();
+                	Log.i("DEBUG","AFTER runOpencl");
+                	Output_button.setImageBitmap(bmpOpenCL);                 	
                 } else {
                 	//renderscipt
                 }
@@ -353,12 +340,14 @@ public class MainActivity extends Activity {
         ArrayAdapter<String> adapterInverseBox  = new ArrayAdapter<String> (this, android.R.layout.select_dialog_item,itemsEdgeBox);        
         AlertDialog.Builder builderInverseBox     = new AlertDialog.Builder(this);
         builderInverseBox.setTitle("Select Language");
-        builderInverseBox.setAdapter( adapterMediaanBox, new DialogInterface.OnClickListener() {
+        builderInverseBox.setAdapter( adapterInverseBox, new DialogInterface.OnClickListener() {
 			public void onClick( DialogInterface dialogEdgeBox, int item ) {
                 if (item == 0) {
                 	//opencl
+                	copyFile("inverse.cl");
+                	String kernelName="inverse";
                 	Log.i("DEBUG","BEFORE runOpencl");
-                	initOpenCL(getOpenCLProgram());
+                	initOpenCL(kernelName);
                     nativeInverseOpenCL(
                             bmpOrig,
                             bmpOpenCL
