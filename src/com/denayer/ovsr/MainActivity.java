@@ -2,6 +2,8 @@ package com.denayer.ovsr;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -18,11 +20,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.Display;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
-
+import android.widget.RadioButton;
 
 public class MainActivity extends Activity {
     private Uri mImageCaptureUri;
@@ -33,12 +37,30 @@ public class MainActivity extends Activity {
     
     private static final int PICK_FROM_CAMERA = 1;
     private static final int PICK_FROM_FILE = 2;
- 
+
+    private RadioButton RenderScriptButton;
+    private RadioButton OpenCLButton;
+    
+    
+    //item in de lijst toevoegen voor nieuwe filters toe te voegen.
+    private String [] itemsFilterBox           = new String [] {"Edge", "Inverse","Sharpen","Mediaan","Saturatie"};
+
+	public void RenderScriptEdge()
+	{
+		Log.i("Testing","RenderScriptEdge");
+	}
+	public void OpenCLEdge()
+	{
+		Log.i("Testing","OpenCL werkt ook al.. Goed bezig Dries!");
+	}    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
  
         setContentView(R.layout.activity_main);
+        
+        RenderScriptButton = (RadioButton) findViewById(R.id.radioButton1);
+        OpenCLButton = (RadioButton) findViewById(R.id.radioButton2);
  
         final String [] items           = new String [] {"From Camera", "From SD Card"};
         ArrayAdapter<String> adapter  = new ArrayAdapter<String> (this, android.R.layout.select_dialog_item,items);
@@ -138,6 +160,12 @@ public class MainActivity extends Activity {
         Output_button = (ImageButton)findViewById(R.id.imageButton2);
         Output_button.setImageBitmap(bitmap);
         
+        /*
+         * TODO
+         * Functie's voor bitmaps Renderscript en OpenCL class aan te passen.
+         * vb Renderscript.setBitmap(bitmap)
+         */
+        
         System.gc();
     }
  
@@ -156,69 +184,80 @@ public class MainActivity extends Activity {
 	public void createBoxes()
 	{
         //choose box voor opencl of renderscript te selecteren
-        final String [] itemsEdgeBox           = new String [] {"Opencl", "Renderscript"};
-        ArrayAdapter<String> adapterEdgeBox  = new ArrayAdapter<String> (this, android.R.layout.select_dialog_item,itemsEdgeBox);
-        AlertDialog.Builder builderEdgeBox     = new AlertDialog.Builder(this);
- 
-        builderEdgeBox.setTitle("Select Language");
-        builderEdgeBox.setAdapter( adapterEdgeBox, new DialogInterface.OnClickListener() {
+        ArrayAdapter<String> adapterFilterBox  = new ArrayAdapter<String> (this, android.R.layout.select_dialog_item,itemsFilterBox);        
+        AlertDialog.Builder builderFilterBox     = new AlertDialog.Builder(this);
+        builderFilterBox.setTitle("Select Language");
+        builderFilterBox.setAdapter( adapterFilterBox, new DialogInterface.OnClickListener() {
 			public void onClick( DialogInterface dialogEdgeBox, int item ) {
-                if (item == 0) {
-                	//opencl
-                } else {
-                	//renderscipt
-                }
+				if(!RenderScriptButton.isChecked())
+				{
+					String FunctionName = "RenderScript" + itemsFilterBox[item];
+					try {
+						MainActivity obj = new MainActivity();
+						Method m = MainActivity.class.getMethod(FunctionName);
+						try {
+							m.invoke(obj, null);
+						} catch (IllegalAccessException e) {
+							e.printStackTrace();
+						} catch (IllegalArgumentException e) {
+							e.printStackTrace();
+						} catch (InvocationTargetException e) {
+							e.printStackTrace();
+						}
+					} catch (NoSuchMethodException e) {
+						e.printStackTrace();
+					}
+				}
+				else
+				{
+					String FunctionName = "OpenCL" + itemsFilterBox[item];
+					try {
+						MainActivity obj = new MainActivity();
+						Method m = MainActivity.class.getMethod(FunctionName);
+						try {
+							m.invoke(obj, null);
+						} catch (IllegalAccessException e) {
+							e.printStackTrace();
+						} catch (IllegalArgumentException e) {
+							e.printStackTrace();
+						} catch (InvocationTargetException e) {
+							e.printStackTrace();
+						}
+					} catch (NoSuchMethodException e) {
+						e.printStackTrace();
+					}				
+				}
+				
             }
         } );
-        final AlertDialog dialogEdgeBox = builderEdgeBox.create();
+        final AlertDialog dialogFilterBox = builderFilterBox.create();
         
-        (findViewById(R.id.EdgeButton)).setOnClickListener(new View.OnClickListener() {
+        (findViewById(R.id.FilterButton)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dialogEdgeBox.show();
-            }
-        });
-        
-        ArrayAdapter<String> adapterSharpenBox  = new ArrayAdapter<String> (this, android.R.layout.select_dialog_item,itemsEdgeBox);        
-        AlertDialog.Builder builderSharpenBox     = new AlertDialog.Builder(this);
-        builderSharpenBox.setTitle("Select Language");
-        builderSharpenBox.setAdapter( adapterSharpenBox, new DialogInterface.OnClickListener() {
-			public void onClick( DialogInterface dialogEdgeBox, int item ) {
-                if (item == 0) {
-                	//opencl
-                } else {
-                	//renderscipt
-                }
-            }
-        } );
-        final AlertDialog dialogSharpenBox = builderSharpenBox.create();
-        
-        (findViewById(R.id.SharpenButton)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialogSharpenBox.show();
-            }
-        });
-        ArrayAdapter<String> adapterMediaanBox  = new ArrayAdapter<String> (this, android.R.layout.select_dialog_item,itemsEdgeBox);        
-        AlertDialog.Builder builderMediaanBox     = new AlertDialog.Builder(this);
-        builderMediaanBox.setTitle("Select Language");
-        builderMediaanBox.setAdapter( adapterMediaanBox, new DialogInterface.OnClickListener() {
-			public void onClick( DialogInterface dialogEdgeBox, int item ) {
-                if (item == 0) {
-                	//opencl
-                } else {
-                	//renderscipt
-                }
-            }
-        } );
-        final AlertDialog dialogMediaanBox = builderSharpenBox.create();
-        
-        (findViewById(R.id.MediaanButton)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            	dialogMediaanBox.show();
+            	dialogFilterBox.show();
             }
         });
         //einde choose box
+        
+        //radio buttons
+
+        RenderScriptButton.setOnClickListener(new OnClickListener() {
+    		@Override
+    		public void onClick(View v) {
+    			RenderScriptButton.setChecked(true);
+    			OpenCLButton.setChecked(false);
+    		}
+     
+    	});
+        OpenCLButton.setOnClickListener(new OnClickListener() {
+    		@Override
+    		public void onClick(View v) {
+    			OpenCLButton.setChecked(true);
+    			RenderScriptButton.setChecked(false);
+    		}
+     
+    	});
+        //einde radio buttons
 	}
 }
