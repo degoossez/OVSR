@@ -41,6 +41,8 @@ public class MainActivity extends Activity {
     private RadioButton RenderScriptButton;
     private RadioButton OpenCLButton;
     
+    Object OpenCLClass;
+    Object RenderScriptClass;
     
     //item in de lijst toevoegen voor nieuwe filters toe te voegen.
     private String [] itemsFilterBox           = new String [] {"Edge", "Inverse","Sharpen","Mediaan","Saturatie"};
@@ -58,6 +60,9 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
  
         setContentView(R.layout.activity_main);
+        
+        OpenCLClass = new OpenCL();
+        RenderScriptClass = new RenderScript();
         
         RenderScriptButton = (RadioButton) findViewById(R.id.radioButton1);
         OpenCLButton = (RadioButton) findViewById(R.id.radioButton2);
@@ -193,10 +198,10 @@ public class MainActivity extends Activity {
 				{
 					String FunctionName = "RenderScript" + itemsFilterBox[item];
 					try {
-						MainActivity obj = new MainActivity();
-						Method m = MainActivity.class.getMethod(FunctionName);
+						//MainActivity obj = new MainActivity();
+						Method m = RenderScript.class.getMethod(FunctionName);
 						try {
-							m.invoke(obj, null);
+							m.invoke(RenderScriptClass, null);
 						} catch (IllegalAccessException e) {
 							e.printStackTrace();
 						} catch (IllegalArgumentException e) {
@@ -212,10 +217,10 @@ public class MainActivity extends Activity {
 				{
 					String FunctionName = "OpenCL" + itemsFilterBox[item];
 					try {
-						MainActivity obj = new MainActivity();
-						Method m = MainActivity.class.getMethod(FunctionName);
+						//MainActivity obj = new MainActivity();
+						Method m = OpenCL.class.getMethod(FunctionName);
 						try {
-							m.invoke(obj, null);
+							m.invoke(OpenCLClass, null);
 						} catch (IllegalAccessException e) {
 							e.printStackTrace();
 						} catch (IllegalArgumentException e) {
