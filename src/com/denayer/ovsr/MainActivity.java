@@ -41,8 +41,8 @@ public class MainActivity extends Activity {
     private RadioButton RenderScriptButton;
     private RadioButton OpenCLButton;
     
-    Object OpenCLClass;
-    Object RenderScriptClass;
+    OpenCL OpenCLClass;
+    RenderScript RenderScriptClass;
     
     //item in de lijst toevoegen voor nieuwe filters toe te voegen.
     private String [] itemsFilterBox           = new String [] {"Edge", "Inverse","Sharpen","Mediaan","Saturatie"};

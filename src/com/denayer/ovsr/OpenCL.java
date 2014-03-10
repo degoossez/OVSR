@@ -2,7 +2,7 @@ package com.denayer.ovsr;
 
 import android.util.Log;
 
-public class OpenCL {
+public class OpenCL extends Object {
 
 	public void OpenCLEdge ()
 	{
