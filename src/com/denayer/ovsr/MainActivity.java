@@ -27,6 +27,7 @@ import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
+import android.renderscript.*;
 
 public class MainActivity extends Activity {
     private Uri mImageCaptureUri;
