@@ -43,7 +43,7 @@ public class MainActivity extends Activity {
     private RadioButton OpenCLButton;
     
     OpenCL OpenCLClass;
-    RenderScript RenderScriptClass;
+    RsScript RenderScriptClass;
     
     //item in de lijst toevoegen voor nieuwe filters toe te voegen.
     private String [] itemsFilterBox           = new String [] {"Edge", "Inverse","Sharpen","Mediaan","Saturatie"};
@@ -63,7 +63,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         
         OpenCLClass = new OpenCL();
-        RenderScriptClass = new RenderScript();
+        RenderScriptClass = new RsScript(this);
         
         RenderScriptButton = (RadioButton) findViewById(R.id.radioButton1);
         OpenCLButton = (RadioButton) findViewById(R.id.radioButton2);
@@ -204,7 +204,7 @@ public class MainActivity extends Activity {
 					String FunctionName = "RenderScript" + itemsFilterBox[item];
 					try {
 						//MainActivity obj = new MainActivity();
-						Method m = RenderScript.class.getMethod(FunctionName);
+						Method m = RsScript.class.getMethod(FunctionName);
 						try {
 							m.invoke(RenderScriptClass, null);
 						} catch (IllegalAccessException e) {
@@ -217,6 +217,8 @@ public class MainActivity extends Activity {
 					} catch (NoSuchMethodException e) {
 						e.printStackTrace();
 					}
+					Log.i("koen","set output bitmap");
+					Output_button.setImageBitmap(RenderScriptClass.getOutputBitmap());
 				}
 				else
 				{
