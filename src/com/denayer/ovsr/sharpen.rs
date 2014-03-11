@@ -29,7 +29,8 @@ void root(const uchar4* v_in, uchar4* v_out, const void* usrData, uint32_t x,
 	int counter = 0;
 	
 	float4 current = rsUnpackColor8888(*v_in);
-	float sum = 0;			
+	float sumr,sumg,sumb;
+	sumr = sumg = sumb = 0;			
 	
 	for(float i=-1;i<=1;i++)
 	{		
@@ -38,9 +39,15 @@ void root(const uchar4* v_in, uchar4* v_out, const void* usrData, uint32_t x,
 		{
 			
 		
-			pixel = rsUnpackColor8888(*(uchar*) rsGetElementAt(in, x+j, y+i));
-			pixel.r *= 255;			
-			sum = sum + ( pixel.r * filterC[counter]);
+			pixel = rsUnpackColor8888(*(uchar4*) rsGetElementAt(in, x+j, y+i));
+			pixel.r *= 255.0f;		
+			pixel.g *= 255.0f;
+			pixel.b *= 255.0f;				
+			
+			sumr = sumr + (pixel.r * filterC[counter]);
+			sumg = sumg + (pixel.g * filterC[counter]);			
+			sumb = sumb + (pixel.b * filterC[counter]);
+			
 			
 			counter++;		
 		
@@ -49,14 +56,31 @@ void root(const uchar4* v_in, uchar4* v_out, const void* usrData, uint32_t x,
 	}
 	
 
-	if(sum > 255)
-		sum = 255;
-	if(sum < 0)
-		sum = 0;
+	if(sumr > 255)
+		sumr = 255;
+	if(sumr < 0)
+		sumr = 0;
+	
+	if(sumg > 255)
+		sumg = 255;
+	if(sumg < 0)
+		sumg = 0;
+	
+	if(sumb > 255)
+		sumb = 255;
+	if(sumb < 0)
+		sumb = 0;
+	
 		
-	sum /= 255;     
+	sumr /= 255.0f;
+	sumg /= 255.0f;
+	sumb /= 255.0f; 
+	
+	/*rsDebug("r = ",sumr);
+	rsDebug("g = ",sumg);
+	rsDebug("b = ", sumb);*/
 
-    *v_out = rsPackColorTo8888(sum, sum, sum, current.a);
+    *v_out = rsPackColorTo8888(sumr, sumg, sumb);
     
   
 }
@@ -71,4 +95,3 @@ void filter()
     #endif
     
 }
-   

@@ -84,6 +84,37 @@ public class RsScript extends Object {
 	    
 		
 	}	
+	
+	public void RenderScriptSharpen()
+	{
+		if(inBitmap == null)
+			return;
+		
+		Log.i("koen","inside RenderScriptSharpen");
+		
+		float []filter = new float[]{0,-1,0,-1,5,-1,0,-1,0};
+        
+		
+        final RenderScript rs = RenderScript.create(mContext);
+        final Allocation input = Allocation.createFromBitmap(rs, inBitmap,Allocation.MipmapControl.MIPMAP_NONE,Allocation.USAGE_SCRIPT);
+        final Allocation output = Allocation.createTyped(rs, input.getType());
+        
+        ScriptC_sharpen script = new ScriptC_sharpen(rs);
+	    
+	    script.set_in(input);
+	    script.set_out(output);
+	    script.set_script(script);
+	    script.set_filterC(filter);
+	    script.set_width(inBitmap.getWidth());
+	    script.set_height(inBitmap.getHeight());
+	    
+	    script.invoke_filter();	
+	    
+	    output.copyTo(outBitmap);
+		
+	}
+	
+	
 }
 
 
