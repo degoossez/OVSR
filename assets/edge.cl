@@ -18,40 +18,51 @@ kernel void edgeKernel
 	{
 		return;
 	}
-	
-//	-1 -1	 0-1	 1 -1
-//	-1 0	 0 0	 1 0
-//	-1 1	 0 1     1 1
-
+	/*
+	-1 -1	 0-1	 1 -1
+	-1 0	 0 0	 1 0
+	-1 1	 0 1     1 1
+*/
 	
 	int curPos; 
-	int x=0;
-	int y=0;
-	for(x=-1;x<=1;x++)
-	{
-		/*for(y=-1;y<=1;y++)
-		{
-			curPos = inputPixels[(get_global_id(0)+x) + (get_global_id(1)+y)*rowPitch];
-			sumR += ((curPos >> 16) & 0xff)*edgeKernel[0+counter];
-			sumG += ((curPos >> 8) & 0xff)*edgeKernel[0+counter];
-			sumB += (curPos & 0xff )*edgeKernel[0+counter];		
-			counter++;
-		}*/
-		curPos = inputPixels[(get_global_id(0)+x) + (get_global_id(1)-1)*rowPitch];
-		sumR += ((curPos >> 16) & 0xff)*edgeKernel[0+counter];
-		sumG += ((curPos >> 8) & 0xff)*edgeKernel[0+counter];
-		sumB += (curPos & 0xff )*edgeKernel[0+counter];
-		curPos = inputPixels[(get_global_id(0)+x) + (get_global_id(1))*rowPitch];
-		sumR += ((curPos >> 16) & 0xff)*edgeKernel[1+counter];
-		sumG += ((curPos >> 8) & 0xff)*edgeKernel[1+counter];
-		sumB += (curPos & 0xff )*edgeKernel[1+counter];
-		curPos = inputPixels[(get_global_id(0)+x) + (get_global_id(1)+1)*rowPitch];
-		sumR += ((curPos >> 16) & 0xff)*edgeKernel[2+counter];
-		sumG += ((curPos >> 8) & 0xff)*edgeKernel[2+counter];
-		sumB += (curPos & 0xff )*edgeKernel[2+counter];
-		counter++;
-	}
-	
+
+	curPos = inputPixels[(get_global_id(0)-1) + (get_global_id(1)-1)*rowPitch];
+	sumR += ((curPos >> 16) & 0xff)*edgeKernel[0];
+	sumG += ((curPos >> 8) & 0xff)*edgeKernel[0];
+	sumB += (curPos & 0xff )*edgeKernel[0];
+	curPos = inputPixels[(get_global_id(0)-1) + (get_global_id(1))*rowPitch];
+	sumR += ((curPos >> 16) & 0xff)*edgeKernel[1];
+	sumG += ((curPos >> 8) & 0xff)*edgeKernel[1];
+	sumB += (curPos & 0xff )*edgeKernel[1];
+	curPos = inputPixels[(get_global_id(0)-1) + (get_global_id(1)+1)*rowPitch];
+	sumR += ((curPos >> 16) & 0xff)*edgeKernel[2];
+	sumG += ((curPos >> 8) & 0xff)*edgeKernel[2];
+	sumB += (curPos & 0xff )*edgeKernel[2];
+	curPos = inputPixels[(get_global_id(0)) + (get_global_id(1)-1)*rowPitch];
+	sumR += ((curPos >> 16) & 0xff)*edgeKernel[3];
+	sumG += ((curPos >> 8) & 0xff)*edgeKernel[3];
+	sumB += (curPos & 0xff )*edgeKernel[3];
+	curPos = inputPixels[(get_global_id(0)) + (get_global_id(1))*rowPitch];
+	sumR += ((curPos >> 16) & 0xff)*edgeKernel[4];
+	sumG += ((curPos >> 8) & 0xff)*edgeKernel[4];
+	sumB += (curPos & 0xff )*edgeKernel[4];
+	curPos = inputPixels[(get_global_id(0)) + (get_global_id(1)+1)*rowPitch];
+	sumR += ((curPos >> 16) & 0xff)*edgeKernel[5];
+	sumG += ((curPos >> 8) & 0xff)*edgeKernel[5];
+	sumB += (curPos & 0xff )*edgeKernel[5];
+	curPos = inputPixels[(get_global_id(0)+1) + (get_global_id(1)-1)*rowPitch];
+	sumR += ((curPos >> 16) & 0xff)*edgeKernel[6];
+	sumG += ((curPos >> 8) & 0xff)*edgeKernel[6];
+	sumB += (curPos & 0xff )*edgeKernel[6];
+	curPos = inputPixels[(get_global_id(0)+1) + (get_global_id(1))*rowPitch];
+	sumR += ((curPos >> 16) & 0xff)*edgeKernel[7];
+	sumG += ((curPos >> 8) & 0xff)*edgeKernel[7];
+	sumB += (curPos & 0xff )*edgeKernel[7];
+	curPos = inputPixels[(get_global_id(0)+1) + (get_global_id(1)+1)*rowPitch];
+	sumR += ((curPos >> 16) & 0xff)*edgeKernel[8];
+	sumG += ((curPos >> 8) & 0xff)*edgeKernel[8];
+	sumB += (curPos & 0xff )*edgeKernel[8];
+	 			
 	if(sumR>255) sumR=255;
 	if(sumG>255) sumG=255;
 	if(sumB>255) sumB=255;

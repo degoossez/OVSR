@@ -10,6 +10,7 @@ import java.util.Date;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -43,25 +44,17 @@ public class MainActivity extends Activity {
     
     OpenCL OpenCLClass;
     RenderScript RenderScriptClass;
-    
+        
     //item in de lijst toevoegen voor nieuwe filters toe te voegen.
     private String [] itemsFilterBox           = new String [] {"Edge", "Inverse","Sharpen","Mediaan","Saturatie"};
-
-	public void RenderScriptEdge()
-	{
-		Log.i("Testing","RenderScriptEdge");
-	}
-	public void OpenCLEdge()
-	{
-		Log.i("Testing","OpenCL werkt ook al.. Goed bezig Dries!");
-	}    
+   
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
  
         setContentView(R.layout.activity_main);
         
-        OpenCLClass = new OpenCL();
+        OpenCLClass = new OpenCL(getApplicationContext());
         RenderScriptClass = new RenderScript();
         
         RenderScriptButton = (RadioButton) findViewById(R.id.radioButton1);
@@ -163,13 +156,14 @@ public class MainActivity extends Activity {
         Input_button = (ImageButton)findViewById(R.id.imageButton1);
         Input_button.setImageBitmap(bitmap);
         Output_button = (ImageButton)findViewById(R.id.imageButton2);
-        Output_button.setImageBitmap(bitmap);
+        Output_button.setImageBitmap(Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888));
         
         /*
          * TODO
          * Functie's voor bitmaps Renderscript en OpenCL class aan te passen.
          * vb Renderscript.setBitmap(bitmap)
          */
+        OpenCLClass.setBitmap(bitmap);
         
         System.gc();
     }
@@ -191,7 +185,7 @@ public class MainActivity extends Activity {
         //choose box voor opencl of renderscript te selecteren
         ArrayAdapter<String> adapterFilterBox  = new ArrayAdapter<String> (this, android.R.layout.select_dialog_item,itemsFilterBox);        
         AlertDialog.Builder builderFilterBox     = new AlertDialog.Builder(this);
-        builderFilterBox.setTitle("Select Language");
+        builderFilterBox.setTitle("Select Filter");
         builderFilterBox.setAdapter( adapterFilterBox, new DialogInterface.OnClickListener() {
 			public void onClick( DialogInterface dialogEdgeBox, int item ) {
 				if(!RenderScriptButton.isChecked())
@@ -230,7 +224,8 @@ public class MainActivity extends Activity {
 						}
 					} catch (NoSuchMethodException e) {
 						e.printStackTrace();
-					}				
+					}		
+					Output_button.setImageBitmap(OpenCLClass.getBitmap());
 				}
 				
             }

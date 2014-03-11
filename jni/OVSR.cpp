@@ -411,7 +411,7 @@ void initOpenCL
 }
 
 
-extern "C" void Java_com_denayer_ovsr_MainActivity_initOpenCL
+extern "C" void Java_com_denayer_ovsr_OpenCL_initOpenCL
 (
     JNIEnv* env,
     jobject thisObject,
@@ -474,7 +474,7 @@ void shutdownOpenCL (OpenCLObjects& openCLObjects)
 }
 
 
-extern "C" void Java_com_denayer_ovsr_MainActivity_shutdownOpenCL
+extern "C" void Java_com_denayer_ovsr_OpenCL_shutdownOpenCL
 (
     JNIEnv* env,
     jobject thisObject
@@ -621,7 +621,7 @@ void nativeBasicOpenCL
     LOGD("nativeBasicOpenCL ends successfully");
 }
 
-extern "C" void Java_com_denayer_ovsr_MainActivity_nativeBasicOpenCL
+extern "C" void Java_com_denayer_ovsr_OpenCL_nativeBasicOpenCL
 (
     JNIEnv* env,
     jobject thisObject,

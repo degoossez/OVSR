@@ -12,7 +12,6 @@ kernel void inverseKernel
      int x = get_global_id(0);
      int y = get_global_id(1);
      int centerIndex = y * width + x;
-     float4 sum4 = (float4)0.0f;
 	if(get_global_id(0) < 1 || get_global_id(0) > width - 2 || get_global_id(1) < 1 || get_global_id(1) > height - 2)
 	{
 		return;
