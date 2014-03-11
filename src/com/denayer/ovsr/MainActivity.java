@@ -27,7 +27,7 @@ import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
-import android.renderscript.*;
+
 
 public class MainActivity extends Activity {
     private Uri mImageCaptureUri;
@@ -164,13 +164,17 @@ public class MainActivity extends Activity {
         Input_button = (ImageButton)findViewById(R.id.imageButton1);
         Input_button.setImageBitmap(bitmap);
         Output_button = (ImageButton)findViewById(R.id.imageButton2);
-        Output_button.setImageBitmap(bitmap);
+        Output_button.setImageBitmap(Bitmap.createBitmap(bitmap.getWidth(),bitmap.getHeight(), Bitmap.Config.ARGB_8888));
         
         /*
          * TODO
          * Functie's voor bitmaps Renderscript en OpenCL class aan te passen.
          * vb Renderscript.setBitmap(bitmap)
          */
+        
+        RenderScriptClass.setInputBitmap(bitmap);
+        
+        
         
         System.gc();
     }
@@ -192,7 +196,7 @@ public class MainActivity extends Activity {
         //choose box voor opencl of renderscript te selecteren
         ArrayAdapter<String> adapterFilterBox  = new ArrayAdapter<String> (this, android.R.layout.select_dialog_item,itemsFilterBox);        
         AlertDialog.Builder builderFilterBox     = new AlertDialog.Builder(this);
-        builderFilterBox.setTitle("Select Language");
+        builderFilterBox.setTitle("Select Filter");
         builderFilterBox.setAdapter( adapterFilterBox, new DialogInterface.OnClickListener() {
 			public void onClick( DialogInterface dialogEdgeBox, int item ) {
 				if(!RenderScriptButton.isChecked())
