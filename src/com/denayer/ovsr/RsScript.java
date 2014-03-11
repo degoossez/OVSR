@@ -114,6 +114,36 @@ public class RsScript extends Object {
 		
 	}
 	
+	public void RenderScriptBlur()
+	{
+		if(inBitmap == null)
+			return;
+		
+		Log.i("koen","inside RenderScriptBlur");
+		
+		float []filter = new float[]{1,1,1,1,1,1,1,1,1};
+        
+		
+        final RenderScript rs = RenderScript.create(mContext);
+        final Allocation input = Allocation.createFromBitmap(rs, inBitmap,Allocation.MipmapControl.MIPMAP_NONE,Allocation.USAGE_SCRIPT);
+        final Allocation output = Allocation.createTyped(rs, input.getType());
+        
+        ScriptC_blur script = new ScriptC_blur(rs);
+	    
+	    script.set_in(input);
+	    script.set_out(output);
+	    script.set_script(script);
+	    script.set_filterC(filter);
+	    script.set_width(inBitmap.getWidth());
+	    script.set_height(inBitmap.getHeight());
+	    
+	    script.invoke_filter();	
+	    
+	    output.copyTo(outBitmap);
+		
+	
+	}
+	
 	
 }
 
