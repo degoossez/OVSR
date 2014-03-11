@@ -63,7 +63,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         
         OpenCLClass = new OpenCL();
-        RenderScriptClass = new RsScript(this);
+        RenderScriptClass = new RsScript(this,(ImageButton)findViewById(R.id.imageButton2));
         
         RenderScriptButton = (RadioButton) findViewById(R.id.radioButton1);
         OpenCLButton = (RadioButton) findViewById(R.id.radioButton2);

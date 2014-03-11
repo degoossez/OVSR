@@ -1,9 +1,14 @@
 package com.denayer.ovsr;
 
 
-
+import android.text.InputType;
 import android.util.Log;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.renderscript.*;
 
@@ -13,10 +18,14 @@ public class RsScript extends Object {
 	public Bitmap inBitmap = null;
 	public Bitmap outBitmap = null;
 	public Context mContext;
+	public float saturationValue = 0;
+	public ImageButton outputButton;
 	
-	public RsScript(Context ctxt) {
+	
+	public RsScript(Context ctxt, ImageButton outImageButton) {
 		
 	   mContext = ctxt;
+	   outputButton = outImageButton;
 	}
 	
 	
@@ -144,6 +153,68 @@ public class RsScript extends Object {
 	
 	}
 	
+	public void RenderScriptSaturatie()
+	{		
+		if(inBitmap == null)
+			return;
+		
+		final EditText input = new EditText(mContext);
+		final Resources res = mContext.getResources();
+		
+		
+		input.setText("50");
+		
+		//final String value;
+		
+		//only allow numeric values
+		input.setInputType(InputType.TYPE_CLASS_NUMBER|InputType.TYPE_NUMBER_FLAG_DECIMAL);
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);        
+        builder.setMessage("saturation value")
+        	   .setView(input)
+               .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                   public void onClick(DialogInterface dialog, int id) {
+                	   String value = input.getText().toString();      
+                	   saturationValue = Float.parseFloat(value);  
+                	   outBitmap = saturate(inBitmap, saturationValue);
+                	   outputButton.setImageBitmap(outBitmap);
+                	   
+                	   
+                   }
+               });
+              
+               
+        // Create the AlertDialog object and return it
+        AlertDialog dialog = builder.create();
+        dialog.show();      
+	}
+	
+	public Bitmap saturate(Bitmap bmIn, float saturation)
+	{
+		final RenderScript rs = RenderScript.create(mContext);
+		
+	    Bitmap bmOut = Bitmap.createBitmap(bmIn.getWidth(), bmIn.getHeight(),
+	            bmIn.getConfig());
+	    
+	    Allocation allocIn;
+	    allocIn = Allocation.createFromBitmap(rs, bmIn,
+	            Allocation.MipmapControl.MIPMAP_NONE,
+	            Allocation.USAGE_SCRIPT);
+	    Allocation allocOut = Allocation.createTyped(rs, allocIn.getType());
+	    
+	    ScriptC_saturation scriptSat = new ScriptC_saturation(rs);		
+	    
+	    scriptSat.set_in(allocIn);
+	    scriptSat.set_out(allocOut);
+	    scriptSat.set_script(scriptSat);
+	    scriptSat.set_saturation(saturation);
+	    //scriptSat.invoke_filter();	   
+	    scriptSat.forEach_root(allocIn, allocOut);
+	    allocOut.copyTo(bmOut);
+	    
+	   
+	    return bmOut;
+	}
 	
 }
 

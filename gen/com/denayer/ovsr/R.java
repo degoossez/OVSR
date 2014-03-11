@@ -42,7 +42,8 @@ public final class R {
         public static final int blur=0x7f040000;
         public static final int edgedetection=0x7f040001;
         public static final int inverse=0x7f040002;
-        public static final int sharpen=0x7f040003;
+        public static final int saturation=0x7f040003;
+        public static final int sharpen=0x7f040004;
     }
     public static final class string {
         public static final int action_settings=0x7f060001;
