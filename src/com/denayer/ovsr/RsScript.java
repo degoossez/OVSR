@@ -208,8 +208,8 @@ public class RsScript extends Object {
 	    scriptSat.set_out(allocOut);
 	    scriptSat.set_script(scriptSat);
 	    scriptSat.set_saturation(saturation);
-	    //scriptSat.invoke_filter();	   
-	    scriptSat.forEach_root(allocIn, allocOut);
+	    scriptSat.invoke_filter();	   
+	    //scriptSat.forEach_root(allocIn, allocOut);
 	    allocOut.copyTo(bmOut);
 	    
 	   

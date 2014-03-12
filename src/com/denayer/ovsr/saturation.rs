@@ -1,6 +1,7 @@
 #pragma version(1)
 #pragma rs java_package_name(com.denayer.ovsr)
 
+#include "rs_time.rsh"
 
 rs_allocation out;
 rs_allocation in;
@@ -29,11 +30,18 @@ void root(const uchar4* v_in, uchar4* v_out, const void* usrData, uint32_t x,
 
 void filter()
 {
+	int64_t t;
+	
+	t = rsUptimeNanos();
+	
     rsDebug("RS_VERSION = ", RS_VERSION);
     #if !defined(RS_VERSION) || (RS_VERSION < 14)
         rsForEach(script, in, out, 0);
     #else
         rsForEach(script, in, out);
     #endif
+    
+    int64_t runtime = rsUptimeNanos() - t;
+    rsDebug("Saturation elapsed time = ", runtime);
    
 }
