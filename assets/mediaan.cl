@@ -1,126 +1,169 @@
-float mergesort(float data[],int lengte){
-  int i1=0, i2=0;         // huidige plaats in groepen
-  float *groep1, *groep2;   // begin van groepen
-  int lengte1, lengte2;   // lengtes van groepen
-  float gesorteerd[lengte]; // gesorteerde data
-  int tijdelijk;
- 
-  if (lengte > 1){
-    // indien lengte 1 of kleiner is valt er niets te sorteren
-    // verdeel in groepen
-    groep1= data;
-    groep2= data + lengte / 2;
-    // zoek lengte van elke groep
-    lengte1= lengte / 2;
-    lengte2= lengte - lengte1;
-    // mergesort
-    mergesort(groep1, lengte1);
-    mergesort(groep2, lengte2);
- 
-    // merge
-    for (tijdelijk= 0; tijdelijk < lengte; tijdelijk++){
-      if (i1==lengte1){
-        // einde groep1, neem huidig van 2
-        gesorteerd[tijdelijk]= groep2[i2];
-        i2++;
-      } else if (i2==lengte2){
-        // einde groep2,neem huidig van 1
-        gesorteerd[tijdelijk]= groep1[i1];
-        i1++;
-      } else if (groep1[i1] < groep2[i2]){
-        // huidig van 1 is kleiner,neem dit
-        gesorteerd[tijdelijk]= groep1[i1];
-        i1++;
-      } else{
-        // huidig van 2 is kleiner,neem dit
-        gesorteerd[tijdelijk]= groep2[i2];
-        i2++;
-      }
-    }
-    // kopieer gesorteerd naar data
-    //memcpy(gesorteerd, data, lengte* sizeof(float));
-    return gesorteerd[4];
-  }
-}
+// Copyright (c) 2009-2011 Intel Corporation
+// All rights reserved.
+//
+// WARRANTY DISCLAIMER
+//
+// THESE MATERIALS ARE PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL INTEL OR ITS
+// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR TORT (INCLUDING
+// NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THESE
+// MATERIALS, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+// Intel Corporation is the author of the Materials, and requests that all
+// problem reports or change requests be submitted to it directly
 
-kernel void mediaanKernel
-(
-    global const uchar4* inputPixels,
-    global uchar4* outputPixels,
-    const uint rowPitch,
-    const uint width,
-    const uint height
-)
+// 3x3 median filter kernel based on partial sort
+
+// Scalar version of kernel
+__kernel void mediaanKernel(const __global uint* pSrc, __global uint* pDst, 
+                                    const uint rowPitch,
+                                    const int width2, 
+                                    const int height2)
 {
-    int x = get_global_id(0);
-    int y = get_global_id(1);
-    int centerIndex = y * width + x;
-    float4 sum4 = (float4)0.0f;
-    float4 neighbours[9];
-	if(get_global_id(0) < 1 || get_global_id(0) > width - 2 || get_global_id(1) < 1 || get_global_id(1) > height - 2)
-	{
-		return;
-	}
-	float4 centerPixel;
-	neighbours[0] = convert_float4(inputPixels[(y-1)*width +x -1]);
-	neighbours[1] = convert_float4(inputPixels[(y-1)*width +x]);
-	neighbours[2] = convert_float4(inputPixels[(y-1)*width +x +1]);
+    const int x = get_global_id(0);
+    const int y = get_global_id(1);
 
-	neighbours[3] = convert_float4(inputPixels[(y)*width +x -1]);
-	neighbours[4] = convert_float4(inputPixels[(y)*width +x]);
-	neighbours[5] = convert_float4(inputPixels[(y)*width +x +1]);
-	
-	neighbours[6] = convert_float4(inputPixels[(y+1)*width +x -1]);
-	neighbours[7] = convert_float4(inputPixels[(y+1)*width +x]);
-	neighbours[8] = convert_float4(inputPixels[(y+1)*width +x +1]);
-		
-	float r0[9];
-	for(int i=0;i<3;i++)
-	{
-		if(i==0){
-			r0[0]=	neighbours[0].x;
-			r0[1]=	neighbours[1].x; 
-			r0[2]=	neighbours[2].x;
-			r0[3]=	neighbours[3].x;
-			r0[4]=	neighbours[4].x;
-			r0[5]=	neighbours[5].x;
-			r0[6]=	neighbours[6].x;
-			r0[7]=	neighbours[7].x;
-			r0[8]=	neighbours[8].x;	
-		}
-		else if(i==1){
-			//waarde in output array toevoegen
-			//centerPixel.x = r0[4];
-			centerPixel.x = mergesort(r0,9);
-			
-			r0[0]=	neighbours[0].y;
-			r0[1]=	neighbours[1].y; 
-			r0[2]=	neighbours[2].y;
-			r0[3]=	neighbours[3].y;
-			r0[4]=	neighbours[4].y;
-			r0[5]=	neighbours[5].y;
-			r0[6]=	neighbours[6].y;
-			r0[7]=	neighbours[7].y;
-			r0[8]=	neighbours[8].y;		
-		}
-		else if(i==2){
-			//waarde in output array toevoegen
-			//centerPixel.y = r0[4];
-			centerPixel.y = mergesort(r0,9);
-			
-			r0[0]=	neighbours[0].z;
-			r0[1]=	neighbours[1].z; 
-			r0[2]=	neighbours[2].z;
-			r0[3]=	neighbours[3].z;
-			r0[4]=	neighbours[4].z;
-			r0[5]=	neighbours[5].z;
-			r0[6]=	neighbours[6].z;
-			r0[7]=	neighbours[7].z;
-			r0[8]=	neighbours[8].z;			
-		}	
-        //mergesort(r0,9);
-	}
-	//centerPixel.z = r0[4];
-	centerPixel.z = mergesort(r0,9);
-    outputPixels[centerIndex] = convert_uchar4_sat_rte(centerPixel);
+    const int width = get_global_size(0);
+    const int iOffset = y * width;
+    const int iPrev = iOffset - width;
+    const int iNext = iOffset + width;
+
+    uint uiRGBA[9];
+
+    // get pixels within aperture
+    uiRGBA[0] = pSrc[iPrev + x - 1];
+    uiRGBA[1] = pSrc[iPrev + x];
+    uiRGBA[2] = pSrc[iPrev + x + 1];
+
+    uiRGBA[3] = pSrc[iOffset + x - 1];
+    uiRGBA[4] = pSrc[iOffset + x];
+    uiRGBA[5] = pSrc[iOffset + x + 1];
+
+    uiRGBA[6] = pSrc[iNext + x - 1];
+    uiRGBA[7] = pSrc[iNext + x];
+    uiRGBA[8] = pSrc[iNext + x + 1];
+
+    uint uiResult = 0;
+    uint uiMask = 0xFF;
+
+    for(int ch = 0; ch < 3; ch++)
+    {
+
+        // extract next color channel
+        uint r0,r1,r2,r3,r4,r5,r6,r7,r8;
+        r0=uiRGBA[0]& uiMask;
+        r1=uiRGBA[1]& uiMask;
+        r2=uiRGBA[2]& uiMask;
+        r3=uiRGBA[3]& uiMask;
+        r4=uiRGBA[4]& uiMask;
+        r5=uiRGBA[5]& uiMask;
+        r6=uiRGBA[6]& uiMask;
+        r7=uiRGBA[7]& uiMask;
+        r8=uiRGBA[8]& uiMask;
+
+        // perform partial bitonic sort to find current channel median
+        uint uiMin = min(r0, r1);
+        uint uiMax = max(r0, r1);
+        r0 = uiMin;
+        r1 = uiMax;
+
+        uiMin = min(r3, r2);
+        uiMax = max(r3, r2);
+        r3 = uiMin;
+        r2 = uiMax;
+
+        uiMin = min(r2, r0);
+        uiMax = max(r2, r0);
+        r2 = uiMin;
+        r0 = uiMax;
+
+        uiMin = min(r3, r1);
+        uiMax = max(r3, r1);
+        r3 = uiMin;
+        r1 = uiMax;
+
+        uiMin = min(r1, r0);
+        uiMax = max(r1, r0);
+        r1 = uiMin;
+        r0 = uiMax;
+
+        uiMin = min(r3, r2);
+        uiMax = max(r3, r2);
+        r3 = uiMin;
+        r2 = uiMax;
+
+        uiMin = min(r5, r4);
+        uiMax = max(r5, r4);
+        r5 = uiMin;
+        r4 = uiMax;
+
+        uiMin = min(r7, r8);
+        uiMax = max(r7, r8);
+        r7 = uiMin;
+        r8 = uiMax;
+
+        uiMin = min(r6, r8);
+        uiMax = max(r6, r8);
+        r6 = uiMin;
+        r8 = uiMax;
+
+        uiMin = min(r6, r7);
+        uiMax = max(r6, r7);
+        r6 = uiMin;
+        r7 = uiMax;
+
+        uiMin = min(r4, r8);
+        uiMax = max(r4, r8);
+        r4 = uiMin;
+        r8 = uiMax;
+
+        uiMin = min(r4, r6);
+        uiMax = max(r4, r6);
+        r4 = uiMin;
+        r6 = uiMax;
+
+        uiMin = min(r5, r7);
+        uiMax = max(r5, r7);
+        r5 = uiMin;
+        r7 = uiMax;
+
+        uiMin = min(r4, r5);
+        uiMax = max(r4, r5);
+        r4 = uiMin;
+        r5 = uiMax;
+
+        uiMin = min(r6, r7);
+        uiMax = max(r6, r7);
+        r6 = uiMin;
+        r7 = uiMax;
+
+        uiMin = min(r0, r8);
+        uiMax = max(r0, r8);
+        r0 = uiMin;
+        r8 = uiMax;
+
+        r4 = max(r0, r4);
+        r5 = max(r1, r5);
+
+        r6 = max(r2, r6);
+        r7 = max(r3, r7);
+
+        r4 = min(r4, r6);
+        r5 = min(r5, r7);
+
+        // store found median into result
+        uiResult |= min(r4, r5);
+
+        // update channel mask
+        uiMask <<= 8;
+    }
+
+    // store result into memory
+    pDst[iOffset + x] = uiResult;
 }

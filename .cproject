@@ -21,7 +21,7 @@
 					<folderInfo id="com.android.toolchain.gcc.440726401.310290790" name="/" resourcePath="">
 						<toolChain id="com.android.toolchain.gcc.539342766" name="com.android.toolchain.gcc" superClass="com.android.toolchain.gcc">
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="com.android.targetPlatform.589735751" name="Android Platform" osList="all" superClass="com.android.targetPlatform"/>
-							<builder command="${NDKROOT}/ndk-build" id="com.android.builder.411354185" keepEnvironmentInBuildfile="false" managedBuildOn="false" superClass="com.android.builder">
+							<builder arguments="" command="${NDKROOT}/ndk-build" id="com.android.builder.411354185" keepEnvironmentInBuildfile="false" managedBuildOn="false" superClass="com.android.builder">
 								<outputEntries>
 									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="obj"/>
 									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="libs"/>
@@ -72,4 +72,5 @@
 			<resource resourceType="PROJECT" workspacePath="/OVSR"/>
 		</configuration>
 	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cproject>

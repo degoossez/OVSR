@@ -21,6 +21,7 @@
  * MATERIALS OR THE USE OR OTHER DEALINGS IN THE MATERIALS.
  **********************************************************************************/
 
+/* $Revision: 11803 $ on $Date: 2010-06-25 10:02:12 -0700 (Fri, 25 Jun 2010) $ */
 
 #ifndef __CL_PLATFORM_H
 #define __CL_PLATFORM_H
@@ -58,9 +59,6 @@ extern "C" {
     #define CL_API_SUFFIX__VERSION_1_1
     #define CL_EXT_SUFFIX__VERSION_1_1
     #define CL_EXT_SUFFIX__VERSION_1_0_DEPRECATED
-    #define CL_API_SUFFIX__VERSION_1_2
-    #define CL_EXT_SUFFIX__VERSION_1_2
-    #define CL_EXT_SUFFIX__VERSION_1_1_DEPRECATED
 #endif
 
 #if (defined (_WIN32) && defined(_MSC_VER))
@@ -105,7 +103,7 @@ typedef double                  cl_double;
 #define CL_FLT_RADIX        2
 #define CL_FLT_MAX          340282346638528859811704183484516925440.0f
 #define CL_FLT_MIN          1.175494350822287507969e-38f
-#define CL_FLT_EPSILON      1.1920928955078125E-7f /*0x1.0p-23f*/
+#define CL_FLT_EPSILON      0x1.0p-23f
 
 #define CL_DBL_DIG          15
 #define CL_DBL_MANT_DIG     53
@@ -114,7 +112,7 @@ typedef double                  cl_double;
 #define CL_DBL_MIN_10_EXP   -307
 #define CL_DBL_MIN_EXP      -1021
 #define CL_DBL_RADIX        2
-#define CL_DBL_MAX          1.797693134862315708145e308
+#define CL_DBL_MAX          179769313486231570814527423731704356798070567525844996598917476803157260780028538760589558632766878171540458953514382464234321326889464182768467546703537516986049910576551282076245490090389328944075868508455133942304583236903222948165808559332123348274797826204144723168738177180919299881250404026184124858368.0
 #define CL_DBL_MIN          2.225073858507201383090e-308
 #define CL_DBL_EPSILON      2.220446049250313080847e-16
 
@@ -245,7 +243,7 @@ typedef double          cl_double   __attribute__((aligned(8)));
    #define CL_HUGE_VALF     ((cl_float) 1e50)
    #define CL_HUGE_VAL      ((cl_double) 1e500)
    float nanf( const char * );
-   #define CL_NAN           nanf( "" )  
+   #define CL_NAN           nanf( "" )
 #endif
 #define CL_MAXFLOAT         CL_FLT_MAX
 #define CL_INFINITY         CL_HUGE_VALF

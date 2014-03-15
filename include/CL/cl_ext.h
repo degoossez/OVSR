@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008-2010 The Khronos Group Inc.
+ * Copyright (c) 2008-2013 The Khronos Group Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and/or associated documentation files (the
@@ -21,6 +21,7 @@
  * MATERIALS OR THE USE OR OTHER DEALINGS IN THE MATERIALS.
  ******************************************************************************/
 
+/* $Revision: 11928 $ on $Date: 2010-07-13 09:04:56 -0700 (Tue, 13 Jul 2010) $ */
 
 /* cl_ext.h contains OpenCL extensions which don't have external */
 /* (OpenGL, D3D) dependencies.                                   */
@@ -33,10 +34,10 @@ extern "C" {
 #endif
 
 #ifdef __APPLE__
-	#include <OpenCL/cl.h>
+        #include <OpenCL/cl.h>
     #include <AvailabilityMacros.h>
 #else
-	#include <CL/cl.h>
+        #include <CL/cl.h>
 #endif
 
 /* cl_khr_fp64 extension - no extension #define since it has no functions  */
@@ -63,7 +64,7 @@ extern "C" {
  * before using.
  */
 #define cl_APPLE_SetMemObjectDestructor 1
-cl_int	CL_API_ENTRY clSetMemObjectDestructorAPPLE(  cl_mem /* memobj */, 
+cl_int  CL_API_ENTRY clSetMemObjectDestructorAPPLE(  cl_mem /* memobj */,
                                         void (* /*pfn_notify*/)( cl_mem /* memobj */, void* /*user_data*/), 
                                         void * /*user_data */ )             CL_EXT_SUFFIX__VERSION_1_0;  
 
@@ -129,12 +130,16 @@ typedef CL_API_ENTRY cl_int (CL_API_CALL *clIcdGetPlatformIDsKHR_fn)(
 #define CL_DEVICE_KERNEL_EXEC_TIMEOUT_NV            0x4005
 #define CL_DEVICE_INTEGRATED_MEMORY_NV              0x4006
 
-
 /*********************************
 * cl_amd_device_attribute_query *
 *********************************/
 #define CL_DEVICE_PROFILING_TIMER_OFFSET_AMD        0x4036
 
+/*********************************
+* cl_arm_printf extension
+*********************************/
+#define CL_PRINTF_CALLBACK_ARM                      0x40B0
+#define CL_PRINTF_BUFFERSIZE_ARM                    0x40B1
 
 #ifdef CL_VERSION_1_1
    /***********************************
@@ -200,7 +205,63 @@ typedef CL_API_ENTRY cl_int (CL_API_CALL *clIcdGetPlatformIDsKHR_fn)(
     #define CL_PARTITION_BY_COUNTS_LIST_END_EXT         ((cl_device_partition_property_ext) 0)
     #define CL_PARTITION_BY_NAMES_LIST_END_EXT          ((cl_device_partition_property_ext) 0 - 1)
 
+/*********************************
+* cl_qcom_ext_host_ptr extension
+*********************************/
 
+#define CL_MEM_EXT_HOST_PTR_QCOM                  (1 << 29)
+
+#define CL_DEVICE_EXT_MEM_PADDING_IN_BYTES_QCOM   0x40A0
+#define CL_DEVICE_PAGE_SIZE_QCOM                  0x40A1
+#define CL_IMAGE_ROW_ALIGNMENT_QCOM               0x40A2
+#define CL_IMAGE_SLICE_ALIGNMENT_QCOM             0x40A3
+#define CL_MEM_HOST_UNCACHED_QCOM                 0x40A4
+#define CL_MEM_HOST_WRITEBACK_QCOM                0x40A5
+#define CL_MEM_HOST_WRITETHROUGH_QCOM             0x40A6
+#define CL_MEM_HOST_WRITE_COMBINING_QCOM          0x40A7
+
+typedef cl_uint                                   cl_image_pitch_info_qcom;
+
+extern CL_API_ENTRY cl_int CL_API_CALL
+clGetDeviceImageInfoQCOM(cl_device_id             device,
+                         size_t                   image_width,
+                         size_t                   image_height,
+                         const cl_image_format   *image_format,
+                         cl_image_pitch_info_qcom param_name,
+                         size_t                   param_value_size,
+                         void                    *param_value,
+                         size_t                  *param_value_size_ret);
+
+typedef struct _cl_mem_ext_host_ptr
+{
+    /* Type of external memory allocation. */
+    /* Legal values will be defined in layered extensions. */
+    cl_uint  allocation_type;
+
+    /* Host cache policy for this external memory allocation. */
+    cl_uint  host_cache_policy;
+
+} cl_mem_ext_host_ptr;
+
+/*********************************
+* cl_qcom_ion_host_ptr extension
+*********************************/
+
+#define CL_MEM_ION_HOST_PTR_QCOM                  0x40A8
+
+typedef struct _cl_mem_ion_host_ptr
+{
+    /* Type of external memory allocation. */
+    /* Must be CL_MEM_ION_HOST_PTR_QCOM for ION allocations. */
+    cl_mem_ext_host_ptr  ext_host_ptr;
+
+    /* ION file descriptor */
+    int                  ion_filedesc;
+
+    /* Host pointer to the ION allocated memory */
+    void*                ion_hostptr;
+
+} cl_mem_ion_host_ptr;
 
 #endif /* CL_VERSION_1_1 */
 

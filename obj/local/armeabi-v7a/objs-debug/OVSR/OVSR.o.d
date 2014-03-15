@@ -164,7 +164,9 @@ obj/local/armeabi-v7a/objs-debug/OVSR/OVSR.o: jni/OVSR.cpp \
  /home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/sources/cxx-stl/stlport/stlport/cstdio \
  /home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/sources/cxx-stl/stlport/stlport/stl/_cstdio.h \
  /home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/sources/cxx-stl/stlport/stlport/cstdlib \
- jni/../include/CL/cl.h jni/../include/CL/cl_platform.h
+ jni/../include/CL/opencl.h jni/../include/CL/cl.h \
+ jni/../include/CL/cl_platform.h jni/../include/CL/cl_gl.h \
+ jni/../include/CL/cl_gl_ext.h jni/../include/CL/cl_ext.h
 
 /home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/platforms/android-14/arch-arm/usr/include/jni.h:
 
@@ -496,6 +498,14 @@ obj/local/armeabi-v7a/objs-debug/OVSR/OVSR.o: jni/OVSR.cpp \
 
 /home/dries/AndroidDev/adt-bundle-linux-x86_64-20131030/android-ndk-r9c/sources/cxx-stl/stlport/stlport/cstdlib:
 
+jni/../include/CL/opencl.h:
+
 jni/../include/CL/cl.h:
 
 jni/../include/CL/cl_platform.h:
+
+jni/../include/CL/cl_gl.h:
+
+jni/../include/CL/cl_gl_ext.h:
+
+jni/../include/CL/cl_ext.h:

@@ -1,3 +1,5 @@
+#define CL_USE_DEPRECATED_OPENCL_1_1_APIS
+
 #include <jni.h>
 #include <android/bitmap.h>
 #include <android/log.h>
@@ -17,7 +19,7 @@
 
 #include <sys/time.h>
 
-#include <CL/cl.h>
+#include <CL/opencl.h>
 
 
 // Commonly-defined shortcuts for LogCat output from native C applications.
@@ -638,3 +640,356 @@ extern "C" void Java_com_denayer_ovsr_OpenCL_nativeBasicOpenCL
         outputBitmap
     );
 }
+void nativeSaturatieOpenCL
+(
+    JNIEnv* env,
+    jobject thisObject,
+    OpenCLObjects& openCLObjects,
+    jobject inputBitmap,
+    jobject outputBitmap,
+    jfloat saturatie
+)
+{
+    using namespace std;
+
+    AndroidBitmapInfo bitmapInfo;
+    AndroidBitmap_getInfo(env, inputBitmap, &bitmapInfo);
+
+    size_t bufferSize = bitmapInfo.height * bitmapInfo.stride;
+
+    cl_uint rowPitch = bitmapInfo.stride / 4;
+
+
+    cl_int err = CL_SUCCESS;
+
+
+        if(openCLObjects.isInputBufferInitialized)
+        {
+
+            err = clReleaseMemObject(openCLObjects.inputBuffer);
+            SAMPLE_CHECK_ERRORS(err);
+        }
+
+        LOGD("Creating input buffer in OpenCL");
+
+
+        void* inputPixels = 0;
+        AndroidBitmap_lockPixels(env, inputBitmap, &inputPixels);
+
+        openCLObjects.inputBuffer =
+            clCreateBuffer
+            (
+                openCLObjects.context,
+                CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                bufferSize,   // Buffer size in bytes.
+                inputPixels,  // Bytes for initialization.
+                &err
+            );
+        SAMPLE_CHECK_ERRORS(err);
+
+        openCLObjects.isInputBufferInitialized = true;
+
+        AndroidBitmap_unlockPixels(env, inputBitmap);
+
+    void* outputPixels = 0;
+    AndroidBitmap_lockPixels(env, outputBitmap, &outputPixels);
+
+    cl_mem outputBuffer =
+        clCreateBuffer
+        (
+            openCLObjects.context,
+            CL_MEM_WRITE_ONLY | CL_MEM_USE_HOST_PTR,
+            bufferSize,    // Buffer size in bytes, same as the input buffer.
+            outputPixels,  // Area, above which the buffer is created.
+            &err
+        );
+    SAMPLE_CHECK_ERRORS(err);
+
+    cl_uint edgeKernel[9] = {0,1,0,1,-4,1,0,1,0};
+
+    err = clSetKernelArg(openCLObjects.kernel, 0, sizeof(openCLObjects.inputBuffer), &openCLObjects.inputBuffer);
+    SAMPLE_CHECK_ERRORS(err);
+
+    err = clSetKernelArg(openCLObjects.kernel, 1, sizeof(outputBuffer), &outputBuffer);
+    SAMPLE_CHECK_ERRORS(err);
+
+    err = clSetKernelArg(openCLObjects.kernel, 2, sizeof(cl_uint), &rowPitch);
+    SAMPLE_CHECK_ERRORS(err);
+
+    err = clSetKernelArg(openCLObjects.kernel, 3, sizeof(cl_uint), &bitmapInfo.width);
+    SAMPLE_CHECK_ERRORS(err);
+
+    err = clSetKernelArg(openCLObjects.kernel, 4, sizeof(cl_uint), &bitmapInfo.height);
+    SAMPLE_CHECK_ERRORS(err);
+
+    cl_float saturatieVal = saturatie;
+    err = clSetKernelArg(openCLObjects.kernel, 5, sizeof(cl_float), &saturatieVal);
+    SAMPLE_CHECK_ERRORS(err);
+
+    size_t globalSize[2] = { bitmapInfo.width, bitmapInfo.height };
+
+    timeval start;
+    timeval end;
+
+    gettimeofday(&start, NULL);
+
+    err =
+        clEnqueueNDRangeKernel
+        (
+            openCLObjects.queue,
+            openCLObjects.kernel,
+            2,
+            0,
+            globalSize,
+            0,
+            0, 0, 0
+        );
+    SAMPLE_CHECK_ERRORS(err);
+
+    err = clFinish(openCLObjects.queue);
+    SAMPLE_CHECK_ERRORS(err);
+
+    gettimeofday(&end, NULL);
+
+    float ndrangeDuration =
+        (end.tv_sec + end.tv_usec * 1e-6) - (start.tv_sec + start.tv_usec * 1e-6);
+
+    LOGD("NDRangeKernel time: %f", ndrangeDuration);
+
+    err = clEnqueueReadBuffer (openCLObjects.queue,
+    		outputBuffer,
+    		true,
+    		0,
+    		bufferSize,
+    		outputPixels,
+    		0,
+    		0,
+    		0);
+    SAMPLE_CHECK_ERRORS(err);
+
+    // Call clFinish to guarantee that the output region is updated.
+    err = clFinish(openCLObjects.queue);
+    SAMPLE_CHECK_ERRORS(err);
+
+    err = clReleaseMemObject(outputBuffer);
+    SAMPLE_CHECK_ERRORS(err);
+
+    // Make the output content be visible at the Java side by unlocking
+    // pixels in the output bitmap object.
+    AndroidBitmap_unlockPixels(env, outputBitmap);
+
+    LOGD("nativeBasicOpenCL ends successfully");
+}
+
+extern "C" void Java_com_denayer_ovsr_OpenCL_nativeSaturatieOpenCL
+(
+    JNIEnv* env,
+    jobject thisObject,
+    jobject inputBitmap,
+    jobject outputBitmap,
+    jfloat saturatie
+)
+{
+	nativeSaturatieOpenCL
+    (
+        env,
+        thisObject,
+        openCLObjects,
+        inputBitmap,
+        outputBitmap,
+        saturatie
+    );
+}
+/*
+ * TODO
+ * Testen met clCreateImage2D
+ */
+void nativeImage2DOpenCL
+(
+    JNIEnv* env,
+    jobject thisObject,
+    OpenCLObjects& openCLObjects,
+    jobject inputBitmap,
+    jobject outputBitmap
+)
+{
+    using namespace std;
+
+
+    AndroidBitmapInfo bitmapInfo;
+    AndroidBitmap_getInfo(env, inputBitmap, &bitmapInfo);
+
+    size_t bufferSize = bitmapInfo.height * bitmapInfo.stride;
+
+    cl_uint rowPitch = bitmapInfo.stride / 4;
+
+
+    cl_int err = CL_SUCCESS;
+
+
+        if(openCLObjects.isInputBufferInitialized)
+        {
+
+            err = clReleaseMemObject(openCLObjects.inputBuffer);
+            SAMPLE_CHECK_ERRORS(err);
+        }
+
+        LOGD("Creating input buffer in OpenCL");
+
+
+        void* inputPixels = 0;
+        AndroidBitmap_lockPixels(env, inputBitmap, &inputPixels);
+
+        cl_image_format image_format;
+        image_format.image_channel_data_type=CL_UNORM_INT8;
+        image_format.image_channel_order=CL_RGBA;
+
+        openCLObjects.inputBuffer =
+        	clCreateImage2D(openCLObjects.context,
+        			CL_MEM_READ_ONLY,
+        			&image_format,
+        			bitmapInfo.width,
+        			bitmapInfo.height,
+        			0, //eens testen met bufferSize of met 0 (ook aanpassen bij output buffer
+        			NULL,
+        			&err);
+        SAMPLE_CHECK_ERRORS(err);
+//        err = clEnqueueWriteBuffer (	openCLObjects.queue,
+//        		openCLObjects.inputBuffer,
+//        		CL_TRUE,
+//        		0,
+//         		bufferSize,
+//         		inputPixels,
+//         		0,
+//         		0,
+//         		0);
+//        SAMPLE_CHECK_ERRORS(err);
+        /*openCLObjects.inputBuffer =
+            clCreateBuffer
+            (
+                openCLObjects.context,
+                CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                bufferSize,   // Buffer size in bytes.
+                inputPixels,  // Bytes for initialization.
+                &err
+            );*/
+        SAMPLE_CHECK_ERRORS(err);
+
+        openCLObjects.isInputBufferInitialized = true;
+
+        AndroidBitmap_unlockPixels(env, inputBitmap);
+
+    void* outputPixels = 0;
+    AndroidBitmap_lockPixels(env, outputBitmap, &outputPixels);
+
+    cl_mem outputBuffer =
+    	clCreateImage2D(openCLObjects.context,
+    			CL_MEM_WRITE_ONLY | CL_MEM_USE_HOST_PTR,
+    			&image_format,
+    			bitmapInfo.width,
+    			bitmapInfo.height,
+    			0,
+    			outputPixels,
+    			&err);
+    /*cl_mem outputBuffer =
+        clCreateBuffer
+        (
+            openCLObjects.context,
+            CL_MEM_WRITE_ONLY | CL_MEM_USE_HOST_PTR,
+            bufferSize,    // Buffer size in bytes, same as the input buffer.
+            outputPixels,  // Area, above which the buffer is created.
+            &err
+        );*/
+    SAMPLE_CHECK_ERRORS(err);
+
+    cl_uint edgeKernel[9] = {0,1,0,1,-4,1,0,1,0};
+
+
+    err = clSetKernelArg(openCLObjects.kernel, 0, sizeof(openCLObjects.inputBuffer), &openCLObjects.inputBuffer);
+    SAMPLE_CHECK_ERRORS(err);
+
+    err = clSetKernelArg(openCLObjects.kernel, 1, sizeof(outputBuffer), &outputBuffer);
+    SAMPLE_CHECK_ERRORS(err);
+
+//    err = clSetKernelArg(openCLObjects.kernel, 2, sizeof(cl_sampler), &samplerA);
+//    SAMPLE_CHECK_ERRORS(err);
+
+//    err = clSetKernelArg(openCLObjects.kernel, 3, sizeof(cl_uint), &bitmapInfo.width);
+//    SAMPLE_CHECK_ERRORS(err);
+//
+//    err = clSetKernelArg(openCLObjects.kernel, 4, sizeof(cl_uint), &bitmapInfo.height);
+//    SAMPLE_CHECK_ERRORS(err);
+
+    size_t globalSize[2] = { bitmapInfo.width, bitmapInfo.height };
+
+    timeval start;
+    timeval end;
+
+    gettimeofday(&start, NULL);
+
+    err =
+        clEnqueueNDRangeKernel
+        (
+            openCLObjects.queue,
+            openCLObjects.kernel,
+            2,
+            0,
+            globalSize,
+            0,
+            0, 0, 0
+        );
+    SAMPLE_CHECK_ERRORS(err);
+
+    err = clFinish(openCLObjects.queue);
+    SAMPLE_CHECK_ERRORS(err);
+
+    gettimeofday(&end, NULL);
+
+    float ndrangeDuration =
+        (end.tv_sec + end.tv_usec * 1e-6) - (start.tv_sec + start.tv_usec * 1e-6);
+
+    LOGD("NDRangeKernel time: %f", ndrangeDuration);
+
+    err = clEnqueueReadBuffer (openCLObjects.queue,
+    		outputBuffer,
+    		true,
+    		0,
+    		bufferSize,
+    		outputPixels,
+    		0,
+    		0,
+    		0);
+    SAMPLE_CHECK_ERRORS(err);
+
+    // Call clFinish to guarantee that the output region is updated.
+    err = clFinish(openCLObjects.queue);
+    SAMPLE_CHECK_ERRORS(err);
+
+    err = clReleaseMemObject(outputBuffer);
+    SAMPLE_CHECK_ERRORS(err);
+
+    // Make the output content be visible at the Java side by unlocking
+    // pixels in the output bitmap object.
+    AndroidBitmap_unlockPixels(env, outputBitmap);
+
+    LOGD("nativeImage2DOpenCL ends successfully");
+}
+
+extern "C" void Java_com_denayer_ovsr_OpenCL_nativeImage2DOpenCL
+(
+    JNIEnv* env,
+    jobject thisObject,
+    jobject inputBitmap,
+    jobject outputBitmap
+)
+{
+	nativeImage2DOpenCL
+    (
+        env,
+        thisObject,
+        openCLObjects,
+        inputBitmap,
+        outputBitmap
+    );
+}
+

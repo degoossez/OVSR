@@ -1,75 +1,55 @@
-kernel void edgeKernel
-(
-    global const uint* inputPixels,
-    global uint* outputPixels,
-    const uint rowPitch,
-    const uint width,
-    const uint height
-)
+kernel void edgeKernel(__global uchar4 *srcBuffer,
+                                    __global uchar4 *dstBuffer, 
+                                    const uint rowPitch,
+                                    const int width, 
+                                    const int height)
 {
-	const int edgeKernel[9] = {0,1,0,1,-4,1,0,1,0};
-	// 2-dimensionale working q, 0 width, 1 height =>     size_t globalSize[2] = { bitmapInfo.width, bitmapInfo.height };
+    int xCoor = get_global_id(0);
+    int yCoor = get_global_id(1);
+    int centerIndex = yCoor * width + xCoor;
+    float4  currentPixel = (float4)0.0f;
+    float4  convPixel = (float4)0.0f;
+    int counter=0;
+    const float edgeKernel[9] = {0.0f,1.0f,0.0f,1.0f,-4.0f,1.0f,0.0f,1.0f,0.0f};
+		
+	currentPixel = convert_float4(srcBuffer[(get_global_id(0)-1) + (get_global_id(1)-1)*width]);
+	convPixel.x += currentPixel.x*edgeKernel[0];
+	convPixel.y += currentPixel.y *edgeKernel[0];
+	convPixel.z += currentPixel.z*edgeKernel[0];
+	currentPixel = convert_float4(srcBuffer[(get_global_id(0)-1) + (get_global_id(1))*width]);
+	convPixel.x += currentPixel.x*edgeKernel[1];
+	convPixel.y += currentPixel.y *edgeKernel[1];
+	convPixel.z += currentPixel.z*edgeKernel[1];
+	currentPixel = convert_float4(srcBuffer[(get_global_id(0)-1) + (get_global_id(1)+1)*width]);
+	convPixel.x += currentPixel.x*edgeKernel[2];
+	convPixel.y += currentPixel.y *edgeKernel[2];
+	convPixel.z += currentPixel.z*edgeKernel[2];
+	currentPixel = convert_float4(srcBuffer[(get_global_id(0)) + (get_global_id(1)-1)*width]);
+	convPixel.x += currentPixel.x*edgeKernel[3];
+	convPixel.y += currentPixel.y *edgeKernel[3];
+	convPixel.z += currentPixel.z*edgeKernel[3];
+	currentPixel = convert_float4(srcBuffer[(get_global_id(0)) + (get_global_id(1))*width]);
+	convPixel.x += currentPixel.x*edgeKernel[4];
+	convPixel.y += currentPixel.y *edgeKernel[4];
+	convPixel.z += currentPixel.z*edgeKernel[4];
+	convPixel.w = currentPixel.w;
+	currentPixel = convert_float4(srcBuffer[(get_global_id(0)) + (get_global_id(1)+1)*width]);
+	convPixel.x += currentPixel.x*edgeKernel[5];
+	convPixel.y += currentPixel.y *edgeKernel[5];
+	convPixel.z += currentPixel.z*edgeKernel[5];
+	currentPixel = convert_float4(srcBuffer[(get_global_id(0)+1) + (get_global_id(1)-1)*width]);
+	convPixel.x += currentPixel.x*edgeKernel[6];
+	convPixel.y += currentPixel.y *edgeKernel[6];
+	convPixel.z += currentPixel.z*edgeKernel[6];
+	currentPixel = convert_float4(srcBuffer[(get_global_id(0)+1) + (get_global_id(1))*width]);
+	convPixel.x += currentPixel.x*edgeKernel[7];
+	convPixel.y += currentPixel.y *edgeKernel[7];
+	convPixel.z += currentPixel.z*edgeKernel[7];
+	currentPixel = convert_float4(srcBuffer[(get_global_id(0)+1) + (get_global_id(1)+1)*width]);
+	convPixel.x += currentPixel.x*edgeKernel[8];
+	convPixel.y += currentPixel.y *edgeKernel[8];
+	convPixel.z += currentPixel.z*edgeKernel[8];
 
-	int counter=0;
-	int sumR=0;
-	int sumG=0;
-	int sumB=0;
-	if(get_global_id(0) < 1 || get_global_id(0) > width - 2 || get_global_id(1) < 1 || get_global_id(1) > height - 2)
-	{
-		return;
-	}
-	/*
-	-1 -1	 0-1	 1 -1
-	-1 0	 0 0	 1 0
-	-1 1	 0 1     1 1
-*/
-	
-	int curPos; 
-
-	curPos = inputPixels[(get_global_id(0)-1) + (get_global_id(1)-1)*rowPitch];
-	sumR += ((curPos >> 16) & 0xff)*edgeKernel[0];
-	sumG += ((curPos >> 8) & 0xff)*edgeKernel[0];
-	sumB += (curPos & 0xff )*edgeKernel[0];
-	curPos = inputPixels[(get_global_id(0)-1) + (get_global_id(1))*rowPitch];
-	sumR += ((curPos >> 16) & 0xff)*edgeKernel[1];
-	sumG += ((curPos >> 8) & 0xff)*edgeKernel[1];
-	sumB += (curPos & 0xff )*edgeKernel[1];
-	curPos = inputPixels[(get_global_id(0)-1) + (get_global_id(1)+1)*rowPitch];
-	sumR += ((curPos >> 16) & 0xff)*edgeKernel[2];
-	sumG += ((curPos >> 8) & 0xff)*edgeKernel[2];
-	sumB += (curPos & 0xff )*edgeKernel[2];
-	curPos = inputPixels[(get_global_id(0)) + (get_global_id(1)-1)*rowPitch];
-	sumR += ((curPos >> 16) & 0xff)*edgeKernel[3];
-	sumG += ((curPos >> 8) & 0xff)*edgeKernel[3];
-	sumB += (curPos & 0xff )*edgeKernel[3];
-	curPos = inputPixels[(get_global_id(0)) + (get_global_id(1))*rowPitch];
-	sumR += ((curPos >> 16) & 0xff)*edgeKernel[4];
-	sumG += ((curPos >> 8) & 0xff)*edgeKernel[4];
-	sumB += (curPos & 0xff )*edgeKernel[4];
-	curPos = inputPixels[(get_global_id(0)) + (get_global_id(1)+1)*rowPitch];
-	sumR += ((curPos >> 16) & 0xff)*edgeKernel[5];
-	sumG += ((curPos >> 8) & 0xff)*edgeKernel[5];
-	sumB += (curPos & 0xff )*edgeKernel[5];
-	curPos = inputPixels[(get_global_id(0)+1) + (get_global_id(1)-1)*rowPitch];
-	sumR += ((curPos >> 16) & 0xff)*edgeKernel[6];
-	sumG += ((curPos >> 8) & 0xff)*edgeKernel[6];
-	sumB += (curPos & 0xff )*edgeKernel[6];
-	curPos = inputPixels[(get_global_id(0)+1) + (get_global_id(1))*rowPitch];
-	sumR += ((curPos >> 16) & 0xff)*edgeKernel[7];
-	sumG += ((curPos >> 8) & 0xff)*edgeKernel[7];
-	sumB += (curPos & 0xff )*edgeKernel[7];
-	curPos = inputPixels[(get_global_id(0)+1) + (get_global_id(1)+1)*rowPitch];
-	sumR += ((curPos >> 16) & 0xff)*edgeKernel[8];
-	sumG += ((curPos >> 8) & 0xff)*edgeKernel[8];
-	sumB += (curPos & 0xff )*edgeKernel[8];
-	 			
-	if(sumR>255) sumR=255;
-	if(sumG>255) sumG=255;
-	if(sumB>255) sumB=255;
-	if(sumR<0) sumR=0;
-	if(sumG<0) sumG=0;
-	if(sumB<0) sumB=0;	
-	sumB = sumG = sumR;
-	//RGB to ARGB
-	outputPixels[get_global_id(0) + get_global_id(1)*rowPitch] = 0xff000000 | (sumR << 16) | (sumG << 8) | sumB;
+	convPixel.x = convPixel.y = convPixel.z;
+	dstBuffer[centerIndex] = convert_uchar4_sat_rte(convPixel);
 }

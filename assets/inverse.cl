@@ -12,10 +12,10 @@ kernel void inverseKernel
      int x = get_global_id(0);
      int y = get_global_id(1);
      int centerIndex = y * width + x;
-	if(get_global_id(0) < 1 || get_global_id(0) > width - 2 || get_global_id(1) < 1 || get_global_id(1) > height - 2)
+	/*if(get_global_id(0) < 1 || get_global_id(0) > width - 2 || get_global_id(1) < 1 || get_global_id(1) > height - 2)
 	{
 		return;
-	}
+	}*/
     float4 centerPixel = convert_float4(inputPixels[centerIndex]);
     centerPixel.x = 255 - centerPixel.x;
     centerPixel.y = 255 - centerPixel.y;

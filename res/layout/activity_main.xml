@@ -99,6 +99,7 @@
 
 	            <requestFocus />
 	        </EditText>
+
         </LinearLayout>
         
     </LinearLayout>
