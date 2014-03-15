@@ -28,14 +28,16 @@ import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
     private Uri mImageCaptureUri;
     private ImageButton Input_button;
     private ImageButton Output_button;
     private Bitmap bitmap   = null;
+    private Bitmap outBitmap   = null;
     private File file;
-    
+    private String Filter;
     private static final int PICK_FROM_CAMERA = 1;
     private static final int PICK_FROM_FILE = 2;
 
@@ -109,7 +111,35 @@ public class MainActivity extends Activity {
                 dialog.show();
             }
         });
-        
+        ((ImageButton) findViewById(R.id.imageButton2)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            	//save the output bitmap to a file
+            	File picDir = new File(Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM + File.separator + "/OpenCL/");
+            	picDir.mkdirs(); //creates directory when needed
+            	SimpleDateFormat formatter = new SimpleDateFormat("yyMMddHHmmss");
+    	        Date now = new Date();
+    	        String fileName = formatter.format(now) + ".jpg";
+            	fileName = Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM + File.separator + Filter + fileName;            	
+            	FileOutputStream out = null;
+            	try {
+            	       out = new FileOutputStream(fileName);
+            	       outBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+            	       //Toast maken
+            	       Context context = getApplicationContext();
+            	       CharSequence text = "Image saved!";
+            	       int duration = Toast.LENGTH_SHORT;
+            	       Toast toast = Toast.makeText(context, text, duration);
+            	       toast.show();
+            	} catch (Exception e) {
+            	    e.printStackTrace();
+            	} finally {
+            	       try{
+            	           out.close();
+            	       } catch(Throwable ignore) {}
+            	} 
+            }
+        });        
         createBoxes();
     }
 
@@ -191,6 +221,7 @@ public class MainActivity extends Activity {
 				if(!RenderScriptButton.isChecked())
 				{
 					String FunctionName = "RenderScript" + itemsFilterBox[item];
+					Filter = "RenderScript/" + itemsFilterBox[item];
 					try {
 						//MainActivity obj = new MainActivity();
 						Method m = RenderScript.class.getMethod(FunctionName);
@@ -210,6 +241,7 @@ public class MainActivity extends Activity {
 				else
 				{
 					String FunctionName = "OpenCL" + itemsFilterBox[item];
+					Filter = "OpenCL/" + itemsFilterBox[item];
 					try {
 						//MainActivity obj = new MainActivity();
 						Method m = OpenCL.class.getMethod(FunctionName);
@@ -225,7 +257,8 @@ public class MainActivity extends Activity {
 					} catch (NoSuchMethodException e) {
 						e.printStackTrace();
 					}		
-					Output_button.setImageBitmap(OpenCLClass.getBitmap());
+					outBitmap = OpenCLClass.getBitmap();
+					Output_button.setImageBitmap(outBitmap);
 				}
 				
             }
