@@ -5,8 +5,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.DecimalFormat;
 
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
@@ -14,6 +17,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.text.InputType;
 import android.util.Log;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -156,6 +160,20 @@ public class OpenCL extends Object {
             );
     	shutdownOpenCL();
     	Log.i("DEBUG","AFTER runOpencl Mediaan");
+	}
+	public void OpenCLBlur ()
+	{
+		Log.i("OpenCL","OpenCLBlur");
+    	copyFile("blur.cl");
+    	String kernelName="blur";
+    	Log.i("DEBUG","BEFORE runOpencl blur");
+    	initOpenCL(kernelName);
+    	nativeBasicOpenCL(
+                bmpOrig,
+                bmpOpenCL
+            );
+    	shutdownOpenCL();
+    	Log.i("DEBUG","AFTER runOpencl blur");
 	}	
 	public void OpenCLSaturatie ()
 	{	
@@ -197,6 +215,7 @@ public class OpenCL extends Object {
                 	   outputButton.setImageBitmap(bmpOpenCL);
                    }
                });
+        progressView.setGravity(1 | 0x10);
         // Create the AlertDialog object and return it
         AlertDialog dialog = builder.create();
 	     LinearLayout ll=new LinearLayout(mContext);
@@ -239,5 +258,14 @@ public class OpenCL extends Object {
 		} catch (IOException e) {       
 			e.printStackTrace();
 		}
+	}
+	public void setTimeFromJNI(float time)
+	{
+		Log.i("setTimeFromJNI","Time set on " + String.valueOf(time));
+		time = (float) (Math.round(time*1000000.0) / 1000000.0);		
+		View rootView = ((Activity)mContext).getWindow().getDecorView().findViewById(android.R.id.content);
+		TextView v = (TextView) rootView.findViewById(R.id.timeview);
+		v.setText(String.valueOf(time) + " seconds");
+		
 	}
 }

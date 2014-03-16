@@ -621,6 +621,15 @@ void nativeBasicOpenCL
     AndroidBitmap_unlockPixels(env, outputBitmap);
 
     LOGD("nativeBasicOpenCL ends successfully");
+
+    jclass MyJavaClass = (*env).FindClass("com/denayer/ovsr/OpenCL");
+    if (!MyJavaClass){
+    	LOGD("Aj :(");
+        return;} /* method not found */
+    jmethodID setTimeFromJNI = (*env).GetMethodID(MyJavaClass, "setTimeFromJNI", "(F)V");
+    //jmethodID setTimeFromJNI = (*env).GetMethodID(MyJavaClass, "saturate",);
+    (*env).CallVoidMethod(thisObject, setTimeFromJNI, ndrangeDuration);
+    LOGD("Done");
 }
 
 extern "C" void Java_com_denayer_ovsr_OpenCL_nativeBasicOpenCL
@@ -779,6 +788,16 @@ void nativeSaturatieOpenCL
     AndroidBitmap_unlockPixels(env, outputBitmap);
 
     LOGD("nativeBasicOpenCL ends successfully");
+
+    jclass MyJavaClass = (*env).FindClass("com/denayer/ovsr/OpenCL");
+    if (!MyJavaClass){
+    	LOGD("Aj :(");
+        return;} /* method not found */
+    jmethodID setTimeFromJNI = (*env).GetMethodID(MyJavaClass, "setTimeFromJNI", "(F)V"); //argument is float, return time is void
+    //jmethodID setTimeFromJNI = (*env).GetMethodID(MyJavaClass, "saturate",);
+    (*env).CallVoidMethod(thisObject, setTimeFromJNI, ndrangeDuration);
+
+    LOGD("Done");
 }
 
 extern "C" void Java_com_denayer_ovsr_OpenCL_nativeSaturatieOpenCL

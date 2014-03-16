@@ -48,7 +48,7 @@ public class MainActivity extends Activity {
     RenderScript RenderScriptClass;
         
     //item in de lijst toevoegen voor nieuwe filters toe te voegen.
-    private String [] itemsFilterBox           = new String [] {"Edge", "Inverse","Sharpen","Mediaan","Saturatie"};
+    private String [] itemsFilterBox           = new String [] {"Edge", "Inverse","Sharpen","Mediaan","Saturatie","Blur"};
    
     @Override
     public void onCreate(Bundle savedInstanceState) {
