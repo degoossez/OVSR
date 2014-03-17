@@ -3,7 +3,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
-    android:padding="0dp">
+    android:padding="0dp" >
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -72,12 +72,29 @@
                     android:text="OpenCL" />
             </LinearLayout>
 
-            <Button
-                android:id="@+id/FilterButton"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="2"
-                android:text="Filters" />
+                android:orientation="vertical" >
+
+                <Button
+                    android:id="@+id/FilterButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:text="Filters" />
+
+                <TextView
+                    android:id="@+id/timeview"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="2"
+                    android:text="0"
+                    android:textAlignment="center" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
