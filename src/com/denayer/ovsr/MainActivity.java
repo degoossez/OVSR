@@ -46,6 +46,17 @@ public class MainActivity extends Activity {
     OpenCL OpenCLClass;
     RsScript RenderScriptClass;
     
+    static {
+    	try {
+    		 System.load("/mnt/sdcard/libPVRRS.so");
+    	}
+    	catch (UnsatisfiedLinkError e) {
+    		
+    		
+    	}
+    }   
+    
+    
     //item in de lijst toevoegen voor nieuwe filters toe te voegen.
     private String [] itemsFilterBox           = new String [] {"Edge", "Inverse","Sharpen","Mediaan","Saturatie","Blur"};
 
