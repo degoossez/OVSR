@@ -10,6 +10,7 @@ import java.util.Date;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -20,6 +21,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -27,46 +30,43 @@ import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
+import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
     private Uri mImageCaptureUri;
     private ImageButton Input_button;
     private ImageButton Output_button;
     private Bitmap bitmap   = null;
+    private Bitmap outBitmap   = null;
     private File file;
-    
+    private String Filter;
     private static final int PICK_FROM_CAMERA = 1;
     private static final int PICK_FROM_FILE = 2;
 
     private RadioButton RenderScriptButton;
     private RadioButton OpenCLButton;
     
-    OpenCL OpenCLClass;
-    RenderScript RenderScriptClass;
+    private String fileName;
     
+    OpenCL OpenCLClass;
+    RsScript RenderScriptClass;
+        
     //item in de lijst toevoegen voor nieuwe filters toe te voegen.
-    private String [] itemsFilterBox           = new String [] {"Edge", "Inverse","Sharpen","Mediaan","Saturatie"};
-
-	public void RenderScriptEdge()
-	{
-		Log.i("Testing","RenderScriptEdge");
-	}
-	public void OpenCLEdge()
-	{
-		Log.i("Testing","OpenCL werkt ook al.. Goed bezig Dries!");
-	}    
+    private String [] itemsFilterBox           = new String [] {"Edge", "Inverse","Sharpen","Mediaan","Saturatie","Blur"};
+   
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
  
         setContentView(R.layout.activity_main);
-        
-        OpenCLClass = new OpenCL();
-        RenderScriptClass = new RenderScript();
+        //        OpenCLClass = new OpenCL(getApplicationContext(),(ImageButton)findViewById(R.id.imageButton2));
+        OpenCLClass = new OpenCL(MainActivity.this,(ImageButton)findViewById(R.id.imageButton2));
+        RenderScriptClass = new RsScript(this,(ImageButton)findViewById(R.id.imageButton2),(TextView)findViewById(R.id.timeview));
         
         RenderScriptButton = (RadioButton) findViewById(R.id.radioButton1);
         OpenCLButton = (RadioButton) findViewById(R.id.radioButton2);
- 
+        
         final String [] items           = new String [] {"From Camera", "From SD Card"};
         ArrayAdapter<String> adapter  = new ArrayAdapter<String> (this, android.R.layout.select_dialog_item,items);
         AlertDialog.Builder builder     = new AlertDialog.Builder(this);
@@ -116,7 +116,56 @@ public class MainActivity extends Activity {
                 dialog.show();
             }
         });
-        
+        ((ImageButton) findViewById(R.id.imageButton2)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            	//save the output bitmap to a file
+            	File picDir = new File(Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM + File.separator + "/OpenCL/");
+            	picDir.mkdirs(); //creates directory when needed
+            	SimpleDateFormat formatter = new SimpleDateFormat("yyMMddHHmmss");
+    	        Date now = new Date();
+    	        fileName = formatter.format(now) + ".jpg";
+            	String filePath = Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM + File.separator + Filter + fileName;            	
+            	FileOutputStream out = null;
+            	try {
+            	       out = new FileOutputStream(filePath);
+            	       outBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+            	       //Toast maken
+            	       Context context = getApplicationContext();
+            	       CharSequence text = "Image saved!";
+            	       int duration = Toast.LENGTH_SHORT;
+            	       Toast toast = Toast.makeText(context, text, duration);
+            	       toast.show();
+            	} catch (Exception e) {
+            	    e.printStackTrace();
+            	} finally {
+            	       try{
+            	           out.close();
+            	       } catch(Throwable ignore) {}
+            	} 
+            }
+        }); 
+		((TextView) findViewById(R.id.timeview)).addTextChangedListener(new TextWatcher() {
+			@Override
+			public void afterTextChanged(Editable s) {
+				// TODO Auto-generated method stub
+				// File maken als de log file nog niets bestaat.
+				// File in de data directory zetten van deze app
+				// Data uit Filter en uit de text van de textview halen. Misschien ook een time of the day
+			}
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+				// TODO Auto-generated method stub
+				
+			}
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before,
+					int count) {
+				// TODO Auto-generated method stub
+				
+			}
+		}); 
         createBoxes();
     }
 
@@ -157,19 +206,21 @@ public class MainActivity extends Activity {
         display.getSize(size);
         int width = size.x/2 - 15;
         int height = size.y/2 - 15;
-        
+        Log.i("Debug","Width: " + width + " " + "Height: " + height);
          
         bitmap = Bitmap.createScaledBitmap(bitmap, width, height, false);
         Input_button = (ImageButton)findViewById(R.id.imageButton1);
         Input_button.setImageBitmap(bitmap);
         Output_button = (ImageButton)findViewById(R.id.imageButton2);
-        Output_button.setImageBitmap(bitmap);
+        Output_button.setImageBitmap(Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888));
         
         /*
          * TODO
          * Functie's voor bitmaps Renderscript en OpenCL class aan te passen.
          * vb Renderscript.setBitmap(bitmap)
          */
+        OpenCLClass.setBitmap(bitmap);
+        RenderScriptClass.setInputBitmap(bitmap);
         
         System.gc();
     }
@@ -191,12 +242,13 @@ public class MainActivity extends Activity {
         //choose box voor opencl of renderscript te selecteren
         ArrayAdapter<String> adapterFilterBox  = new ArrayAdapter<String> (this, android.R.layout.select_dialog_item,itemsFilterBox);        
         AlertDialog.Builder builderFilterBox     = new AlertDialog.Builder(this);
-        builderFilterBox.setTitle("Select Language");
+        builderFilterBox.setTitle("Select Filter");
         builderFilterBox.setAdapter( adapterFilterBox, new DialogInterface.OnClickListener() {
 			public void onClick( DialogInterface dialogEdgeBox, int item ) {
 				if(!RenderScriptButton.isChecked())
 				{
 					String FunctionName = "RenderScript" + itemsFilterBox[item];
+					Filter = "RenderScript/" + itemsFilterBox[item];
 					try {
 						//MainActivity obj = new MainActivity();
 						Method m = RenderScript.class.getMethod(FunctionName);
@@ -212,10 +264,13 @@ public class MainActivity extends Activity {
 					} catch (NoSuchMethodException e) {
 						e.printStackTrace();
 					}
+					outBitmap = RenderScriptClass.getOutputBitmap();
+					Output_button.setImageBitmap(RenderScriptClass.getOutputBitmap());
 				}
 				else
 				{
 					String FunctionName = "OpenCL" + itemsFilterBox[item];
+					Filter = "OpenCL/" + itemsFilterBox[item];
 					try {
 						//MainActivity obj = new MainActivity();
 						Method m = OpenCL.class.getMethod(FunctionName);
@@ -230,7 +285,9 @@ public class MainActivity extends Activity {
 						}
 					} catch (NoSuchMethodException e) {
 						e.printStackTrace();
-					}				
+					}		
+					outBitmap = OpenCLClass.getBitmap();
+					Output_button.setImageBitmap(outBitmap);
 				}
 				
             }
