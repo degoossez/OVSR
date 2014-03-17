@@ -21,6 +21,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -28,6 +30,7 @@ import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
@@ -43,6 +46,8 @@ public class MainActivity extends Activity {
 
     private RadioButton RenderScriptButton;
     private RadioButton OpenCLButton;
+    
+    private String fileName;
     
     OpenCL OpenCLClass;
     RenderScript RenderScriptClass;
@@ -61,7 +66,7 @@ public class MainActivity extends Activity {
         
         RenderScriptButton = (RadioButton) findViewById(R.id.radioButton1);
         OpenCLButton = (RadioButton) findViewById(R.id.radioButton2);
- 
+        
         final String [] items           = new String [] {"From Camera", "From SD Card"};
         ArrayAdapter<String> adapter  = new ArrayAdapter<String> (this, android.R.layout.select_dialog_item,items);
         AlertDialog.Builder builder     = new AlertDialog.Builder(this);
@@ -119,11 +124,11 @@ public class MainActivity extends Activity {
             	picDir.mkdirs(); //creates directory when needed
             	SimpleDateFormat formatter = new SimpleDateFormat("yyMMddHHmmss");
     	        Date now = new Date();
-    	        String fileName = formatter.format(now) + ".jpg";
-            	fileName = Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM + File.separator + Filter + fileName;            	
+    	        fileName = formatter.format(now) + ".jpg";
+            	String filePath = Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM + File.separator + Filter + fileName;            	
             	FileOutputStream out = null;
             	try {
-            	       out = new FileOutputStream(fileName);
+            	       out = new FileOutputStream(filePath);
             	       outBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
             	       //Toast maken
             	       Context context = getApplicationContext();
@@ -139,7 +144,28 @@ public class MainActivity extends Activity {
             	       } catch(Throwable ignore) {}
             	} 
             }
-        });        
+        }); 
+		((TextView) findViewById(R.id.timeview)).addTextChangedListener(new TextWatcher() {
+			@Override
+			public void afterTextChanged(Editable s) {
+				// TODO Auto-generated method stub
+				// File maken als de log file nog niets bestaat.
+				// File in de data directory zetten van deze app
+				// Data uit Filter en uit de text van de textview halen. Misschien ook een time of the day
+			}
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+				// TODO Auto-generated method stub
+				
+			}
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before,
+					int count) {
+				// TODO Auto-generated method stub
+				
+			}
+		}); 
         createBoxes();
     }
 
@@ -180,7 +206,7 @@ public class MainActivity extends Activity {
         display.getSize(size);
         int width = size.x/2 - 15;
         int height = size.y/2 - 15;
-        
+        Log.i("Debug","Width: " + width + " " + "Height: " + height);
          
         bitmap = Bitmap.createScaledBitmap(bitmap, width, height, false);
         Input_button = (ImageButton)findViewById(R.id.imageButton1);

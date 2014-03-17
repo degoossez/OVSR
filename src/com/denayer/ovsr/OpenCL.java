@@ -184,30 +184,23 @@ public class OpenCL extends Object {
 		final SeekBar MySeekBar = new SeekBar(mContext);
 
 		MySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){ 
-
 			   @Override 
 			   public void onProgressChanged(SeekBar seekBar, int progress, 
 			     boolean fromUser) { 
-			    // TODO Auto-generated method stub 
+			    //  Auto-generated method stub 
 				   progressView.setText(String.valueOf(progress)); 
 			   } 
-
 			   @Override 
 			   public void onStartTrackingTouch(SeekBar seekBar) { 
-			    // TODO Auto-generated method stub 
+			    //  Auto-generated method stub 
 			   } 
-
 			   @Override 
 			   public void onStopTrackingTouch(SeekBar seekBar) { 
-			    // TODO Auto-generated method stub 
+			    //  Auto-generated method stub 
 			   } 
 			       }); 
-		
-
-
 		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);        
         builder.setMessage("saturation value")
-        	   //.setView(MySeekBar)
                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                    public void onClick(DialogInterface dialog, int id) {
                 	   saturatie = MySeekBar.getProgress();
