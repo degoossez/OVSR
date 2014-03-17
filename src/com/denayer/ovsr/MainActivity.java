@@ -27,6 +27,7 @@ import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
+import android.widget.TextView;
 
 
 public class MainActivity extends Activity {
@@ -63,7 +64,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         
         OpenCLClass = new OpenCL();
-        RenderScriptClass = new RsScript(this,(ImageButton)findViewById(R.id.imageButton2));
+        RenderScriptClass = new RsScript(this,(ImageButton)findViewById(R.id.imageButton2),(TextView)findViewById(R.id.timeview));
         
         RenderScriptButton = (RadioButton) findViewById(R.id.radioButton1);
         OpenCLButton = (RadioButton) findViewById(R.id.radioButton2);
@@ -159,6 +160,7 @@ public class MainActivity extends Activity {
         int width = size.x/2 - 15;
         int height = size.y/2 - 15;
         
+        Log.i("koen","width = " + String.valueOf(width) + "height = " + String.valueOf(height));
          
         bitmap = Bitmap.createScaledBitmap(bitmap, width, height, false);
         Input_button = (ImageButton)findViewById(R.id.imageButton1);

@@ -3,11 +3,12 @@
 
 #include "rs_types.rsh"
 
+static void bubble_sort(float[], float);
+
 rs_allocation out;
 rs_allocation in;
 rs_script script;
 
-float filterC[9];
 int width,height;
 
 void init(){
@@ -26,10 +27,14 @@ void root(const uchar4* v_in, uchar4* v_out, const void* usrData, uint32_t x,
 		
 	
 	float4 pixel = { 0, 0, 0, 0 };
+	float pixelListR[9];
+	float pixelListG[9];
+	float pixelListB[9];
 	int counter = 0;
 	
+	
 	float4 current = rsUnpackColor8888(*v_in);
-	float sum = 0;			
+			
 	
 	for(float i=-1;i<=1;i++)
 	{		
@@ -39,27 +44,50 @@ void root(const uchar4* v_in, uchar4* v_out, const void* usrData, uint32_t x,
 			
 		
 			pixel = rsUnpackColor8888(*(uchar*) rsGetElementAt(in, x+j, y+i));
-			pixel.r *= 255;			
-			sum = sum + ( pixel.r * filterC[counter]);
 			
-			counter++;		
+			
+			pixelListR[counter] = pixel.r * 255;	//collect surrounding pixels
+			pixelListG[counter] = pixel.g * 255;
+			pixelListB[counter] = pixel.b * 255;
+			
+			
+			counter++;	
 		
 		}		
 			
 	}
 	
+	bubble_sort(pixelListR, 9);
+	bubble_sort(pixelListG, 9);
+	bubble_sort(pixelListB, 9);
+	
 	
 
-	if(sum > 255)
-		sum = 255;
-	if(sum < 0)
-		sum = 0;
-		
-	sum /= 255;     
+	   
 
-    *v_out = rsPackColorTo8888(sum, sum, sum, current.a);
+    *v_out = rsPackColorTo8888(pixelListR[4] / 255, pixelListG[4] / 255, pixelListB[4] / 255, current.a);
     
   
+}
+
+void bubble_sort(float list[], float n)
+{
+  long c, d, t;
+ 
+  for (c = 0 ; c < ( n - 1 ); c++)
+  {
+    for (d = 0 ; d < n - c - 1; d++)
+    {
+      if (list[d] > list[d+1])
+      {
+        /* Swapping */
+ 
+        t         = list[d];
+        list[d]   = list[d+1];
+        list[d+1] = t;
+      }
+    }
+  }
 }
 
 void filter()

@@ -31,11 +31,11 @@ void root(const uchar4* v_in, uchar4* v_out, const void* usrData, uint32_t x,
 
 void filter()
 {
-    /*rsDebug("RS_VERSION = ", RS_VERSION);
+    rsDebug("RS_VERSION = ", RS_VERSION);
     #if !defined(RS_VERSION) || (RS_VERSION < 14)
         rsForEach(script, in, out, 0);
     #else
         rsForEach(script, in, out);
-    #endif*/
+    #endif
    
 }

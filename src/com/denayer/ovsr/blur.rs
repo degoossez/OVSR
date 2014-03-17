@@ -7,6 +7,7 @@ rs_allocation out;
 rs_allocation in;
 rs_script script;
 
+
 float filterC[9];
 int width,height;
 

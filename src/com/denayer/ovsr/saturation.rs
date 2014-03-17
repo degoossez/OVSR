@@ -2,9 +2,12 @@
 #pragma rs java_package_name(com.denayer.ovsr)
 
 #include "rs_time.rsh"
+#include "rs_core.rsh"
+#include "rs_allocation.rsh"
 
 rs_allocation out;
 rs_allocation in;
+rs_allocation timeAlloc;
 rs_script script;
 float saturation;
 
@@ -30,7 +33,8 @@ void root(const uchar4* v_in, uchar4* v_out, const void* usrData, uint32_t x,
 
 void filter()
 {
-	int64_t t;
+	rs_time_t t;
+	rs_time_t runtime = 0;
 	
 	t = rsUptimeNanos();
 	
@@ -41,7 +45,12 @@ void filter()
         rsForEach(script, in, out);
     #endif
     
-    int64_t runtime = rsUptimeNanos() - t;
+    runtime = rsUptimeNanos() - t;
     rsDebug("Saturation elapsed time = ", runtime);
-   
+    //rsSendToClient(1,  &runtime, sizeof(runtime));
+    
+     
 }
+
+
+
