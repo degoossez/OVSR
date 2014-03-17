@@ -5,6 +5,8 @@ import android.text.InputType;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -186,37 +188,47 @@ public class RsScript extends Object {
 	public void RenderScriptSaturatie()
 	{		
 		if(inBitmap == null)
-			return;
-		
-		final EditText input = new EditText(mContext);
+			return;		      
+
+        
+        final TextView progressView = new TextView(mContext);
 		final Resources res = mContext.getResources();
-		
-		
-		input.setText("50");
-		
-		//final String value;
-		
-		//only allow numeric values
-		input.setInputType(InputType.TYPE_CLASS_NUMBER|InputType.TYPE_NUMBER_FLAG_DECIMAL);
-		
+		final SeekBar MySeekBar = new SeekBar(mContext);
+
+		MySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){ 
+			   @Override 
+			   public void onProgressChanged(SeekBar seekBar, int progress, 
+			     boolean fromUser) { 
+			    //  Auto-generated method stub 
+				   progressView.setText(String.valueOf(progress)); 
+			   } 
+			   @Override 
+			   public void onStartTrackingTouch(SeekBar seekBar) { 
+			    //  Auto-generated method stub 
+			   } 
+			   @Override 
+			   public void onStopTrackingTouch(SeekBar seekBar) { 
+			    //  Auto-generated method stub 
+			   } 
+			       }); 
 		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);        
         builder.setMessage("saturation value")
-        	   .setView(input)
                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                   public void onClick(DialogInterface dialog, int id) {
-                	   String value = input.getText().toString();      
-                	   saturationValue = Float.parseFloat(value);  
+                   public void onClick(DialogInterface dialog, int id) {      
+                	   saturationValue = MySeekBar.getProgress();  
                 	   outBitmap = saturate(inBitmap, saturationValue);
                 	   outputButton.setImageBitmap(outBitmap);
-                	   
-                	   
                    }
                });
-              
-               
+        progressView.setGravity(1 | 0x10);
         // Create the AlertDialog object and return it
         AlertDialog dialog = builder.create();
-        dialog.show();      
+	     LinearLayout ll=new LinearLayout(mContext);
+	        ll.setOrientation(LinearLayout.VERTICAL);
+	        ll.addView(MySeekBar);
+	        ll.addView(progressView);
+	        dialog.setView(ll);
+        dialog.show(); 
 	}
 	
 	public Bitmap saturate(Bitmap bmIn, float saturation)
