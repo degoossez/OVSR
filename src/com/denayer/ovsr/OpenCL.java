@@ -31,61 +31,49 @@ public class OpenCL extends Object {
 	float saturatie=0;
 	public ImageButton outputButton;
 	final int info[] = new int[3]; // Width, Height, Execution time (ms)
+	static boolean sfoundLibrary = true;
 
-    static {
-        try { 
-        	System.load("/system/vendor/lib/libPVROCL.so");
-        	 Log.i("Debug", "Libs Loaded");
-      	
-        	//System.loadLibrary("CLDeviceTest");  
-        }
-        catch (UnsatisfiedLinkError e) {
-		    System.load("/system/vendor/lib/egl/libGLES_mali.so");
-		      Log.i("Debug", "Mali loaded");
-          boolean sfoundLibrary = false;
-        }
-      }
-	static {
-	  try {
-		  System.loadLibrary("OVSR");  
-		  Log.i("Debug","My Lib Loaded!");
-	  }
-	  catch (UnsatisfiedLinkError e) {
-	      Log.e("Debug", "Error log", e);
-	  }
-	}
  
 	public OpenCL(Context context, ImageButton outImageButton) {
     	mContext = context; //<-- fill it with the Context you passed
     	outputButton = outImageButton;
+    	try { 
+    		System.load("/system/vendor/lib/libPVROCL.so");
+    		Log.i("Debug", "libPVROCL Loaded"); 
+    	}
+    	catch (UnsatisfiedLinkError e) {
+    		sfoundLibrary = false;
+    	}
+    	if(sfoundLibrary==false)
+    	{
+	    	try { 
+	    		System.load("/system/vendor/lib/egl/libGLES_mali.so");
+	    		Log.i("Debug", "libGLES_mali loaded");
+	    	}
+	    	catch (UnsatisfiedLinkError e) {
+	    		sfoundLibrary = false;
+	    	}
+    	}
+    	try {
+    		System.loadLibrary("OVSR");  
+    		Log.i("Debug","My Lib Loaded!");
+    	}
+    	catch (UnsatisfiedLinkError e) {
+    		Log.e("Debug", "Error log", e);
+    	} 	
     }
+	public boolean getOpenCLSupport(){
+		return sfoundLibrary;
+	}
     public void setBitmap(Bitmap bmpOrigJava)
     {
     	bmpOrig = bmpOrigJava;
         info[0] = bmpOrig.getWidth();
         info[1] = bmpOrig.getHeight();
         bmpOpenCL = Bitmap.createBitmap(info[0], info[1], Bitmap.Config.ARGB_8888);
-//        for(int i=0;i<3;i++)
-//        {
-//            for(int j=0;j<3;j++)
-//            {
-//        	Log.i("Red:",String.valueOf(Color.red(bmpOrig.getPixel(i, j))));
-//        	Log.i("Green:",String.valueOf(Color.green(bmpOrig.getPixel(i, j))));
-//        	Log.i("Blue:",String.valueOf(Color.blue(bmpOrig.getPixel(i, j))));
-//            }
-//        } 
     }
     public Bitmap getBitmap()
     {
-//        for(int i=0;i<3;i++)
-//        {
-//            for(int j=0;j<3;j++)
-//            {
-//        	Log.i("Red:",String.valueOf(Color.red(bmpOpenCL.getPixel(i, j))));
-//        	Log.i("Green:",String.valueOf(Color.green(bmpOpenCL.getPixel(i, j))));
-//        	Log.i("Blue:",String.valueOf(Color.blue(bmpOpenCL.getPixel(i, j))));
-//            }
-//        }  	
     	return bmpOpenCL;
     }
     private native void initOpenCL (String kernelName);
@@ -106,6 +94,8 @@ public class OpenCL extends Object {
 	
 	public void OpenCLEdge ()
 	{
+		if(bmpOrig == null)
+			return;
 		Log.i("OpenCL","OpenCLEdge");
     	copyFile("edge.cl");
     	String kernelName="edge";
@@ -120,6 +110,8 @@ public class OpenCL extends Object {
 	}
 	public void OpenCLInverse ()
 	{
+		if(bmpOrig == null)
+			return;
 		Log.i("OpenCL","OpenCLInverse");
     	copyFile("inverse.cl");
     	String kernelName="inverse";
@@ -134,6 +126,8 @@ public class OpenCL extends Object {
 	}
 	public void OpenCLSharpen ()
 	{
+		if(bmpOrig == null)
+			return;
 		Log.i("OpenCL","OpenCLSharpen");
     	copyFile("sharpen.cl");
     	String kernelName="sharpen";
@@ -149,6 +143,8 @@ public class OpenCL extends Object {
 	}
 	public void OpenCLMediaan ()
 	{
+		if(bmpOrig == null)
+			return;
 		Log.i("OpenCL","OpenCLMediaan");
     	copyFile("mediaan.cl");
     	String kernelName="mediaan";
@@ -163,6 +159,8 @@ public class OpenCL extends Object {
 	}
 	public void OpenCLBlur ()
 	{
+		if(bmpOrig == null)
+			return;
 		Log.i("OpenCL","OpenCLBlur");
     	copyFile("blur.cl");
     	String kernelName="blur";
@@ -177,6 +175,8 @@ public class OpenCL extends Object {
 	}	
 	public void OpenCLSaturatie ()
 	{	
+		if(bmpOrig == null)
+			return;
 		Log.i("DEBUG","OPENCLSATURATIE");
 
 		final TextView progressView = new TextView(mContext);

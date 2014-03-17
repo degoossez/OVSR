@@ -120,7 +120,8 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
             	//save the output bitmap to a file
-            	File picDir = new File(Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM + File.separator + "/OpenCL/");
+            	File picDir = new File(Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM + "/OpenCL/");
+            	picDir = new File(Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM + "/RenderScript/");
             	picDir.mkdirs(); //creates directory when needed
             	SimpleDateFormat formatter = new SimpleDateFormat("yyMMddHHmmss");
     	        Date now = new Date();
@@ -130,12 +131,7 @@ public class MainActivity extends Activity {
             	try {
             	       out = new FileOutputStream(filePath);
             	       outBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
-            	       //Toast maken
-            	       Context context = getApplicationContext();
-            	       CharSequence text = "Image saved!";
-            	       int duration = Toast.LENGTH_SHORT;
-            	       Toast toast = Toast.makeText(context, text, duration);
-            	       toast.show();
+            	       createToast("Image saved!",false);	
             	} catch (Exception e) {
             	    e.printStackTrace();
             	} finally {
@@ -250,8 +246,7 @@ public class MainActivity extends Activity {
 					String FunctionName = "RenderScript" + itemsFilterBox[item];
 					Filter = "RenderScript/" + itemsFilterBox[item];
 					try {
-						//MainActivity obj = new MainActivity();
-						Method m = RenderScript.class.getMethod(FunctionName);
+						Method m = RsScript.class.getMethod(FunctionName);
 						try {
 							m.invoke(RenderScriptClass, null);
 						} catch (IllegalAccessException e) {
@@ -264,30 +259,51 @@ public class MainActivity extends Activity {
 					} catch (NoSuchMethodException e) {
 						e.printStackTrace();
 					}
+					if(RenderScriptClass.getOutputBitmap()!=null)
+					{
 					outBitmap = RenderScriptClass.getOutputBitmap();
 					Output_button.setImageBitmap(RenderScriptClass.getOutputBitmap());
+					}
+					else
+					{
+						createToast("Select image!",false);	
+					}
 				}
 				else
 				{
-					String FunctionName = "OpenCL" + itemsFilterBox[item];
-					Filter = "OpenCL/" + itemsFilterBox[item];
-					try {
-						//MainActivity obj = new MainActivity();
-						Method m = OpenCL.class.getMethod(FunctionName);
+					if(OpenCLClass.getOpenCLSupport())
+					{
+						String FunctionName = "OpenCL" + itemsFilterBox[item];
+						Filter = "OpenCL/" + itemsFilterBox[item];
 						try {
-							m.invoke(OpenCLClass, null);
-						} catch (IllegalAccessException e) {
+							//MainActivity obj = new MainActivity();
+							Method m = OpenCL.class.getMethod(FunctionName);
+							try {
+								m.invoke(OpenCLClass, null);
+							} catch (IllegalAccessException e) {
+								e.printStackTrace();
+							} catch (IllegalArgumentException e) {
+								e.printStackTrace();
+							} catch (InvocationTargetException e) {
+								e.printStackTrace();
+							}
+						} catch (NoSuchMethodException e) {
 							e.printStackTrace();
-						} catch (IllegalArgumentException e) {
-							e.printStackTrace();
-						} catch (InvocationTargetException e) {
-							e.printStackTrace();
+						}	
+						if(OpenCLClass.getBitmap()!=null)
+						{
+						outBitmap = OpenCLClass.getBitmap();
+						Output_button.setImageBitmap(outBitmap);
 						}
-					} catch (NoSuchMethodException e) {
-						e.printStackTrace();
-					}		
-					outBitmap = OpenCLClass.getBitmap();
-					Output_button.setImageBitmap(outBitmap);
+						else
+						{
+		            	       createToast("Select image!",false);					
+						}
+					}
+					else
+					{
+	            	       createToast("No OpenCL support!",false);					
+					}
 				}
 				
             }
@@ -321,5 +337,14 @@ public class MainActivity extends Activity {
      
     	});
         //einde radio buttons
+	}
+	public void createToast(String Message,boolean isLong)
+	{
+	       Context context = getApplicationContext();
+	       CharSequence text = Message;
+	       int duration = Toast.LENGTH_SHORT;
+	       if(isLong) duration = Toast.LENGTH_LONG;
+	       Toast toast = Toast.makeText(context, text, duration);
+	       toast.show();		
 	}
 }

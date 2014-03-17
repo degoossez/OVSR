@@ -497,6 +497,10 @@ void nativeBasicOpenCL
 {
     using namespace std;
 
+    timeval start;
+    timeval end;
+
+    gettimeofday(&start, NULL);
 
     AndroidBitmapInfo bitmapInfo;
     AndroidBitmap_getInfo(env, inputBitmap, &bitmapInfo);
@@ -570,10 +574,10 @@ void nativeBasicOpenCL
 
     size_t globalSize[2] = { bitmapInfo.width, bitmapInfo.height };
 
-    timeval start;
-    timeval end;
-
-    gettimeofday(&start, NULL);
+//    timeval start;
+//    timeval end;
+//
+//    gettimeofday(&start, NULL);
 
     err =
         clEnqueueNDRangeKernel
@@ -590,13 +594,6 @@ void nativeBasicOpenCL
 
     err = clFinish(openCLObjects.queue);
     SAMPLE_CHECK_ERRORS(err);
-
-    gettimeofday(&end, NULL);
-
-    float ndrangeDuration =
-        (end.tv_sec + end.tv_usec * 1e-6) - (start.tv_sec + start.tv_usec * 1e-6);
-
-    LOGD("NDRangeKernel time: %f", ndrangeDuration);
 
     err = clEnqueueReadBuffer (openCLObjects.queue,
     		outputBuffer,
@@ -620,14 +617,17 @@ void nativeBasicOpenCL
     // pixels in the output bitmap object.
     AndroidBitmap_unlockPixels(env, outputBitmap);
 
+    gettimeofday(&end, NULL);
+
+    float ndrangeDuration =
+        (end.tv_sec + end.tv_usec * 1e-6) - (start.tv_sec + start.tv_usec * 1e-6);
+
     LOGD("nativeBasicOpenCL ends successfully");
 
     jclass MyJavaClass = (*env).FindClass("com/denayer/ovsr/OpenCL");
     if (!MyJavaClass){
-    	LOGD("Aj :(");
         return;} /* method not found */
     jmethodID setTimeFromJNI = (*env).GetMethodID(MyJavaClass, "setTimeFromJNI", "(F)V");
-    //jmethodID setTimeFromJNI = (*env).GetMethodID(MyJavaClass, "saturate",);
     (*env).CallVoidMethod(thisObject, setTimeFromJNI, ndrangeDuration);
     LOGD("Done");
 }
@@ -660,6 +660,11 @@ void nativeSaturatieOpenCL
 )
 {
     using namespace std;
+
+    timeval start;
+    timeval end;
+
+    gettimeofday(&start, NULL);
 
     AndroidBitmapInfo bitmapInfo;
     AndroidBitmap_getInfo(env, inputBitmap, &bitmapInfo);
@@ -737,10 +742,10 @@ void nativeSaturatieOpenCL
 
     size_t globalSize[2] = { bitmapInfo.width, bitmapInfo.height };
 
-    timeval start;
-    timeval end;
-
-    gettimeofday(&start, NULL);
+//    timeval start;
+//    timeval end;
+//
+//    gettimeofday(&start, NULL);
 
     err =
         clEnqueueNDRangeKernel
@@ -757,13 +762,6 @@ void nativeSaturatieOpenCL
 
     err = clFinish(openCLObjects.queue);
     SAMPLE_CHECK_ERRORS(err);
-
-    gettimeofday(&end, NULL);
-
-    float ndrangeDuration =
-        (end.tv_sec + end.tv_usec * 1e-6) - (start.tv_sec + start.tv_usec * 1e-6);
-
-    LOGD("NDRangeKernel time: %f", ndrangeDuration);
 
     err = clEnqueueReadBuffer (openCLObjects.queue,
     		outputBuffer,
@@ -786,6 +784,11 @@ void nativeSaturatieOpenCL
     // Make the output content be visible at the Java side by unlocking
     // pixels in the output bitmap object.
     AndroidBitmap_unlockPixels(env, outputBitmap);
+
+    gettimeofday(&end, NULL);
+
+    float ndrangeDuration =
+        (end.tv_sec + end.tv_usec * 1e-6) - (start.tv_sec + start.tv_usec * 1e-6);
 
     LOGD("nativeBasicOpenCL ends successfully");
 

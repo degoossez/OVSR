@@ -1,6 +1,8 @@
 package com.denayer.ovsr;
 
 
+import java.util.concurrent.TimeUnit;
+
 import android.text.InputType;
 import android.util.Log;
 import android.widget.EditText;
@@ -55,6 +57,7 @@ public class RsScript extends Object {
 	{
 		if(inBitmap == null)
 			return;
+	    long startTime = System.nanoTime(); 
 		
 		Log.i("koen","inside RenderScriptEdge");
 		
@@ -74,14 +77,14 @@ public class RsScript extends Object {
 	    script.set_width(inBitmap.getWidth());
 	    script.set_height(inBitmap.getHeight());
 	    
-	    long startTime = System.nanoTime(); 
 	    script.invoke_filter();	
 	    rs.finish();
 	    output.copyTo(outBitmap);
 	    
 	    long estimatedTime = System.nanoTime() - startTime;
+	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
         Log.i("koen","via java meting: " + String.valueOf(estimatedTime));
-        mElapsedTime.setText(String.valueOf(estimatedTime) + "ps");
+        mElapsedTime.setText(String.valueOf(estimatedTime) + "ms");
 		
 	}
 	
@@ -89,6 +92,7 @@ public class RsScript extends Object {
 	{
 		if(inBitmap == null)
 			return;
+	    long startTime = System.nanoTime(); 
 		
 		final RenderScript rs = RenderScript.create(mContext);
 		Allocation allocIn;
@@ -102,15 +106,15 @@ public class RsScript extends Object {
 	    script.set_out(allocOut);
 	    script.set_script(script);
 	    
-	    long startTime = System.nanoTime(); 
 	    script.invoke_filter();	   
 	    //script.forEach_root(allocIn, allocOut);
 	    rs.finish();
 	    allocOut.copyTo(outBitmap);
 	    
 	    long estimatedTime = System.nanoTime() - startTime;
+	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
         Log.i("koen","via java meting: " + String.valueOf(estimatedTime));
-        mElapsedTime.setText(String.valueOf(estimatedTime) + "ps");
+        mElapsedTime.setText(String.valueOf(estimatedTime) + "ms");
 	    
 		
 	}	
@@ -119,6 +123,7 @@ public class RsScript extends Object {
 	{
 		if(inBitmap == null)
 			return;
+	    long startTime = System.nanoTime(); 
 		
 		Log.i("koen","inside RenderScriptSharpen");
 		
@@ -138,15 +143,15 @@ public class RsScript extends Object {
 	    script.set_width(inBitmap.getWidth());
 	    script.set_height(inBitmap.getHeight());
 	    
-	    long startTime = System.nanoTime(); 
 	    script.invoke_filter();	
 	    rs.finish();
 	    
 	    output.copyTo(outBitmap);
 	    
 	    long estimatedTime = System.nanoTime() - startTime;
+	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
         Log.i("koen","via java meting: " + String.valueOf(estimatedTime));
-        mElapsedTime.setText(String.valueOf(estimatedTime) + "ps");
+        mElapsedTime.setText(String.valueOf(estimatedTime) + "ms");
 		
 	}
 	
@@ -154,7 +159,7 @@ public class RsScript extends Object {
 	{
 		if(inBitmap == null)
 			return;
-		
+		long startTime = System.nanoTime(); 
 		Log.i("koen","inside RenderScriptBlur");
 		
 		float []filter = new float[]{1,1,1,1,1,1,1,1,1};
@@ -173,14 +178,14 @@ public class RsScript extends Object {
 	    script.set_width(inBitmap.getWidth());
 	    script.set_height(inBitmap.getHeight());
 	    
-	    long startTime = System.nanoTime(); 	    
 	    script.invoke_filter();	
 	    rs.finish();
 	    output.copyTo(outBitmap);
 	    
 	    long estimatedTime = System.nanoTime() - startTime;
+	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
         Log.i("koen","via java meting: " + String.valueOf(estimatedTime));
-        mElapsedTime.setText(String.valueOf(estimatedTime) + "ps");
+        mElapsedTime.setText(String.valueOf(estimatedTime) + "ms");
 		
 	
 	}
@@ -189,7 +194,6 @@ public class RsScript extends Object {
 	{		
 		if(inBitmap == null)
 			return;		      
-
         
         final TextView progressView = new TextView(mContext);
 		final Resources res = mContext.getResources();
@@ -233,6 +237,9 @@ public class RsScript extends Object {
 	
 	public Bitmap saturate(Bitmap bmIn, float saturation)
 	{
+		
+	    long startTime = System.nanoTime(); 
+
 		final RenderScript rs = RenderScript.create(mContext);
 		MyRsMessageHandler myHandler = new MyRsMessageHandler(mElapsedTime,MmainThread);
 		rs.setMessageHandler(myHandler);
@@ -257,7 +264,6 @@ public class RsScript extends Object {
 	    scriptSat.set_saturation(saturation);
 	    scriptSat.set_timeAlloc(allocT);
 	    
-	    long startTime = System.nanoTime(); 
 	    
 	    scriptSat.invoke_filter();	   
 	    //scriptSat.forEach_root(allocIn, allocOut);
@@ -265,8 +271,9 @@ public class RsScript extends Object {
 	    allocOut.copyTo(bmOut);
 	    
 	    long estimatedTime = System.nanoTime() - startTime;
+	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
         Log.i("koen","via java meting: " + String.valueOf(estimatedTime));
-        mElapsedTime.setText(String.valueOf(estimatedTime) + "ps");
+        mElapsedTime.setText(String.valueOf(estimatedTime) + "ms");
 	    
 	    int [] time = new int[1];
 	    allocT.copyTo(time);
@@ -281,7 +288,7 @@ public class RsScript extends Object {
 		
 		if(inBitmap == null)
 			return;
-		
+		long startTime = System.nanoTime(); 
 		Log.i("koen","inside RenderScriptMediaan");        
 		
         final RenderScript rs = RenderScript.create(mContext);
@@ -297,14 +304,15 @@ public class RsScript extends Object {
 	    script.set_width(inBitmap.getWidth());
 	    script.set_height(inBitmap.getHeight());
 	    
-	    long startTime = System.nanoTime(); 
+	    
 	    script.invoke_filter();	
 	    rs.finish();
 	    output.copyTo(outBitmap);
 	    
 	    long estimatedTime = System.nanoTime() - startTime;
+	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
         Log.i("koen","via java meting: " + String.valueOf(estimatedTime));
-        mElapsedTime.setText(String.valueOf(estimatedTime) + "ps");
+        mElapsedTime.setText(String.valueOf(estimatedTime) + "ms");
 		
 	}
 	
