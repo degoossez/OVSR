@@ -2,7 +2,7 @@ package com.denayer.ovsr;
 
 import android.util.Log;
 
-public class RenderScript extends Object {
+public class RsScript extends Object {
 
 	public void RenderScriptEdge ()
 	{

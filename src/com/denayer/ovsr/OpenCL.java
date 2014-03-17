@@ -54,7 +54,7 @@ public class OpenCL extends Object {
 	      Log.e("Debug", "Error log", e);
 	  }
 	}
-	
+ 
 	public OpenCL(Context context, ImageButton outImageButton) {
     	mContext = context; //<-- fill it with the Context you passed
     	outputButton = outImageButton;

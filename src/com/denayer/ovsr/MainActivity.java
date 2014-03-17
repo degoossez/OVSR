@@ -50,7 +50,7 @@ public class MainActivity extends Activity {
     private String fileName;
     
     OpenCL OpenCLClass;
-    RenderScript RenderScriptClass;
+    RsScript RenderScriptClass;
         
     //item in de lijst toevoegen voor nieuwe filters toe te voegen.
     private String [] itemsFilterBox           = new String [] {"Edge", "Inverse","Sharpen","Mediaan","Saturatie","Blur"};
@@ -62,7 +62,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         //        OpenCLClass = new OpenCL(getApplicationContext(),(ImageButton)findViewById(R.id.imageButton2));
         OpenCLClass = new OpenCL(MainActivity.this,(ImageButton)findViewById(R.id.imageButton2));
-        RenderScriptClass = new RenderScript();
+        RenderScriptClass = new RsScript(this,(ImageButton)findViewById(R.id.imageButton2),(TextView)findViewById(R.id.timeview));
         
         RenderScriptButton = (RadioButton) findViewById(R.id.radioButton1);
         OpenCLButton = (RadioButton) findViewById(R.id.radioButton2);
@@ -220,6 +220,7 @@ public class MainActivity extends Activity {
          * vb Renderscript.setBitmap(bitmap)
          */
         OpenCLClass.setBitmap(bitmap);
+        RenderScriptClass.setInputBitmap(bitmap);
         
         System.gc();
     }
@@ -263,6 +264,8 @@ public class MainActivity extends Activity {
 					} catch (NoSuchMethodException e) {
 						e.printStackTrace();
 					}
+					outBitmap = RenderScriptClass.getOutputBitmap();
+					Output_button.setImageBitmap(RenderScriptClass.getOutputBitmap());
 				}
 				else
 				{

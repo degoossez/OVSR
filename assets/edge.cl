@@ -50,6 +50,16 @@ kernel void edgeKernel(__global uchar4 *srcBuffer,
 	convPixel.y += currentPixel.y *edgeKernel[8];
 	convPixel.z += currentPixel.z*edgeKernel[8];
 
+	/*float avg = (convPixel.x + convPixel.x + convPixel.x )/3;
+	//convPixel.x = convPixel.y = convPixel.z = avg;
+	if(avg>75)
+	{
+		convPixel.x = convPixel.y = convPixel.z = 255;
+	}  
+	else
+	{
+		convPixel.x = convPixel.y = convPixel.z = avg;
+	}*/
 	convPixel.x = convPixel.y = convPixel.z;
 	dstBuffer[centerIndex] = convert_uchar4_sat_rte(convPixel);
 }
