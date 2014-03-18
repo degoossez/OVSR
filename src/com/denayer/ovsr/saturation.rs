@@ -18,15 +18,25 @@ void init(){
 void root(const uchar4* v_in, uchar4* v_out, const void* usrData, uint32_t x,
       uint32_t y)
 {
-    float4 current = rsUnpackColor8888(*v_in);
+    float4 current = rsUnpackColor8888(*v_in);   
+    
+    
+    //rsDebug("Saturation before = ", saturation);
+    
+    float Pr = 0.299f;
+    float Pg = 0.587f;
+    float Pb = 0.114f;
+    
+	float comp =  (current.r)*(current.r)*Pr+
+  (current.g)*(current.g)*Pg+
+  (current.b)*(current.b)*Pb;
+    
+    float  P=sqrt(comp) ;
 
-    float t = current.r * 0.11f + current.g * 0.59f + current.b * 0.3f;
-    //rsDebug("renderscript t = ", t);
-    //rsDebug("renderscript red before = ", current.r);
-    current.r = fmin(current.r + (t - current.r) * saturation / 100.0f, 1.f);
-    current.g = fmin(current.g + (t - current.g) * saturation / 100.0f, 1.f);
-    current.b = fmin(current.b + (t - current.b) * saturation / 100.0f, 1.f);
-    //rsDebug("renderscript red after = ", current.r);
+  current.r=P+((current.r)-P)*saturation;
+  current.g=P+((current.g)-P)*saturation;
+  current.b=P+((current.b)-P)*saturation;
+    
 
     *v_out = rsPackColorTo8888(current.r, current.g, current.b, current.a);
 }
@@ -51,6 +61,5 @@ void filter()
     
      
 }
-
 
 

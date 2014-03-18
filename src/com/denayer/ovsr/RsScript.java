@@ -198,6 +198,7 @@ public class RsScript extends Object {
         final TextView progressView = new TextView(mContext);
 		final Resources res = mContext.getResources();
 		final SeekBar MySeekBar = new SeekBar(mContext);
+		MySeekBar.setMax(200);
 
 		MySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){ 
 			   @Override 
@@ -256,12 +257,14 @@ public class RsScript extends Object {
 	    Type t = new Type.Builder(rs, Element.I32(rs)).setX(1).create();
 	    Allocation allocT = Allocation.createTyped(rs, t);
 	    
-	    ScriptC_saturation scriptSat = new ScriptC_saturation(rs);		
+	    ScriptC_saturation scriptSat = new ScriptC_saturation(rs);	
+	    
+	    Log.i("koen", "saturation value = " + String.valueOf(saturation));
 	    
 	    scriptSat.set_in(allocIn);
 	    scriptSat.set_out(allocOut);
 	    scriptSat.set_script(scriptSat);
-	    scriptSat.set_saturation(saturation);
+	    scriptSat.set_saturation(saturation/100);
 	    scriptSat.set_timeAlloc(allocT);
 	    
 	    
