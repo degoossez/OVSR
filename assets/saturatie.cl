@@ -3,7 +3,7 @@ kernel void saturatieKernel(__global uchar4 *srcBuffer,
                                     const uint rowPitch,
                                     const int width, 
                                     const int height,
-                                    const float saturatie)
+                                    float saturatie)
 {
 	//const float saturatie = 50;
     int xCoor = get_global_id(0);
@@ -15,10 +15,19 @@ kernel void saturatieKernel(__global uchar4 *srcBuffer,
     const float edgeKernel[9] = {0.0f,1.0f,0.0f,1.0f,-4.0f,1.0f,0.0f,1.0f,0.0f};
 		
 	currentPixel = convert_float4(srcBuffer[centerIndex]);
-	float t = (currentPixel.x*0.11f)+(currentPixel.y*0.59f)+(currentPixel.z*0.3f);
-	currentPixel.x = fmin(currentPixel.x+(t-currentPixel.x) * (saturatie/100.0f) , 255.f);
-	currentPixel.y = fmin(currentPixel.y+(t-currentPixel.y) * (saturatie/100.0f) , 255.f);
-	currentPixel.z = fmin(currentPixel.z+(t-currentPixel.z) * (saturatie/100.0f) , 255.f);
-	
+
+    float Pr = 0.299f;
+    float Pg = 0.587f;
+    float Pb = 0.114f;
+    
+	float comp =  (currentPixel.x)*(currentPixel.x)*Pr+(currentPixel.y)*(currentPixel.y)*Pg+(currentPixel.z)*(currentPixel.z)*Pb;
+    float  P=sqrt(comp);
+
+	saturatie = saturatie / 100;
+
+	currentPixel.x=P+((currentPixel.x)-P)*saturatie;
+	currentPixel.y=P+((currentPixel.y)-P)*saturatie;
+	currentPixel.z=P+((currentPixel.z)-P)*saturatie;
+    
 	dstBuffer[centerIndex] = convert_uchar4_sat_rte(currentPixel);
 }

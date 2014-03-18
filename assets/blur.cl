@@ -50,6 +50,7 @@ kernel void blurKernel(__global uchar4 *srcBuffer,
 	convPixel.y += currentPixel.y*edgeKernel[8];
 	convPixel.z += currentPixel.z*edgeKernel[8];
 
+	//normaliseren
 	convPixel.x /= 9;
 	convPixel.y /= 9;
 	convPixel.z /= 9;

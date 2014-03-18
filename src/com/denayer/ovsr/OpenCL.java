@@ -182,7 +182,7 @@ public class OpenCL extends Object {
 		final TextView progressView = new TextView(mContext);
 		final Resources res = mContext.getResources();
 		final SeekBar MySeekBar = new SeekBar(mContext);
-
+		MySeekBar.setMax(200);
 		MySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){ 
 			   @Override 
 			   public void onProgressChanged(SeekBar seekBar, int progress, 
@@ -255,10 +255,11 @@ public class OpenCL extends Object {
 	public void setTimeFromJNI(float time)
 	{
 		Log.i("setTimeFromJNI","Time set on " + String.valueOf(time));
-		time = (float) (Math.round(time*1000000.0) / 1000000.0);		
+		//time = (float) (Math.round(time*1000.0) / 1000.0);	
+		time = time *1000;
 		View rootView = ((Activity)mContext).getWindow().getDecorView().findViewById(android.R.id.content);
 		TextView v = (TextView) rootView.findViewById(R.id.timeview);
-		v.setText(String.valueOf(time) + " seconds");
+		v.setText(String.valueOf(time) + " ms");
 		
 	}
 }

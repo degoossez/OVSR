@@ -44,8 +44,10 @@ public class RsScript extends Object {
 	public void setInputBitmap(Bitmap in)
 	{
 		inBitmap = in;
-		outBitmap = Bitmap.createBitmap(inBitmap.getWidth(), inBitmap.getHeight(),
-	            inBitmap.getConfig());
+		if(outBitmap==null)
+		{
+		outBitmap = Bitmap.createBitmap(inBitmap.getWidth(), inBitmap.getHeight(),inBitmap.getConfig());
+		}
 	}
 	
 	public Bitmap getOutputBitmap()
