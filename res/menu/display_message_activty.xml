@@ -5,6 +5,8 @@
         android:orderInCategory="100"
         android:showAsAction="never"
         android:title="@string/action_settings"/>
-    <item android:id="@+id/History"
-          android:title="@string/History" />
+    <item android:id="@+id/Home"
+          android:title="@string/Home" />
+    <item android:id="@+id/Delete"
+          android:title="@string/Delete" />
 </menu>

@@ -3,7 +3,9 @@
     package="com.denayer.ovsr"
     android:versionCode="1"
     android:versionName="1.0" >
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     
     <uses-sdk
         android:minSdkVersion="14"
@@ -22,6 +24,10 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name="com.denayer.ovsr.DisplayMessageActivty"
+            android:label="@string/title_activity_display_message_activty" >
         </activity>
     </application>
 

@@ -25,6 +25,9 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Display;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
@@ -46,23 +49,24 @@ public class MainActivity extends Activity {
 
     private RadioButton RenderScriptButton;
     private RadioButton OpenCLButton;
-    
+    public TextView TimeView;
     private String fileName;
     
-    OpenCL OpenCLClass;
-    RsScript RenderScriptClass;
-        
+    OpenCL OpenCLObject;
+    RsScript RenderScriptObject;
+    LogFile LogFileObject;    
     //item in de lijst toevoegen voor nieuwe filters toe te voegen.
     private String [] itemsFilterBox           = new String [] {"Edge", "Inverse","Sharpen","Mediaan","Saturatie","Blur"};
    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
- 
         setContentView(R.layout.activity_main);
-        //        OpenCLClass = new OpenCL(getApplicationContext(),(ImageButton)findViewById(R.id.imageButton2));
-        OpenCLClass = new OpenCL(MainActivity.this,(ImageButton)findViewById(R.id.imageButton2));
-        RenderScriptClass = new RsScript(this,(ImageButton)findViewById(R.id.imageButton2),(TextView)findViewById(R.id.timeview));
+        
+        TimeView=(TextView)findViewById(R.id.timeview);
+        OpenCLObject = new OpenCL(MainActivity.this,(ImageButton)findViewById(R.id.imageButton2));
+        RenderScriptObject = new RsScript(this,(ImageButton)findViewById(R.id.imageButton2),TimeView);
+        LogFileObject = new LogFile(this);   
         
         RenderScriptButton = (RadioButton) findViewById(R.id.radioButton1);
         OpenCLButton = (RadioButton) findViewById(R.id.radioButton2);
@@ -82,8 +86,8 @@ public class MainActivity extends Activity {
                     String SavePath = Environment.getExternalStorageDirectory().toString();
                     SimpleDateFormat formatter = new SimpleDateFormat("yyMMddHHmmss");
         	        Date now = new Date();
-        	        String fileName = formatter.format(now) + ".jpg";
-                    file = new File(SavePath, "OVSR"+fileName);
+        	        String fileCameraName = formatter.format(now) + ".jpg";
+                    file = new File(SavePath, "OVSR"+fileCameraName);
                     
                     mImageCaptureUri = Uri.fromFile(file);
  
@@ -118,15 +122,14 @@ public class MainActivity extends Activity {
         });
         ((ImageButton) findViewById(R.id.imageButton2)).setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View v) {  
             	//save the output bitmap to a file
             	File picDir = new File(Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM + "/OpenCL/");
             	picDir = new File(Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM + "/RenderScript/");
             	picDir.mkdirs(); //creates directory when needed
-            	SimpleDateFormat formatter = new SimpleDateFormat("yyMMddHHmmss");
-    	        Date now = new Date();
-    	        fileName = formatter.format(now) + ".jpg";
+            	//fileName created after filter
             	String filePath = Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM + File.separator + Filter + fileName;            	
+				LogFileObject.writeToFile("		File saved to: " + filePath);
             	FileOutputStream out = null;
             	try {
             	       out = new FileOutputStream(filePath);
@@ -141,27 +144,6 @@ public class MainActivity extends Activity {
             	} 
             }
         }); 
-		((TextView) findViewById(R.id.timeview)).addTextChangedListener(new TextWatcher() {
-			@Override
-			public void afterTextChanged(Editable s) {
-				// TODO Auto-generated method stub
-				// File maken als de log file nog niets bestaat.
-				// File in de data directory zetten van deze app
-				// Data uit Filter en uit de text van de textview halen. Misschien ook een time of the day
-			}
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count,
-					int after) {
-				// TODO Auto-generated method stub
-				
-			}
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before,
-					int count) {
-				// TODO Auto-generated method stub
-				
-			}
-		}); 
         createBoxes();
     }
 
@@ -209,14 +191,9 @@ public class MainActivity extends Activity {
         Input_button.setImageBitmap(bitmap);
         Output_button = (ImageButton)findViewById(R.id.imageButton2);
         Output_button.setImageBitmap(Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888));
-        
-        /*
-         * TODO
-         * Functie's voor bitmaps Renderscript en OpenCL class aan te passen.
-         * vb Renderscript.setBitmap(bitmap)
-         */
-        OpenCLClass.setBitmap(bitmap);
-        RenderScriptClass.setInputBitmap(bitmap);
+
+        OpenCLObject.setBitmap(bitmap);
+        RenderScriptObject.setInputBitmap(bitmap);
         
         System.gc();
     }
@@ -241,14 +218,18 @@ public class MainActivity extends Activity {
         builderFilterBox.setTitle("Select Filter");
         builderFilterBox.setAdapter( adapterFilterBox, new DialogInterface.OnClickListener() {
 			public void onClick( DialogInterface dialogEdgeBox, int item ) {
+				TimeView.setText("0");
+            	SimpleDateFormat formatter = new SimpleDateFormat("yyMMddHHmmss");
+    	        Date now = new Date();
+    	        fileName = itemsFilterBox[item] + formatter.format(now) + ".jpg";
 				if(!RenderScriptButton.isChecked())
-				{
+				{				
 					String FunctionName = "RenderScript" + itemsFilterBox[item];
 					Filter = "RenderScript/" + itemsFilterBox[item];
 					try {
 						Method m = RsScript.class.getMethod(FunctionName);
 						try {
-							m.invoke(RenderScriptClass, null);
+							m.invoke(RenderScriptObject, null);
 						} catch (IllegalAccessException e) {
 							e.printStackTrace();
 						} catch (IllegalArgumentException e) {
@@ -259,10 +240,10 @@ public class MainActivity extends Activity {
 					} catch (NoSuchMethodException e) {
 						e.printStackTrace();
 					}
-					if(RenderScriptClass.getOutputBitmap()!=null)
+					if(RenderScriptObject.getOutputBitmap()!=null)
 					{
-					outBitmap = RenderScriptClass.getOutputBitmap();
-					Output_button.setImageBitmap(RenderScriptClass.getOutputBitmap());
+					outBitmap = RenderScriptObject.getOutputBitmap();
+					Output_button.setImageBitmap(RenderScriptObject.getOutputBitmap());
 					}
 					else
 					{
@@ -271,15 +252,15 @@ public class MainActivity extends Activity {
 				}
 				else
 				{
-					if(OpenCLClass.getOpenCLSupport())
-					{
+					if(OpenCLObject.getOpenCLSupport())
+					{		    	        
 						String FunctionName = "OpenCL" + itemsFilterBox[item];
 						Filter = "OpenCL/" + itemsFilterBox[item];
 						try {
 							//MainActivity obj = new MainActivity();
 							Method m = OpenCL.class.getMethod(FunctionName);
 							try {
-								m.invoke(OpenCLClass, null);
+								m.invoke(OpenCLObject, null);
 							} catch (IllegalAccessException e) {
 								e.printStackTrace();
 							} catch (IllegalArgumentException e) {
@@ -290,9 +271,9 @@ public class MainActivity extends Activity {
 						} catch (NoSuchMethodException e) {
 							e.printStackTrace();
 						}	
-						if(OpenCLClass.getBitmap()!=null)
+						if(OpenCLObject.getBitmap()!=null)
 						{
-						outBitmap = OpenCLClass.getBitmap();
+						outBitmap = OpenCLObject.getBitmap();
 						Output_button.setImageBitmap(outBitmap);
 						}
 						else
@@ -305,7 +286,13 @@ public class MainActivity extends Activity {
 	            	       createToast("No OpenCL support!",false);					
 					}
 				}
-				
+				if(TimeView.getText()!="0")
+				{
+					String Method="OpenCL";
+					if(!RenderScriptButton.isChecked()) Method="RenderScript";
+					Log.i("Debug",fileName + ":" + TimeView.getText());
+					LogFileObject.writeToFile("\n" + Method + " : " + fileName + " : " + TimeView.getText());
+				}
             }
         } );
         final AlertDialog dialogFilterBox = builderFilterBox.create();
@@ -347,4 +334,29 @@ public class MainActivity extends Activity {
 	       Toast toast = Toast.makeText(context, text, duration);
 	       toast.show();		
 	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.main, menu);
+	    return true;
+	}
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    // Handle item selection
+	    switch (item.getItemId()) {
+	        case R.id.History:
+	            Log.i("Debug","Pressed on history");
+	            startHistoryActivity();
+	            return true;
+	        default:
+	            return super.onOptionsItemSelected(item);
+	    }
+	}
+	public void startHistoryActivity()
+	{
+		Intent intent = new Intent(this,DisplayMessageActivty.class);
+		startActivity(intent);
+	}
+
 }
