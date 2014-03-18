@@ -128,7 +128,7 @@ public class MainActivity extends Activity {
             	picDir = new File(Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM + "/RenderScript/");
             	picDir.mkdirs(); //creates directory when needed
             	//fileName created after filter
-            	String filePath = Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM + File.separator + Filter + fileName;            	
+            	String filePath = Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM + File.separator + fileName;            	
 				LogFileObject.writeToFile("		File saved to: " + filePath);
             	FileOutputStream out = null;
             	try {
