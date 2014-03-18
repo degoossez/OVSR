@@ -1,6 +1,8 @@
 package com.denayer.ovsr;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -81,7 +83,6 @@ public class MainActivity extends Activity {
 			public void onClick( DialogInterface dialog, int item ) {
                 if (item == 0) {
                     Intent intent    = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
                     //save file
                     String SavePath = Environment.getExternalStorageDirectory().toString();
                     SimpleDateFormat formatter = new SimpleDateFormat("yyMMddHHmmss");
@@ -106,7 +107,6 @@ public class MainActivity extends Activity {
  
                     intent.setType("image/*");
                     intent.setAction(Intent.ACTION_GET_CONTENT);
- 
                     startActivityForResult(Intent.createChooser(intent, "Complete action using"), PICK_FROM_FILE);
                 }
             }
@@ -158,16 +158,25 @@ public class MainActivity extends Activity {
  
             if (path == null)
                 path = mImageCaptureUri.getPath(); //from File Manager
- 
-            if (path != null)
-                bitmap  = BitmapFactory.decodeFile(path);
+
+            if (path != null) {
+            	File f = new File(path);
+                Display display = getWindowManager().getDefaultDisplay();
+                Point size = new Point();
+                display.getSize(size);
+                int width = size.x/2 - 15;
+                int height = size.y/2 - 15;
+                bitmap = decodeAndResizeFile(f,height,width);
+                //bitmap  = BitmapFactory.decodeFile(path);               
+            	}
         } else {
+        	bitmap.recycle();
             path    = mImageCaptureUri.getPath();
             bitmap  = BitmapFactory.decodeFile(path);
             try {                
                 FileOutputStream out = new FileOutputStream(file);
                 int BHeight = bitmap.getHeight()/2;
-                int BWidth = bitmap.getWidth()/2;
+                int BWidth = bitmap.getWidth()/2;                	
                 bitmap = Bitmap.createScaledBitmap(bitmap, BWidth, BHeight, false);
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
                 out.flush();
@@ -179,6 +188,7 @@ public class MainActivity extends Activity {
     	            e.printStackTrace();
     	     }
         }
+        Log.i("Debug","Testing");
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
@@ -358,5 +368,33 @@ public class MainActivity extends Activity {
 		Intent intent = new Intent(this,DisplayMessageActivty.class);
 		startActivity(intent);
 	}
+	public static Bitmap decodeAndResizeFile(File f,int Req_Height, int Req_Width) {
+	    try {
+	        // Decode image size
+	        BitmapFactory.Options o = new BitmapFactory.Options();
+	        o.inJustDecodeBounds = true;
+	        BitmapFactory.decodeStream(new FileInputStream(f), null, o);
 
+	        // The new size we want to scale to
+	        final int REQUIRED_SIZE = 70;
+
+	        // Find the correct scale value. It should be the power of 2.
+	        int width_tmp = o.outWidth, height_tmp = o.outHeight;
+	        int scale = 1;
+	        while (true) {
+	            if (width_tmp / 2 < Req_Width || height_tmp / 2 < Req_Height)
+	                break;
+	            width_tmp /= 2;
+	            height_tmp /= 2;
+	            scale *= 2;
+	        }
+
+	        // Decode with inSampleSize
+	        BitmapFactory.Options o2 = new BitmapFactory.Options();
+	        o2.inSampleSize = scale;
+	        return BitmapFactory.decodeStream(new FileInputStream(f), null, o2);
+	    } catch (FileNotFoundException e) {
+	    }
+	    return null;
+	}
 }
