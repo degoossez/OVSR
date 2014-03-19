@@ -293,6 +293,12 @@ public class RsScript extends Object {
 		
 		if(inBitmap == null)
 			return;
+		
+		if(true)
+			return;
+		
+		
+		
 		long startTime = System.nanoTime(); 
 		Log.i("koen","inside RenderScriptMediaan");        
 		
