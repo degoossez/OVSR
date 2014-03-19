@@ -224,7 +224,7 @@ void initOpenCL
     // Get total number of the available platforms.
     err = clGetPlatformIDs(0, 0, &num_of_platforms);
     SAMPLE_CHECK_ERRORS(err);
-    LOGD("Number of available platforms: %u", num_of_platforms);
+    //LOGD("Number of available platforms: %u", num_of_platforms);
 
     vector<cl_platform_id> platforms(num_of_platforms);
     // Get IDs for all platforms.
@@ -235,7 +235,7 @@ void initOpenCL
 
     cl_uint selected_platform_index = num_of_platforms;
 
-    LOGD("Platform names:");
+    //LOGD("Platform names:");
 
     cl_uint i = 0;
         // Get the length for the i-th platform name.
@@ -336,8 +336,9 @@ void initOpenCL
      * Also consider looking into a dedicated chapter in the OpenCL specification
      * for more information on applicable alternatives and options.
      */
-
-    err = clBuildProgram(openCLObjects.program, 0, 0, 0, 0, 0);
+    //err = clBuildProgram(openCLObjects.program, 0, 0, 0, 0, 0);
+    //http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clBuildProgram.html
+    err = clBuildProgram(openCLObjects.program, 0, 0, "-cl-fast-relaxed-math", 0, 0);
 
     if(err == CL_BUILD_PROGRAM_FAILURE)
     {
@@ -409,7 +410,7 @@ void initOpenCL
 
     // -----------------------------------------------------------------------
 
-    LOGD("initOpenCL finished successfully");
+    //LOGD("initOpenCL finished successfully");
 }
 
 
@@ -483,7 +484,7 @@ extern "C" void Java_com_denayer_ovsr_OpenCL_shutdownOpenCL
 )
 {
     shutdownOpenCL(openCLObjects);
-    LOGD("shutdownOpenCL(openCLObjects) was called");
+    //LOGD("shutdownOpenCL(openCLObjects) was called");
 }
 
 void nativeBasicOpenCL
@@ -520,7 +521,7 @@ void nativeBasicOpenCL
             SAMPLE_CHECK_ERRORS(err);
         }
 
-        LOGD("Creating input buffer in OpenCL");
+        //LOGD("Creating input buffer in OpenCL");
 
 
         void* inputPixels = 0;
@@ -622,14 +623,14 @@ void nativeBasicOpenCL
     float ndrangeDuration =
         (end.tv_sec + end.tv_usec * 1e-6) - (start.tv_sec + start.tv_usec * 1e-6);
 
-    LOGD("nativeBasicOpenCL ends successfully");
+    //LOGD("nativeBasicOpenCL ends successfully");
 
     jclass MyJavaClass = (*env).FindClass("com/denayer/ovsr/OpenCL");
     if (!MyJavaClass){
         return;} /* method not found */
     jmethodID setTimeFromJNI = (*env).GetMethodID(MyJavaClass, "setTimeFromJNI", "(F)V");
     (*env).CallVoidMethod(thisObject, setTimeFromJNI, ndrangeDuration);
-    LOGD("Done");
+    //LOGD("Done");
 }
 
 extern "C" void Java_com_denayer_ovsr_OpenCL_nativeBasicOpenCL
@@ -684,7 +685,7 @@ void nativeSaturatieOpenCL
             SAMPLE_CHECK_ERRORS(err);
         }
 
-        LOGD("Creating input buffer in OpenCL");
+        //LOGD("Creating input buffer in OpenCL");
 
 
         void* inputPixels = 0;
@@ -790,7 +791,7 @@ void nativeSaturatieOpenCL
     float ndrangeDuration =
         (end.tv_sec + end.tv_usec * 1e-6) - (start.tv_sec + start.tv_usec * 1e-6);
 
-    LOGD("nativeBasicOpenCL ends successfully");
+    //LOGD("nativeBasicOpenCL ends successfully");
 
     jclass MyJavaClass = (*env).FindClass("com/denayer/ovsr/OpenCL");
     if (!MyJavaClass){
@@ -800,7 +801,7 @@ void nativeSaturatieOpenCL
     //jmethodID setTimeFromJNI = (*env).GetMethodID(MyJavaClass, "saturate",);
     (*env).CallVoidMethod(thisObject, setTimeFromJNI, ndrangeDuration);
 
-    LOGD("Done");
+    //LOGD("Done");
 }
 
 extern "C" void Java_com_denayer_ovsr_OpenCL_nativeSaturatieOpenCL
@@ -856,7 +857,7 @@ void nativeImage2DOpenCL
             SAMPLE_CHECK_ERRORS(err);
         }
 
-        LOGD("Creating input buffer in OpenCL");
+        //LOGD("Creating input buffer in OpenCL");
 
 
         void* inputPixels = 0;
@@ -970,7 +971,7 @@ void nativeImage2DOpenCL
     float ndrangeDuration =
         (end.tv_sec + end.tv_usec * 1e-6) - (start.tv_sec + start.tv_usec * 1e-6);
 
-    LOGD("NDRangeKernel time: %f", ndrangeDuration);
+    //LOGD("NDRangeKernel time: %f", ndrangeDuration);
 
     err = clEnqueueReadBuffer (openCLObjects.queue,
     		outputBuffer,
@@ -994,7 +995,7 @@ void nativeImage2DOpenCL
     // pixels in the output bitmap object.
     AndroidBitmap_unlockPixels(env, outputBitmap);
 
-    LOGD("nativeImage2DOpenCL ends successfully");
+    //LOGD("nativeImage2DOpenCL ends successfully");
 }
 
 extern "C" void Java_com_denayer_ovsr_OpenCL_nativeImage2DOpenCL
