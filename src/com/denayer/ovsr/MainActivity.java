@@ -1,9 +1,12 @@
 package com.denayer.ovsr;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
@@ -33,6 +36,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.TextView;
@@ -51,9 +55,10 @@ public class MainActivity extends Activity {
 
     private RadioButton RenderScriptButton;
     private RadioButton OpenCLButton;
+    private EditText CodeField;
     public TextView TimeView;
     private String fileName;
-    
+    private String CodeFieldCode;
     OpenCL OpenCLObject;
     RsScript RenderScriptObject;
     LogFile LogFileObject;    
@@ -66,6 +71,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         
         TimeView=(TextView)findViewById(R.id.timeview);
+        CodeField=(EditText)findViewById(R.id.editText1);
         OpenCLObject = new OpenCL(MainActivity.this,(ImageButton)findViewById(R.id.imageButton2));
         RenderScriptObject = new RsScript(this,(ImageButton)findViewById(R.id.imageButton2),TimeView);
         LogFileObject = new LogFile(this);   
@@ -128,7 +134,7 @@ public class MainActivity extends Activity {
             	picDir = new File(Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM + "/RenderScript/");
             	picDir.mkdirs(); //creates directory when needed
             	//fileName created after filter
-            	String filePath = Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM + File.separator + fileName;            	
+            	String filePath = Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM + File.separator + fileName + ".jpg";            	
 				LogFileObject.writeToFile("		File saved to: " + filePath);
             	FileOutputStream out = null;
             	try {
@@ -205,6 +211,19 @@ public class MainActivity extends Activity {
         OpenCLObject.setBitmap(bitmap);
         RenderScriptObject.setInputBitmap(bitmap);
         
+        CodeField.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void onTextChanged(CharSequence arg0, int arg1, int arg2,int arg3) {
+				CodeFieldCode = CodeField.getText().toString();			
+			}
+			@Override
+			public void afterTextChanged(Editable s) {		
+			}
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,int after) {			
+			}
+        });
+        
         System.gc();
     }
  
@@ -231,9 +250,10 @@ public class MainActivity extends Activity {
 				TimeView.setText("0");
             	SimpleDateFormat formatter = new SimpleDateFormat("yyMMddHHmmss");
     	        Date now = new Date();
-    	        fileName = itemsFilterBox[item] + formatter.format(now) + ".jpg";
+    	        //fileName = "RenderScript/" + itemsFilterBox[item] + formatter.format(now);
 				if(!RenderScriptButton.isChecked())
-				{				
+				{		
+	    	        fileName = "RenderScript/" + itemsFilterBox[item] + formatter.format(now);
 					String FunctionName = "RenderScript" + itemsFilterBox[item];
 					Filter = "RenderScript/" + itemsFilterBox[item];
 					try {
@@ -263,7 +283,8 @@ public class MainActivity extends Activity {
 				else
 				{
 					if(OpenCLObject.getOpenCLSupport())
-					{		    	        
+					{		
+		    	        fileName = "OpenCL/" + itemsFilterBox[item] + formatter.format(now);
 						String FunctionName = "OpenCL" + itemsFilterBox[item];
 						Filter = "OpenCL/" + itemsFilterBox[item];
 						try {
@@ -359,6 +380,28 @@ public class MainActivity extends Activity {
 	            Log.i("Debug","Pressed on history");
 	            startHistoryActivity();
 	            return true;
+	        case R.id.Template:
+	        	if(!RenderScriptButton.isChecked()) CodeField.setText(RenderScriptObject.getTemplate());
+	        case R.id.SaveF:
+	        	String filePath = Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM + File.separator + fileName + ".txt";            	
+	        	LogFileObject.writeToFile("		Code file saved to: " + filePath);
+	        	try{   
+	        		if(!CodeFieldCode.equals("")){
+	        			File CodeFile =new File(filePath);
+	        			//if file doesnt exists, then create it
+	        			if(!CodeFile.exists()){
+	        				CodeFile.createNewFile();
+	        			}
+	        			FileWriter fileWritter = new FileWriter(CodeFile,true);
+	        			BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
+	        			bufferWritter.write(CodeFieldCode);
+	        			bufferWritter.close();
+	        		} 
+	        	}catch (IOException e) {
+	        		e.printStackTrace(); 
+	        	}
+	        case R.id.LoadF:
+	        	if(!RenderScriptButton.isChecked()) CodeField.setText(RenderScriptObject.getTemplate());
 	        default:
 	            return super.onOptionsItemSelected(item);
 	    }

@@ -7,4 +7,18 @@
         android:title="@string/action_settings"/>
     <item android:id="@+id/History"
           android:title="@string/History" />
+    <item android:id="@+id/File"
+          android:title="@string/File" >
+        <menu>
+          <item android:id="@+id/SaveF"
+          android:title="@string/SaveF" >
+          </item> 
+          <item android:id="@+id/LoadF"
+          android:title="@string/LoadF" > 
+          </item>
+        </menu>
+    </item>
+    
+    <item android:id="@+id/Template"
+          android:title="@string/Template" />
 </menu>

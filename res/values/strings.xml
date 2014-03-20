@@ -9,4 +9,8 @@
     <string name="title_activity_display_message_activty">History</string>
     <string name="Home">Home</string>
     <string name="Delete">Delete File</string>
+    <string name="SaveF">Save File</string>
+    <string name="Template">Template</string>
+    <string name="File">File</string>
+    <string name="LoadF">Load File</string>
 </resources>

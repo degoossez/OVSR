@@ -293,12 +293,7 @@ public class RsScript extends Object {
 		
 		if(inBitmap == null)
 			return;
-		
-		if(true)
-			return;
-		
-		
-		
+				
 		long startTime = System.nanoTime(); 
 		Log.i("koen","inside RenderScriptMediaan");        
 		
@@ -325,6 +320,11 @@ public class RsScript extends Object {
         Log.i("koen","via java meting: " + String.valueOf(estimatedTime));
         mElapsedTime.setText(String.valueOf(estimatedTime) + "ms");
 		
+	}
+	public String getTemplate()
+	{
+		String template = null;
+		return template;
 	}
 	
 }

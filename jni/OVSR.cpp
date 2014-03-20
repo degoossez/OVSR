@@ -575,11 +575,6 @@ void nativeBasicOpenCL
 
     size_t globalSize[2] = { bitmapInfo.width, bitmapInfo.height };
 
-//    timeval start;
-//    timeval end;
-//
-//    gettimeofday(&start, NULL);
-
     err =
         clEnqueueNDRangeKernel
         (
