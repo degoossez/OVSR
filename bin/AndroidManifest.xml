@@ -6,7 +6,7 @@
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    
+
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="18" />
@@ -28,6 +28,10 @@
         <activity
             android:name="com.denayer.ovsr.DisplayMessageActivty"
             android:label="@string/title_activity_display_message_activty" >
+        </activity>
+        <activity
+            android:name="com.denayer.ovsr.ActivityTestActivity"
+            android:label="@string/title_activity_activity_test" >
         </activity>
     </application>
 

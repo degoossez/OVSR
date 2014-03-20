@@ -262,4 +262,13 @@ public class OpenCL extends Object {
 		v.setText(String.valueOf(time) + " ms");
 		
 	}
+	public String getTemplate()
+	{
+		String template = null;
+		return template;
+	}
+	public void codeFromFile(String code)
+	{
+		
+	}
 }

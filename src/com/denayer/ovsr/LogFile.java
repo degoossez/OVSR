@@ -1,8 +1,12 @@
 package com.denayer.ovsr;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -29,33 +33,51 @@ public class LogFile extends Object {
 	        Log.e("Exception", "File write failed: " + e.toString());
 	    } 
 	}
-	public String readFromFile() {
-	    String ret = "";
+	public String readFromFile(String path) {
+		String ret = "";
+		if(path==""){
+			try {
+				InputStream inputStream = mContext.openFileInput(FileName);
 
-	    try {
-	        InputStream inputStream = mContext.openFileInput(FileName);
+				if ( inputStream != null ) {
+					InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+					BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+					String receiveString = "";
+					StringBuilder stringBuilder = new StringBuilder();
 
-	        if ( inputStream != null ) {
-	            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-	            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-	            String receiveString = "";
-	            StringBuilder stringBuilder = new StringBuilder();
+					while ( (receiveString = bufferedReader.readLine()) != null ) {
+						stringBuilder.append(receiveString).append("\n");
+					}
 
-	            while ( (receiveString = bufferedReader.readLine()) != null ) {
-	            	stringBuilder.append(receiveString).append("\n");
-	            }
-
-	            inputStream.close();
-	            ret = stringBuilder.toString();
-	        }
-	    }
-	    catch (FileNotFoundException e) {
-	        Log.e("login activity", "File not found: " + e.toString());
-	    } catch (IOException e) {
-	        Log.e("login activity", "Can not read file: " + e.toString());
-	    }
-
-	    return ret;
+					inputStream.close();
+					ret = stringBuilder.toString();
+				}
+			}
+			catch (FileNotFoundException e) {
+				Log.e("login activity", "File not found: " + e.toString());
+			} catch (IOException e) {
+				Log.e("login activity", "Can not read file: " + e.toString());
+			}
+		}
+		else
+		{
+			File file = new File(path);
+			String receiveString = "";
+			StringBuilder stringBuilder = new StringBuilder();
+			try {
+				BufferedReader buf = new BufferedReader(new FileReader(file));
+				while ( (receiveString = buf.readLine()) != null ) {
+					stringBuilder.append(receiveString).append("\n");
+				}
+				buf.close();
+				ret = stringBuilder.toString();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return ret;
 	}
 	void deleteExternalStoragePrivateFile() {
 	    // Get path for the file on external storage.  If external

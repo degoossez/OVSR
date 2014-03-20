@@ -326,7 +326,10 @@ public class RsScript extends Object {
 		String template = null;
 		return template;
 	}
-	
+	public void codeFromFile(String code)
+	{
+		
+	}	
 }
 
 

@@ -36,11 +36,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
+
 
 public class MainActivity extends Activity {
     private Uri mImageCaptureUri;
@@ -52,16 +54,19 @@ public class MainActivity extends Activity {
     private String Filter;
     private static final int PICK_FROM_CAMERA = 1;
     private static final int PICK_FROM_FILE = 2;
+    private static final int ACTIVITY_CHOOSE_FILE = 3;
 
+    private Button SubmitButton;
     private RadioButton RenderScriptButton;
     private RadioButton OpenCLButton;
     private EditText CodeField;
     public TextView TimeView;
     private String fileName;
     private String CodeFieldCode;
+    
     OpenCL OpenCLObject;
     RsScript RenderScriptObject;
-    LogFile LogFileObject;    
+    LogFile LogFileObject;   
     //item in de lijst toevoegen voor nieuwe filters toe te voegen.
     private String [] itemsFilterBox           = new String [] {"Edge", "Inverse","Sharpen","Mediaan","Saturatie","Blur"};
    
@@ -70,6 +75,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
+        SubmitButton=(Button) findViewById(R.id.submit_button);
         TimeView=(TextView)findViewById(R.id.timeview);
         CodeField=(EditText)findViewById(R.id.editText1);
         OpenCLObject = new OpenCL(MainActivity.this,(ImageButton)findViewById(R.id.imageButton2));
@@ -151,14 +157,45 @@ public class MainActivity extends Activity {
             }
         }); 
         createBoxes();
+        CodeField.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void onTextChanged(CharSequence arg0, int arg1, int arg2,int arg3) {
+				CodeFieldCode = CodeField.getText().toString();			
+			}
+			@Override
+			public void afterTextChanged(Editable s) {		
+			}
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,int after) {			
+			}
+        });
+        SubmitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            	if(CodeField.getText().toString()!=""){
+					if(!RenderScriptButton.isChecked()) RenderScriptObject.codeFromFile(CodeField.getText().toString());
+					else OpenCLObject.codeFromFile(CodeField.getText().toString());
+            	}
+            	
+            }
+        });
     }
 
 	@Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != RESULT_OK) return;
         String path     = "";
- 
-        if (requestCode == PICK_FROM_FILE) {
+        if(requestCode == ACTIVITY_CHOOSE_FILE)
+        {
+	          Uri uri = data.getData();
+	          String PathLoadFile = getRealPathFromURI(uri);
+	          String FileContent = null;
+	          Log.i("Debug",PathLoadFile);
+	          FileContent = LogFileObject.readFromFile(PathLoadFile);
+	          CodeField.setText(FileContent);
+        }
+        else if (requestCode == PICK_FROM_FILE) {
+        	Log.i("Debug","PICK_FROM_FILE");
             mImageCaptureUri = data.getData();
             path = getRealPathFromURI(mImageCaptureUri); //from Gallery
  
@@ -194,6 +231,8 @@ public class MainActivity extends Activity {
     	            e.printStackTrace();
     	     }
         }
+        if(requestCode != ACTIVITY_CHOOSE_FILE)
+        {
         Log.i("Debug","Testing");
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
@@ -210,23 +249,9 @@ public class MainActivity extends Activity {
 
         OpenCLObject.setBitmap(bitmap);
         RenderScriptObject.setInputBitmap(bitmap);
-        
-        CodeField.addTextChangedListener(new TextWatcher() {
-			@Override
-			public void onTextChanged(CharSequence arg0, int arg1, int arg2,int arg3) {
-				CodeFieldCode = CodeField.getText().toString();			
-			}
-			@Override
-			public void afterTextChanged(Editable s) {		
-			}
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count,int after) {			
-			}
-        });
-        
+        }      
         System.gc();
     }
- 
 	public String getRealPathFromURI(Uri contentUri) {
         String [] proj      = {MediaStore.Images.Media.DATA};
 		Cursor cursor       = getContentResolver().query( contentUri, proj, null, null,null);
@@ -382,6 +407,7 @@ public class MainActivity extends Activity {
 	            return true;
 	        case R.id.Template:
 	        	if(!RenderScriptButton.isChecked()) CodeField.setText(RenderScriptObject.getTemplate());
+	        	else CodeField.setText(OpenCLObject.getTemplate());
 	        case R.id.SaveF:
 	        	String filePath = Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM + File.separator + fileName + ".txt";            	
 	        	LogFileObject.writeToFile("		Code file saved to: " + filePath);
@@ -400,8 +426,15 @@ public class MainActivity extends Activity {
 	        	}catch (IOException e) {
 	        		e.printStackTrace(); 
 	        	}
+	        	return true;
 	        case R.id.LoadF:
-	        	if(!RenderScriptButton.isChecked()) CodeField.setText(RenderScriptObject.getTemplate());
+		        Intent chooseFile;
+		        Intent intent;
+		        chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
+		        chooseFile.setType("file/*");
+		        intent = Intent.createChooser(chooseFile, "Choose a file");
+		        startActivityForResult(intent, ACTIVITY_CHOOSE_FILE);
+		        return true;
 	        default:
 	            return super.onOptionsItemSelected(item);
 	    }
