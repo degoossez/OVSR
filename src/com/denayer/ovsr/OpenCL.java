@@ -15,6 +15,7 @@ import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.text.Editable;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
@@ -49,6 +50,7 @@ public class OpenCL extends Object {
 	    	try { 
 	    		System.load("/system/vendor/lib/egl/libGLES_mali.so");
 	    		Log.i("Debug", "libGLES_mali loaded");
+	    		sfoundLibrary=true;
 	    	}
 	    	catch (UnsatisfiedLinkError e) {
 	    		sfoundLibrary = false;
@@ -77,6 +79,7 @@ public class OpenCL extends Object {
     	return bmpOpenCL;
     }
     private native void initOpenCL (String kernelName);
+    private native void initOpenCLFromInput (String OpenCLCode, String kernelName);
     private native void nativeBasicOpenCL (
             Bitmap inputBitmap,
             Bitmap outputBitmap
@@ -267,8 +270,33 @@ public class OpenCL extends Object {
 		String template = null;
 		return template;
 	}
-	public void codeFromFile(String code)
+	public void codeFromFile(final String code)
 	{
-		
+		Log.i("Debug","OpenCL: " + code);
+
+		AlertDialog.Builder alert = new AlertDialog.Builder(mContext);
+
+		alert.setTitle("Enter the kernel name:");
+		alert.setMessage("inverseKernel");
+
+		// Set an EditText view to get user input 
+		final EditText input = new EditText(mContext);
+		alert.setView(input);
+		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+		public void onClick(DialogInterface dialog, int whichButton) {
+			String value = input.getText().toString();
+			initOpenCLFromInput(code, value);
+	    	nativeBasicOpenCL(
+	                bmpOrig,
+	                bmpOpenCL
+	            );
+	    	shutdownOpenCL();		  }
+		});
+		alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+		  public void onClick(DialogInterface dialog, int whichButton) {
+		    // Canceled.
+		  }
+		});
+		alert.show();
 	}
 }

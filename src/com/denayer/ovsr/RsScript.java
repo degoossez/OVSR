@@ -328,7 +328,7 @@ public class RsScript extends Object {
 	}
 	public void codeFromFile(String code)
 	{
-		
+			Log.i("Debug","RS: code From File");	
 	}	
 }
 

@@ -173,8 +173,31 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
             	if(CodeField.getText().toString()!=""){
-					if(!RenderScriptButton.isChecked()) RenderScriptObject.codeFromFile(CodeField.getText().toString());
-					else OpenCLObject.codeFromFile(CodeField.getText().toString());
+					if(!RenderScriptButton.isChecked()) 
+					{
+						RenderScriptObject.codeFromFile(CodeField.getText().toString());
+						if(RenderScriptObject.getOutputBitmap()!=null)
+						{
+						outBitmap = RenderScriptObject.getOutputBitmap();
+						Output_button.setImageBitmap(RenderScriptObject.getOutputBitmap());
+						}
+						else createToast("Select image!",false);	
+					}
+					else 
+					{
+						if(OpenCLObject.getOpenCLSupport())
+						{		
+							OpenCLObject.codeFromFile(CodeField.getText().toString());	
+							if(OpenCLObject.getBitmap()!=null)
+							{
+							outBitmap = OpenCLObject.getBitmap();
+							Output_button.setImageBitmap(outBitmap);
+							Log.i("Main","setImageBitmap done");
+							}
+							else createToast("Select image!",false);					
+						}
+						else createToast("No OpenCL support!",false);
+					}
             	}
             	
             }
@@ -434,7 +457,7 @@ public class MainActivity extends Activity {
 		        chooseFile.setType("file/*");
 		        intent = Intent.createChooser(chooseFile, "Choose a file");
 		        startActivityForResult(intent, ACTIVITY_CHOOSE_FILE);
-		        return true;
+		        return true;        	
 	        default:
 	            return super.onOptionsItemSelected(item);
 	    }
