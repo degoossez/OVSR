@@ -1,0 +1,21 @@
+kernel void yourKernel
+(
+    global const uchar4* inputPixels,
+    global uchar4* outputPixels,
+    const uint rowPitch,
+    const uint width,
+    const uint height
+)
+{
+     int x = get_global_id(0); //x position
+     int y = get_global_id(1); //y position
+     int centerIndex = y * width + x; //get current pixel index
+
+    float4 centerPixel = convert_float4(inputPixels[centerIndex]); //convert the uchar to float
+    //now you can use the pixels like this
+    centerPixel.x = centerPixel.x; //.x is the Red component
+    centerPixel.y = centerPixel.y; //.y is the Green component
+    centerPixel.z = centerPixel.z; //.z is the Blue component
+    centerPixel.w = centerPixel.w; //.w is the Alpha component
+    outputPixels[centerIndex] = convert_uchar4_sat_rte(centerPixel); //convert the float to uchar4
+}

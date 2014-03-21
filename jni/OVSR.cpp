@@ -314,7 +314,6 @@ void initOpenCL
     std::string kernelSource = loadProgram(fileDir);
     //std::string to const char* needed for the clCreateProgramWithSource function
     const char* kernelSourceChar = kernelSource.c_str();
-    LOGD("filename: %s", kernelSourceChar);
 
     openCLObjects.program =
         clCreateProgramWithSource
@@ -442,24 +441,6 @@ void initOpenCLFromInput
     OpenCLObjects& openCLObjects
 )
 {
-    /*
-     * This function picks and creates all necessary OpenCL objects
-     * to be used at each filter iteration. The objects are:
-     * OpenCL platform, device, context, command queue, program,
-     * and kernel.
-     *
-     * Almost all of these steps need to be performed in all
-	 * OpenCL applications before the actual compute kernel calls
-     * are performed.
-     *
-     * For convenience, in this application all basic OpenCL objects
-     * are stored in the OpenCLObjects structure,
-     * so, this function populates fields of this structure,
-     * which is passed as parameter openCLObjects.
-     * Consider reviewing the fields before going further.
-     * The structure definition is in the beginning of this file.
-     */
-
     using namespace std;
 
     // Will be used at each effect iteration,
@@ -570,16 +551,7 @@ void initOpenCLFromInput
      * Convert the jstring to const char* and append the needed directory path.
      */
     const char* fileName = env->GetStringUTFChars(kernelCode, 0);
-    LOGD("filename: %s", fileName);
 
-    //std::string fileDir;
-    //fileDir.append("/data/data/com.denayer.ovsr/app_execdir/");
-    //fileDir.append(fileName);
-    //fileDir.append(".cl");
-    //std::string kernelSource = loadProgram(fileDir);
-    //std::string to const char* needed for the clCreateProgramWithSource function
-    //const char* kernelSourceChar = kernelSource.c_str();
-    //const char* kernelSourceChar = fileName;
     openCLObjects.program =
         clCreateProgramWithSource
         (
@@ -649,9 +621,7 @@ void initOpenCLFromInput
      */
     fileName = env->GetStringUTFChars(kernelName, 0);
     char result[100];   // array to hold the result.
-    //std::strcpy(result,fileName); // copy string one into the result.
-    std::strcpy(result,fileName);
-    //std::strcat(result,"Kernel"); // append string two to the result.
+    std::strcpy(result,fileName); //place the given kernel name into a string
     openCLObjects.kernel = clCreateKernel(openCLObjects.program, result, &err);
     SAMPLE_CHECK_ERRORS(err);
 
