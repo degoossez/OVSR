@@ -314,6 +314,7 @@ void initOpenCL
     std::string kernelSource = loadProgram(fileDir);
     //std::string to const char* needed for the clCreateProgramWithSource function
     const char* kernelSourceChar = kernelSource.c_str();
+    LOGD("filename: %s", kernelSourceChar);
 
     openCLObjects.program =
         clCreateProgramWithSource
@@ -431,6 +432,272 @@ extern "C" void Java_com_denayer_ovsr_OpenCL_initOpenCL
     );
 }
 
+void initOpenCLFromInput
+(
+    JNIEnv* env,
+    jobject thisObject,
+    jstring kernelCode,
+    jstring kernelName,
+    cl_device_type required_device_type,
+    OpenCLObjects& openCLObjects
+)
+{
+    /*
+     * This function picks and creates all necessary OpenCL objects
+     * to be used at each filter iteration. The objects are:
+     * OpenCL platform, device, context, command queue, program,
+     * and kernel.
+     *
+     * Almost all of these steps need to be performed in all
+	 * OpenCL applications before the actual compute kernel calls
+     * are performed.
+     *
+     * For convenience, in this application all basic OpenCL objects
+     * are stored in the OpenCLObjects structure,
+     * so, this function populates fields of this structure,
+     * which is passed as parameter openCLObjects.
+     * Consider reviewing the fields before going further.
+     * The structure definition is in the beginning of this file.
+     */
+
+    using namespace std;
+
+    // Will be used at each effect iteration,
+    // and means that you haven't yet initialized
+    // the inputBuffer object.
+    openCLObjects.isInputBufferInitialized = false;
+
+    // Search for the Intel OpenCL platform.
+    // Platform name includes "Intel" as a substring, consider this
+    // method to be a recommendation for Intel OpenCL platform search.
+    const char* required_platform_subname = "PowerVR";
+
+    // The following variable stores return codes for all OpenCL calls.
+    // In the code it is used with the SAMPLE_CHECK_ERRORS macro defined
+    // before this function.
+    cl_int err = CL_SUCCESS;
+
+    /* -----------------------------------------------------------------------
+     * Step 1: Query for all available OpenCL platforms on the system.
+     * Enumerate all platforms and pick one which name has
+     * required_platform_subname as a sub-string.
+     */
+
+    cl_uint num_of_platforms = 0;
+    // Get total number of the available platforms.
+    err = clGetPlatformIDs(0, 0, &num_of_platforms);
+    SAMPLE_CHECK_ERRORS(err);
+    //LOGD("Number of available platforms: %u", num_of_platforms);
+
+    vector<cl_platform_id> platforms(num_of_platforms);
+    // Get IDs for all platforms.
+    err = clGetPlatformIDs(num_of_platforms, &platforms[0], 0);
+    SAMPLE_CHECK_ERRORS(err);
+
+    // Search for platform with required sub-string in the name.
+
+    cl_uint selected_platform_index = num_of_platforms;
+
+    //LOGD("Platform names:");
+
+    cl_uint i = 0;
+        // Get the length for the i-th platform name.
+        size_t platform_name_length = 0;
+        err = clGetPlatformInfo(
+            platforms[i],
+            CL_PLATFORM_NAME,
+            0,
+            0,
+            &platform_name_length
+        );
+        SAMPLE_CHECK_ERRORS(err);
+
+        // Get the name itself for the i-th platform.
+        vector<char> platform_name(platform_name_length);
+        err = clGetPlatformInfo(
+            platforms[i],
+            CL_PLATFORM_NAME,
+            platform_name_length,
+            &platform_name[0],
+            0
+        );
+        SAMPLE_CHECK_ERRORS(err);
+
+    selected_platform_index = 0;
+    openCLObjects.platform = platforms[selected_platform_index];
+
+
+    /* -----------------------------------------------------------------------
+     * Step 2: Create context with a device of the specified type.
+     * Required device type is passed as function argument required_device_type.
+     * Use this function to create context for any CPU or GPU OpenCL device.
+     */
+
+    cl_context_properties context_props[] = {
+        CL_CONTEXT_PLATFORM,
+        cl_context_properties(openCLObjects.platform),
+        0
+    };
+
+    openCLObjects.context =
+        clCreateContextFromType
+        (
+            context_props,
+            required_device_type,
+            0,
+            0,
+            &err
+        );
+    SAMPLE_CHECK_ERRORS(err);
+
+    /* -----------------------------------------------------------------------
+     * Step 3: Query for OpenCL device that was used for context creation.
+     */
+
+    err = clGetContextInfo
+    (
+        openCLObjects.context,
+        CL_CONTEXT_DEVICES,
+        sizeof(openCLObjects.device),
+        &openCLObjects.device,
+        0
+    );
+    SAMPLE_CHECK_ERRORS(err);
+
+    /* -----------------------------------------------------------------------
+     * Step 4: Create OpenCL program from its source code.
+     * The file name is passed bij java.
+     * Convert the jstring to const char* and append the needed directory path.
+     */
+    const char* fileName = env->GetStringUTFChars(kernelCode, 0);
+    LOGD("filename: %s", fileName);
+
+    //std::string fileDir;
+    //fileDir.append("/data/data/com.denayer.ovsr/app_execdir/");
+    //fileDir.append(fileName);
+    //fileDir.append(".cl");
+    //std::string kernelSource = loadProgram(fileDir);
+    //std::string to const char* needed for the clCreateProgramWithSource function
+    //const char* kernelSourceChar = kernelSource.c_str();
+    //const char* kernelSourceChar = fileName;
+    openCLObjects.program =
+        clCreateProgramWithSource
+        (
+            openCLObjects.context,
+            1,
+            &fileName,
+            0,
+            &err
+        );
+
+    SAMPLE_CHECK_ERRORS(err);
+
+    /* -----------------------------------------------------------------------
+     * Step 5: Build the program.
+     * During creation a program is not built. Call the build function explicitly.
+     * This example utilizes the create-build sequence, still other options are applicable,
+     * for example, when a program consists of several parts, some of which are libraries.
+     * Consider using clCompileProgram and clLinkProgram as alternatives.
+     * Also consider looking into a dedicated chapter in the OpenCL specification
+     * for more information on applicable alternatives and options.
+     */
+    //err = clBuildProgram(openCLObjects.program, 0, 0, 0, 0, 0);
+    //http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clBuildProgram.html
+    err = clBuildProgram(openCLObjects.program, 0, 0, "-cl-fast-relaxed-math", 0, 0);
+
+    if(err == CL_BUILD_PROGRAM_FAILURE)
+    {
+        size_t log_length = 0;
+        err = clGetProgramBuildInfo(
+            openCLObjects.program,
+            openCLObjects.device,
+            CL_PROGRAM_BUILD_LOG,
+            0,
+            0,
+            &log_length
+        );
+        SAMPLE_CHECK_ERRORS(err);
+
+        vector<char> log(log_length);
+
+        err = clGetProgramBuildInfo(
+            openCLObjects.program,
+            openCLObjects.device,
+            CL_PROGRAM_BUILD_LOG,
+            log_length,
+            &log[0],
+            0
+        );
+        SAMPLE_CHECK_ERRORS(err);
+
+        LOGE
+        (
+            "Error happened during the build of OpenCL program.\nBuild log:%s",
+            &log[0]
+        );
+
+        return;
+    }
+
+    /* -----------------------------------------------------------------------
+     * Step 6: Extract kernel from the built program.
+     * An OpenCL program consists of kernels. Each kernel can be called (enqueued) from
+     * the host part of an application.
+     * First create a kernel to call it from the existing program.
+     * Creating a kernel via clCreateKernel is similar to obtaining an entry point of a specific function
+     * in an OpenCL program.
+     */
+    fileName = env->GetStringUTFChars(kernelName, 0);
+    char result[100];   // array to hold the result.
+    //std::strcpy(result,fileName); // copy string one into the result.
+    std::strcpy(result,fileName);
+    //std::strcat(result,"Kernel"); // append string two to the result.
+    openCLObjects.kernel = clCreateKernel(openCLObjects.program, result, &err);
+    SAMPLE_CHECK_ERRORS(err);
+
+    /* -----------------------------------------------------------------------
+     * Step 7: Create command queue.
+     * OpenCL kernels are enqueued for execution to a particular device through
+     * special objects called command queues. Command queue provides ordering
+     * of calls and other OpenCL commands.
+     * This sample uses a simple in-order OpenCL command queue that doesn't
+     * enable execution of two kernels in parallel on a target device.
+     */
+
+    openCLObjects.queue =
+        clCreateCommandQueue
+        (
+            openCLObjects.context,
+            openCLObjects.device,
+            0,    // Creating queue properties, refer to the OpenCL specification for details.
+            &err
+        );
+    SAMPLE_CHECK_ERRORS(err);
+
+    // -----------------------------------------------------------------------
+
+    //LOGD("initOpenCL finished successfully");
+}
+
+
+extern "C" void Java_com_denayer_ovsr_OpenCL_initOpenCLFromInput
+(
+    JNIEnv* env,
+    jobject thisObject,
+    jstring OpenCLCode,
+    jstring kernelName
+)
+{
+	initOpenCLFromInput
+    (
+        env,
+        thisObject,
+        OpenCLCode,
+        kernelName,
+        CL_DEVICE_TYPE_GPU,
+        openCLObjects
+    );
+}
 
 void shutdownOpenCL (OpenCLObjects& openCLObjects)
 {
@@ -1010,4 +1277,3 @@ extern "C" void Java_com_denayer_ovsr_OpenCL_nativeImage2DOpenCL
         outputBitmap
     );
 }
-
