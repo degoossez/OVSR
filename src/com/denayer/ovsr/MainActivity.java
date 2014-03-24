@@ -40,9 +40,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
+import android.widget.TabHost;
+import android.widget.TabHost.OnTabChangeListener;
+import android.widget.TabWidget;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import android.widget.TabHost.TabSpec;
 
 public class MainActivity extends Activity {
     private Uri mImageCaptureUri;
@@ -61,12 +64,17 @@ public class MainActivity extends Activity {
     private RadioButton OpenCLButton;
     private EditText CodeField;
     public TextView TimeView;
-    private String fileName;
-    private String CodeFieldCode;
-    
+    public String fileName;
+    public String CodeFieldCode;
+    public String tabCodeString;
+    public String tabConsoleString;
+    public String tabLogString;
     OpenCL OpenCLObject;
     RsScript RenderScriptObject;
     LogFile LogFileObject;   
+    
+    private TabHost myTabHost;
+    
     //item in de lijst toevoegen voor nieuwe filters toe te voegen.
     private String [] itemsFilterBox           = new String [] {"Edge", "Inverse","Sharpen","Mediaan","Saturatie","Blur"};
    
@@ -74,7 +82,42 @@ public class MainActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+    	
+        Input_button = (ImageButton)findViewById(R.id.imageButton1);
+        Output_button = (ImageButton)findViewById(R.id.imageButton2);
         
+        myTabHost= (TabHost) findViewById(R.id.tabhost);
+        myTabHost.setOnTabChangedListener(new OnTabChangeListener() {
+			@Override
+			public void onTabChanged(String tabId) {
+				if(tabId=="CodeTab")	
+				{
+					myTabHost.setCurrentTabByTag("Code");
+				}
+				else if(tabId=="ConsoleTab")
+				{
+					myTabHost.setCurrentTabByTag("Console");					
+				}
+				else if(tabId=="LogTab")
+				{
+					myTabHost.setCurrentTabByTag("Log");										
+				}
+			}
+		});
+        myTabHost.setup();
+        TabSpec spec1 = myTabHost.newTabSpec("Code");
+        spec1.setContent(R.id.CodeTab);
+        spec1.setIndicator("Code");
+        TabSpec spec2 = myTabHost.newTabSpec("Console");
+        spec2.setContent(R.id.ConsoleTab);
+        spec2.setIndicator("Console");        
+        TabSpec spec3 = myTabHost.newTabSpec("Log");
+        spec3.setContent(R.id.LogTab);
+        spec3.setIndicator("Log"); 
+        myTabHost.addTab(spec1);
+        myTabHost.addTab(spec2);
+        myTabHost.addTab(spec3);     
+       
         SubmitButton=(Button) findViewById(R.id.submit_button);
         TimeView=(TextView)findViewById(R.id.timeview);
         CodeField=(EditText)findViewById(R.id.editText1);
@@ -202,6 +245,16 @@ public class MainActivity extends Activity {
             	
             }
         });
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        int width = size.x/2 - 15;
+        int height = size.y/2 - 15;
+        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.logo);
+        bitmap = Bitmap.createScaledBitmap(bitmap, width, height, false);
+        Input_button.setImageBitmap(bitmap);
+        OpenCLObject.setBitmap(bitmap);
+        RenderScriptObject.setInputBitmap(bitmap);
     }
 
 	@Override
@@ -233,7 +286,6 @@ public class MainActivity extends Activity {
                 int width = size.x/2 - 15;
                 int height = size.y/2 - 15;
                 bitmap = decodeAndResizeFile(f,height,width);
-                //bitmap  = BitmapFactory.decodeFile(path);               
             	}
         } else {
         	bitmap.recycle();
@@ -265,9 +317,7 @@ public class MainActivity extends Activity {
         Log.i("Debug","Width: " + width + " " + "Height: " + height);
          
         bitmap = Bitmap.createScaledBitmap(bitmap, width, height, false);
-        Input_button = (ImageButton)findViewById(R.id.imageButton1);
         Input_button.setImageBitmap(bitmap);
-        Output_button = (ImageButton)findViewById(R.id.imageButton2);
         Output_button.setImageBitmap(Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888));
 
         OpenCLObject.setBitmap(bitmap);
