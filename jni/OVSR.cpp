@@ -339,7 +339,7 @@ void initOpenCL
     //err = clBuildProgram(openCLObjects.program, 0, 0, 0, 0, 0);
     //http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clBuildProgram.html
     err = clBuildProgram(openCLObjects.program, 0, 0, "-cl-fast-relaxed-math", 0, 0);
-
+    jstring JavaString = (*env).NewStringUTF("No errors while compiling.");
     if(err == CL_BUILD_PROGRAM_FAILURE)
     {
         size_t log_length = 0;
@@ -367,13 +367,32 @@ void initOpenCL
 
         LOGE
         (
-            "Error happened during the build of OpenCL program.\nBuild log:%s",
+            "Error happened during the build of OpenCL program.\nBuild log: %s",
             &log[0]
         );
-
+        /*
+         * TODO: hier een functie in de opencl.java oproepen die &log[0] naar de GUI brengt.
+         */
+        std::string str(log.begin(),log.end());
+        const char * c = str.c_str();
+        JavaString = (*env).NewStringUTF(c);
+        jclass MyJavaClass = (*env).FindClass("com/denayer/ovsr/OpenCL");
+        if (!MyJavaClass){
+        	LOGD("METHOD NOT FOUND");
+            return;} /* method not found */
+        jmethodID setConsoleOutput = (*env).GetMethodID(MyJavaClass, "setConsoleOutput", "(Ljava/lang/String;)V");
+        (*env).CallVoidMethod(thisObject, setConsoleOutput, JavaString);
         return;
     }
-
+    /*
+     * Call the setConsoleOutput function.
+     */
+    jclass MyJavaClass = (*env).FindClass("com/denayer/ovsr/OpenCL");
+    if (!MyJavaClass){
+    	LOGD("METHOD NOT FOUND");
+        return;} /* method not found */
+    jmethodID setConsoleOutput = (*env).GetMethodID(MyJavaClass, "setConsoleOutput", "(Ljava/lang/String;)V");
+    (*env).CallVoidMethod(thisObject, setConsoleOutput, JavaString);
     /* -----------------------------------------------------------------------
      * Step 6: Extract kernel from the built program.
      * An OpenCL program consists of kernels. Each kernel can be called (enqueued) from
@@ -561,6 +580,13 @@ void initOpenCLFromInput
         /*
          * TODO: hier een functie in de opencl.java oproepen die &log[0] naar de GUI brengt.
          */
+        jclass MyJavaClass = (*env).FindClass("com/denayer/ovsr/OpenCL");
+        if (!MyJavaClass){
+        	LOGD("METHOD NOT FOUND");
+            return;} /* method not found */
+        jmethodID setConsoleOutput = (*env).GetMethodID(MyJavaClass, "setConsoleOutput", "(Ljava/lang/String)V");
+        (*env).CallVoidMethod(thisObject, setConsoleOutput, log[0]);
+        LOGD("HELLOW");
         return;
     }
     fileName = env->GetStringUTFChars(kernelName, 0);

@@ -267,6 +267,15 @@ public class OpenCL extends Object {
 		v.setText(String.valueOf(time) + " ms");
 		
 	}
+	/*
+	 * TODO: debuggen
+	 */
+	public void setConsoleOutput(String ErrorLog)
+	{
+		View rootView = ((Activity)mContext).getWindow().getDecorView().findViewById(android.R.id.content);
+		TextView v = (TextView) rootView.findViewById(R.id.ConsoleView);
+		v.setText(ErrorLog);
+	}
 	public String getTemplate()
 	{
 		String template = null;

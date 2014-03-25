@@ -120,7 +120,7 @@ public class MainActivity extends Activity {
        
         SubmitButton=(Button) findViewById(R.id.submit_button);
         TimeView=(TextView)findViewById(R.id.timeview);
-        CodeField=(EditText)findViewById(R.id.editText1);
+        CodeField=(EditText)findViewById(R.id.CodeView);
         OpenCLObject = new OpenCL(MainActivity.this,(ImageButton)findViewById(R.id.imageButton2));
         RenderScriptObject = new RsScript(this,(ImageButton)findViewById(R.id.imageButton2),TimeView);
         LogFileObject = new LogFile(this);   
