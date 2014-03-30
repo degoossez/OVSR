@@ -7,18 +7,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.text.DecimalFormat;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.text.Editable;
-import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -26,7 +20,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.SeekBar.OnSeekBarChangeListener;
 
 public class OpenCL extends Object {
 	private Context mContext; //<-- declare a Context reference
@@ -138,8 +131,8 @@ public class OpenCL extends Object {
     	String kernelName="sharpen";
     	Log.i("DEBUG","BEFORE runOpencl sharpen");
     	initOpenCL(kernelName);
-    	nativeBasicOpenCL(
- //   	nativeImage2DOpenCL( //TODO nativeImage2DOpenCL testen
+ //   	nativeBasicOpenCL(
+    	nativeImage2DOpenCL( //TODO nativeImage2DOpenCL testen
                 bmpOrig,
                 bmpOpenCL
             );
@@ -185,7 +178,6 @@ public class OpenCL extends Object {
 		Log.i("DEBUG","OPENCLSATURATIE");
 
 		final TextView progressView = new TextView(mContext);
-		final Resources res = mContext.getResources();
 		final SeekBar MySeekBar = new SeekBar(mContext);
 		MySeekBar.setMax(200);
 		MySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){ 
@@ -267,9 +259,6 @@ public class OpenCL extends Object {
 		v.setText(String.valueOf(time) + " ms");
 		
 	}
-	/*
-	 * TODO: debuggen
-	 */
 	public void setConsoleOutput(String ErrorLog)
 	{
 		View rootView = ((Activity)mContext).getWindow().getDecorView().findViewById(android.R.id.content);
@@ -306,7 +295,6 @@ public class OpenCL extends Object {
 		AlertDialog.Builder alert = new AlertDialog.Builder(mContext);
 
 		alert.setTitle("Enter the kernel name:");
-		alert.setMessage("inverseKernel");
 
 		// Set an EditText view to get user input 
 		final EditText input = new EditText(mContext);

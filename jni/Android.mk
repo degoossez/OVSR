@@ -2,8 +2,11 @@ LOCAL_PATH		:= $(call my-dir)
 LOCAL_PATH_EXT	:= $(call my-dir)/../external/
 include $(CLEAR_VARS)
 
-MY_ODROID := true
-MY_NEXUS := false
+#MY_ODROID := true
+#MY_NEXUS := false
+
+MY_ODROID := false
+MY_NEXUS := true
 
 LOCAL_MODULE    := OVSR
 

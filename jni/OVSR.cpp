@@ -27,7 +27,8 @@
 #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 #define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
-
+//#define DEVICE "PowerVR" //Odroid
+#define DEVICE "Mali" //Nexus10
 /* Container for all OpenCL-specific objects used in the sample.
  *
  * The container consists of the following parts:
@@ -207,8 +208,7 @@ void initOpenCL
     // Search for the Intel OpenCL platform.
     // Platform name includes "Intel" as a substring, consider this
     // method to be a recommendation for Intel OpenCL platform search.
-    const char* required_platform_subname = "PowerVR";
-
+    const char* required_platform_subname = DEVICE;
     // The following variable stores return codes for all OpenCL calls.
     // In the code it is used with the SAMPLE_CHECK_ERRORS macro defined
     // before this function.
@@ -371,7 +371,7 @@ void initOpenCL
             &log[0]
         );
         /*
-         * TODO: hier een functie in de opencl.java oproepen die &log[0] naar de GUI brengt.
+         * sends the error log to the console text edit.
          */
         std::string str(log.begin(),log.end());
         const char * c = str.c_str();
@@ -464,7 +464,7 @@ void initOpenCLFromInput
 
     openCLObjects.isInputBufferInitialized = false;
 
-    const char* required_platform_subname = "PowerVR";
+    const char* required_platform_subname = DEVICE;
 
     cl_int err = CL_SUCCESS;
     cl_uint num_of_platforms = 0;
@@ -545,7 +545,7 @@ void initOpenCLFromInput
     //err = clBuildProgram(openCLObjects.program, 0, 0, 0, 0, 0);
     //http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clBuildProgram.html
     err = clBuildProgram(openCLObjects.program, 0, 0, "-cl-fast-relaxed-math", 0, 0);
-
+    jstring JavaString = (*env).NewStringUTF("No errors while compiling.");
     if(err == CL_BUILD_PROGRAM_FAILURE)
     {
         size_t log_length = 0;
@@ -573,22 +573,33 @@ void initOpenCLFromInput
 
         LOGE
         (
-            "Error happened during the build of OpenCL program.\nBuild log:%s",
+            "Error happened during the build of OpenCL program.\nBuild log: %s",
             &log[0]
         );
-
         /*
-         * TODO: hier een functie in de opencl.java oproepen die &log[0] naar de GUI brengt.
+         * sends the error log to the console text edit.
          */
+        std::string str(log.begin(),log.end());
+        const char * c = str.c_str();
+        JavaString = (*env).NewStringUTF(c);
         jclass MyJavaClass = (*env).FindClass("com/denayer/ovsr/OpenCL");
         if (!MyJavaClass){
         	LOGD("METHOD NOT FOUND");
             return;} /* method not found */
-        jmethodID setConsoleOutput = (*env).GetMethodID(MyJavaClass, "setConsoleOutput", "(Ljava/lang/String)V");
-        (*env).CallVoidMethod(thisObject, setConsoleOutput, log[0]);
-        LOGD("HELLOW");
+        jmethodID setConsoleOutput = (*env).GetMethodID(MyJavaClass, "setConsoleOutput", "(Ljava/lang/String;)V");
+        (*env).CallVoidMethod(thisObject, setConsoleOutput, JavaString);
         return;
     }
+    /*
+     * Call the setConsoleOutput function.
+     */
+    jclass MyJavaClass = (*env).FindClass("com/denayer/ovsr/OpenCL");
+    if (!MyJavaClass){
+    	LOGD("METHOD NOT FOUND");
+        return;} /* method not found */
+    jmethodID setConsoleOutput = (*env).GetMethodID(MyJavaClass, "setConsoleOutput", "(Ljava/lang/String;)V");
+    (*env).CallVoidMethod(thisObject, setConsoleOutput, JavaString);
+
     fileName = env->GetStringUTFChars(kernelName, 0);
     char result[100];   // array to hold the result.
     std::strcpy(result,fileName); //place the given kernel name into a string
@@ -714,9 +725,6 @@ void nativeBasicOpenCL
             err = clReleaseMemObject(openCLObjects.inputBuffer);
             SAMPLE_CHECK_ERRORS(err);
         }
-
-        //LOGD("Creating input buffer in OpenCL");
-
 
         void* inputPixels = 0;
         AndroidBitmap_lockPixels(env, inputBitmap, &inputPixels);

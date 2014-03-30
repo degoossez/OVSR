@@ -482,6 +482,9 @@ public class MainActivity extends Activity {
 	        	if(!RenderScriptButton.isChecked()) CodeField.setText(RenderScriptObject.getTemplate());
 	        	else CodeField.setText(OpenCLObject.getTemplate());
 	        case R.id.SaveF:
+	        	/*
+	        	 * Betere file saving maken
+	        	 */
 	        	String filePath = Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM + File.separator + fileName + ".txt";            	
 	        	LogFileObject.writeToFile("		Code file saved to: " + filePath);
 	        	try{   
