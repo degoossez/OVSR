@@ -30,8 +30,12 @@
             android:label="@string/title_activity_display_message_activty" >
         </activity>
         <activity
-            android:name="com.denayer.ovsr.ActivityTestActivity"
-            android:label="@string/title_activity_activity_test" >
+            android:name="com.lamerman.FileDialog"
+            android:label="Lamerman_external_FileDialog" >
+        </activity>
+        <activity
+            android:name="com.denayer.ovsr.SettingsActivity"
+            android:label="@string/title_activity_settings" >
         </activity>
     </application>
 

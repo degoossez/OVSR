@@ -166,8 +166,7 @@
                             android:freezesText="true"
                             android:inputType="text|textMultiLine"
                             android:paddingLeft="5dp"
-                            android:paddingRight="5dp"
-                            android:text="Hello world01" />
+                            android:paddingRight="5dp"/>
                     </LinearLayout>
 
                     <LinearLayout

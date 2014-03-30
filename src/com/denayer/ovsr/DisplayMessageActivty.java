@@ -3,6 +3,7 @@ package com.denayer.ovsr;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -32,11 +33,15 @@ public class DisplayMessageActivty extends Activity {
 	    // Handle item selection
 	    switch (item.getItemId()) {
 	        case R.id.Home:
-	            Log.i("Debug","Pressed on history");
 	            finish();
 	            return true;
 	        case R.id.Delete:
 	        	DeleteFile();
+	        	return true;
+	        case R.id.Settings:
+	    		Intent intent = new Intent(this,SettingsActivity.class);
+	    		startActivity(intent);
+	    		return true;
 	        default:
 	            return super.onOptionsItemSelected(item);
 	    }

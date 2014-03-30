@@ -15,5 +15,6 @@
     <string name="File">File</string>
     <string name="LoadF">Load File</string>
     <string name="title_activity_activity_test">ActivityTestActivity</string>
+    <string name="title_activity_settings">SettingsActivity</string>
 
 </resources>
