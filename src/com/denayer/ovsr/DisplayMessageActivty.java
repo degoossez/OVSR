@@ -19,7 +19,7 @@ public class DisplayMessageActivty extends Activity {
 		setContentView(R.layout.activity_display_message);
 		LogFileObject = new LogFile(this);
 		HistoryField = (TextView)findViewById(R.id.LogField);
-		HistoryField.setText(LogFileObject.readFromFile(""));
+		HistoryField.setText(LogFileObject.readFromFile("","LogFile.txt"));
 	}
 
 	@Override
@@ -54,7 +54,7 @@ public class DisplayMessageActivty extends Activity {
 		        switch (which){
 		        case DialogInterface.BUTTON_POSITIVE:
 		        	LogFileObject.deleteExternalStoragePrivateFile();
-		        	HistoryField.setText(LogFileObject.readFromFile(""));
+		        	HistoryField.setText(LogFileObject.readFromFile("","LogFile.txt"));
 		            break;
 		        case DialogInterface.BUTTON_NEGATIVE:
 		            //No button clicked

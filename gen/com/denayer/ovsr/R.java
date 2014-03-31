@@ -39,8 +39,8 @@ public final class R {
         public static final int AutoName=0x7f0a0021;
         public static final int CodeTab=0x7f0a0008;
         public static final int ConsoleTab=0x7f0a000b;
+        public static final int ConsoleView=0x7f0a000c;
         public static final int Delete=0x7f0a0024;
-        public static final int EditText01=0x7f0a000c;
         public static final int File=0x7f0a0026;
         public static final int FilterButton=0x7f0a0006;
         public static final int History=0x7f0a0025;

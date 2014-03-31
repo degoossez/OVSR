@@ -18,9 +18,10 @@ public class LogFile extends Object {
 	
 	public LogFile(Context context){
 		mContext = context;
-		FileName = "LogFile.txt";
+		
 	}		
 	public void writeToFile(String data) {
+		String FileName = "LogFile.txt";
 	    try {
 	        OutputStreamWriter MyOutputStreamWriter = new OutputStreamWriter(mContext.openFileOutput(FileName, Context.MODE_PRIVATE | Context.MODE_APPEND));
 	        MyOutputStreamWriter.append(data);
@@ -30,7 +31,7 @@ public class LogFile extends Object {
 	        Log.e("Exception", "File write failed: " + e.toString());
 	    } 
 	}
-	public String readFromFile(String path) {
+	public String readFromFile(String path, String FileName) {
 		String ret = "";
 		if(path==""){
 			try {

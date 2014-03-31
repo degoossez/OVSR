@@ -296,7 +296,7 @@ public class MainActivity extends Activity {
 			String PathLoadFile = data.getStringExtra(FileDialog.RESULT_PATH);
 			String FileContent = null;
 			Log.i("Debug",PathLoadFile);
-			FileContent = LogFileObject.readFromFile(PathLoadFile);
+			FileContent = LogFileObject.readFromFile(PathLoadFile,"");
 			CodeField.setText(FileContent);
 		}
 		else if (requestCode == REQUEST_SAVE) {

@@ -9,8 +9,8 @@ int drawable logo 0x7f020004
 int id AutoName 0x7f0a0021
 int id CodeTab 0x7f0a0008
 int id ConsoleTab 0x7f0a000b
+int id ConsoleView 0x7f0a000c
 int id Delete 0x7f0a0024
-int id EditText01 0x7f0a000c
 int id File 0x7f0a0026
 int id FilterButton 0x7f0a0006
 int id History 0x7f0a0025

@@ -158,7 +158,7 @@
                         android:layout_height="match_parent" >
 
                         <EditText
-                            android:id="@+id/EditText01"
+                            android:id="@+id/ConsoleView"
                             android:layout_width="fill_parent"
                             android:layout_height="fill_parent"
                             android:background="#fff3f3f3"

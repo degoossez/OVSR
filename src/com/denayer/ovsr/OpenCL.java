@@ -1,21 +1,18 @@
 package com.denayer.ovsr;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.text.DecimalFormat;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -23,7 +20,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.SeekBar.OnSeekBarChangeListener;
 
 public class OpenCL extends Object {
 	private Context mContext; //<-- declare a Context reference
@@ -49,6 +45,7 @@ public class OpenCL extends Object {
 	    	try { 
 	    		System.load("/system/vendor/lib/egl/libGLES_mali.so");
 	    		Log.i("Debug", "libGLES_mali loaded");
+	    		sfoundLibrary=true;
 	    	}
 	    	catch (UnsatisfiedLinkError e) {
 	    		sfoundLibrary = false;
@@ -77,6 +74,7 @@ public class OpenCL extends Object {
     	return bmpOpenCL;
     }
     private native void initOpenCL (String kernelName);
+    private native void initOpenCLFromInput (String OpenCLCode, String kernelName);
     private native void nativeBasicOpenCL (
             Bitmap inputBitmap,
             Bitmap outputBitmap
@@ -133,8 +131,8 @@ public class OpenCL extends Object {
     	String kernelName="sharpen";
     	Log.i("DEBUG","BEFORE runOpencl sharpen");
     	initOpenCL(kernelName);
-    	nativeBasicOpenCL(
- //   	nativeImage2DOpenCL( //TODO nativeImage2DOpenCL testen
+ //   	nativeBasicOpenCL(
+    	nativeImage2DOpenCL( //TODO nativeImage2DOpenCL testen
                 bmpOrig,
                 bmpOpenCL
             );
@@ -180,7 +178,6 @@ public class OpenCL extends Object {
 		Log.i("DEBUG","OPENCLSATURATIE");
 
 		final TextView progressView = new TextView(mContext);
-		final Resources res = mContext.getResources();
 		final SeekBar MySeekBar = new SeekBar(mContext);
 		MySeekBar.setMax(200);
 		MySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){ 
@@ -262,13 +259,61 @@ public class OpenCL extends Object {
 		v.setText(String.valueOf(time) + " ms");
 		
 	}
+	public void setConsoleOutput(String ErrorLog)
+	{
+		View rootView = ((Activity)mContext).getWindow().getDecorView().findViewById(android.R.id.content);
+		TextView v = (TextView) rootView.findViewById(R.id.ConsoleView);
+		v.setText(ErrorLog);
+	}
 	public String getTemplate()
 	{
 		String template = null;
+		try {
+			InputStream in = mContext.getAssets().open("templateOpenCL.txt");
+			InputStreamReader inputStreamReader = new InputStreamReader(in);
+			BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+			String receiveString = "";
+			StringBuilder stringBuilder = new StringBuilder();
+
+			while ( (receiveString = bufferedReader.readLine()) != null ) {
+				stringBuilder.append(receiveString).append("\n");
+			}
+			in.close();
+			template = stringBuilder.toString();
+		} catch (IOException e) {
+			Log.e("login activity", "Can not read file: " + e.toString());
+			e.printStackTrace();
+		}
+		
+		
 		return template;
 	}
-	public void codeFromFile(String code)
+	public void codeFromFile(final String code)
 	{
-		
+		Log.i("Debug","OpenCL: " + code);
+
+		AlertDialog.Builder alert = new AlertDialog.Builder(mContext);
+
+		alert.setTitle("Enter the kernel name:");
+
+		// Set an EditText view to get user input 
+		final EditText input = new EditText(mContext);
+		alert.setView(input);
+		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+		public void onClick(DialogInterface dialog, int whichButton) {
+			String value = input.getText().toString();
+			initOpenCLFromInput(code, value);
+	    	nativeBasicOpenCL(
+	                bmpOrig,
+	                bmpOpenCL
+	            );
+	    	shutdownOpenCL();		  }
+		});
+		alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+		  public void onClick(DialogInterface dialog, int whichButton) {
+		    // Canceled.
+		  }
+		});
+		alert.show();
 	}
 }

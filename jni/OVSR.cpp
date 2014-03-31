@@ -27,7 +27,8 @@
 #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 #define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
-
+//#define DEVICE "PowerVR" //Odroid
+#define DEVICE "Mali" //Nexus10
 /* Container for all OpenCL-specific objects used in the sample.
  *
  * The container consists of the following parts:
@@ -207,8 +208,7 @@ void initOpenCL
     // Search for the Intel OpenCL platform.
     // Platform name includes "Intel" as a substring, consider this
     // method to be a recommendation for Intel OpenCL platform search.
-    const char* required_platform_subname = "PowerVR";
-
+    const char* required_platform_subname = DEVICE;
     // The following variable stores return codes for all OpenCL calls.
     // In the code it is used with the SAMPLE_CHECK_ERRORS macro defined
     // before this function.
@@ -314,7 +314,6 @@ void initOpenCL
     std::string kernelSource = loadProgram(fileDir);
     //std::string to const char* needed for the clCreateProgramWithSource function
     const char* kernelSourceChar = kernelSource.c_str();
-    LOGD("filename: %s", kernelSourceChar);
 
     openCLObjects.program =
         clCreateProgramWithSource
@@ -340,7 +339,7 @@ void initOpenCL
     //err = clBuildProgram(openCLObjects.program, 0, 0, 0, 0, 0);
     //http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clBuildProgram.html
     err = clBuildProgram(openCLObjects.program, 0, 0, "-cl-fast-relaxed-math", 0, 0);
-
+    jstring JavaString = (*env).NewStringUTF("No errors while compiling.");
     if(err == CL_BUILD_PROGRAM_FAILURE)
     {
         size_t log_length = 0;
@@ -368,13 +367,32 @@ void initOpenCL
 
         LOGE
         (
-            "Error happened during the build of OpenCL program.\nBuild log:%s",
+            "Error happened during the build of OpenCL program.\nBuild log: %s",
             &log[0]
         );
-
+        /*
+         * sends the error log to the console text edit.
+         */
+        std::string str(log.begin(),log.end());
+        const char * c = str.c_str();
+        JavaString = (*env).NewStringUTF(c);
+        jclass MyJavaClass = (*env).FindClass("com/denayer/ovsr/OpenCL");
+        if (!MyJavaClass){
+        	LOGD("METHOD NOT FOUND");
+            return;} /* method not found */
+        jmethodID setConsoleOutput = (*env).GetMethodID(MyJavaClass, "setConsoleOutput", "(Ljava/lang/String;)V");
+        (*env).CallVoidMethod(thisObject, setConsoleOutput, JavaString);
         return;
     }
-
+    /*
+     * Call the setConsoleOutput function.
+     */
+    jclass MyJavaClass = (*env).FindClass("com/denayer/ovsr/OpenCL");
+    if (!MyJavaClass){
+    	LOGD("METHOD NOT FOUND");
+        return;} /* method not found */
+    jmethodID setConsoleOutput = (*env).GetMethodID(MyJavaClass, "setConsoleOutput", "(Ljava/lang/String;)V");
+    (*env).CallVoidMethod(thisObject, setConsoleOutput, JavaString);
     /* -----------------------------------------------------------------------
      * Step 6: Extract kernel from the built program.
      * An OpenCL program consists of kernels. Each kernel can be called (enqueued) from
@@ -442,66 +460,24 @@ void initOpenCLFromInput
     OpenCLObjects& openCLObjects
 )
 {
-    /*
-     * This function picks and creates all necessary OpenCL objects
-     * to be used at each filter iteration. The objects are:
-     * OpenCL platform, device, context, command queue, program,
-     * and kernel.
-     *
-     * Almost all of these steps need to be performed in all
-	 * OpenCL applications before the actual compute kernel calls
-     * are performed.
-     *
-     * For convenience, in this application all basic OpenCL objects
-     * are stored in the OpenCLObjects structure,
-     * so, this function populates fields of this structure,
-     * which is passed as parameter openCLObjects.
-     * Consider reviewing the fields before going further.
-     * The structure definition is in the beginning of this file.
-     */
-
     using namespace std;
 
-    // Will be used at each effect iteration,
-    // and means that you haven't yet initialized
-    // the inputBuffer object.
     openCLObjects.isInputBufferInitialized = false;
 
-    // Search for the Intel OpenCL platform.
-    // Platform name includes "Intel" as a substring, consider this
-    // method to be a recommendation for Intel OpenCL platform search.
-    const char* required_platform_subname = "PowerVR";
+    const char* required_platform_subname = DEVICE;
 
-    // The following variable stores return codes for all OpenCL calls.
-    // In the code it is used with the SAMPLE_CHECK_ERRORS macro defined
-    // before this function.
     cl_int err = CL_SUCCESS;
-
-    /* -----------------------------------------------------------------------
-     * Step 1: Query for all available OpenCL platforms on the system.
-     * Enumerate all platforms and pick one which name has
-     * required_platform_subname as a sub-string.
-     */
-
     cl_uint num_of_platforms = 0;
-    // Get total number of the available platforms.
     err = clGetPlatformIDs(0, 0, &num_of_platforms);
     SAMPLE_CHECK_ERRORS(err);
-    //LOGD("Number of available platforms: %u", num_of_platforms);
 
     vector<cl_platform_id> platforms(num_of_platforms);
-    // Get IDs for all platforms.
     err = clGetPlatformIDs(num_of_platforms, &platforms[0], 0);
     SAMPLE_CHECK_ERRORS(err);
 
-    // Search for platform with required sub-string in the name.
-
     cl_uint selected_platform_index = num_of_platforms;
 
-    //LOGD("Platform names:");
-
     cl_uint i = 0;
-        // Get the length for the i-th platform name.
         size_t platform_name_length = 0;
         err = clGetPlatformInfo(
             platforms[i],
@@ -512,7 +488,6 @@ void initOpenCLFromInput
         );
         SAMPLE_CHECK_ERRORS(err);
 
-        // Get the name itself for the i-th platform.
         vector<char> platform_name(platform_name_length);
         err = clGetPlatformInfo(
             platforms[i],
@@ -525,13 +500,6 @@ void initOpenCLFromInput
 
     selected_platform_index = 0;
     openCLObjects.platform = platforms[selected_platform_index];
-
-
-    /* -----------------------------------------------------------------------
-     * Step 2: Create context with a device of the specified type.
-     * Required device type is passed as function argument required_device_type.
-     * Use this function to create context for any CPU or GPU OpenCL device.
-     */
 
     cl_context_properties context_props[] = {
         CL_CONTEXT_PLATFORM,
@@ -550,10 +518,6 @@ void initOpenCLFromInput
         );
     SAMPLE_CHECK_ERRORS(err);
 
-    /* -----------------------------------------------------------------------
-     * Step 3: Query for OpenCL device that was used for context creation.
-     */
-
     err = clGetContextInfo
     (
         openCLObjects.context,
@@ -564,22 +528,8 @@ void initOpenCLFromInput
     );
     SAMPLE_CHECK_ERRORS(err);
 
-    /* -----------------------------------------------------------------------
-     * Step 4: Create OpenCL program from its source code.
-     * The file name is passed bij java.
-     * Convert the jstring to const char* and append the needed directory path.
-     */
     const char* fileName = env->GetStringUTFChars(kernelCode, 0);
-    LOGD("filename: %s", fileName);
 
-    //std::string fileDir;
-    //fileDir.append("/data/data/com.denayer.ovsr/app_execdir/");
-    //fileDir.append(fileName);
-    //fileDir.append(".cl");
-    //std::string kernelSource = loadProgram(fileDir);
-    //std::string to const char* needed for the clCreateProgramWithSource function
-    //const char* kernelSourceChar = kernelSource.c_str();
-    //const char* kernelSourceChar = fileName;
     openCLObjects.program =
         clCreateProgramWithSource
         (
@@ -592,19 +542,10 @@ void initOpenCLFromInput
 
     SAMPLE_CHECK_ERRORS(err);
 
-    /* -----------------------------------------------------------------------
-     * Step 5: Build the program.
-     * During creation a program is not built. Call the build function explicitly.
-     * This example utilizes the create-build sequence, still other options are applicable,
-     * for example, when a program consists of several parts, some of which are libraries.
-     * Consider using clCompileProgram and clLinkProgram as alternatives.
-     * Also consider looking into a dedicated chapter in the OpenCL specification
-     * for more information on applicable alternatives and options.
-     */
     //err = clBuildProgram(openCLObjects.program, 0, 0, 0, 0, 0);
     //http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clBuildProgram.html
     err = clBuildProgram(openCLObjects.program, 0, 0, "-cl-fast-relaxed-math", 0, 0);
-
+    jstring JavaString = (*env).NewStringUTF("No errors while compiling.");
     if(err == CL_BUILD_PROGRAM_FAILURE)
     {
         size_t log_length = 0;
@@ -632,37 +573,38 @@ void initOpenCLFromInput
 
         LOGE
         (
-            "Error happened during the build of OpenCL program.\nBuild log:%s",
+            "Error happened during the build of OpenCL program.\nBuild log: %s",
             &log[0]
         );
-
+        /*
+         * sends the error log to the console text edit.
+         */
+        std::string str(log.begin(),log.end());
+        const char * c = str.c_str();
+        JavaString = (*env).NewStringUTF(c);
+        jclass MyJavaClass = (*env).FindClass("com/denayer/ovsr/OpenCL");
+        if (!MyJavaClass){
+        	LOGD("METHOD NOT FOUND");
+            return;} /* method not found */
+        jmethodID setConsoleOutput = (*env).GetMethodID(MyJavaClass, "setConsoleOutput", "(Ljava/lang/String;)V");
+        (*env).CallVoidMethod(thisObject, setConsoleOutput, JavaString);
         return;
     }
-
-    /* -----------------------------------------------------------------------
-     * Step 6: Extract kernel from the built program.
-     * An OpenCL program consists of kernels. Each kernel can be called (enqueued) from
-     * the host part of an application.
-     * First create a kernel to call it from the existing program.
-     * Creating a kernel via clCreateKernel is similar to obtaining an entry point of a specific function
-     * in an OpenCL program.
+    /*
+     * Call the setConsoleOutput function.
      */
+    jclass MyJavaClass = (*env).FindClass("com/denayer/ovsr/OpenCL");
+    if (!MyJavaClass){
+    	LOGD("METHOD NOT FOUND");
+        return;} /* method not found */
+    jmethodID setConsoleOutput = (*env).GetMethodID(MyJavaClass, "setConsoleOutput", "(Ljava/lang/String;)V");
+    (*env).CallVoidMethod(thisObject, setConsoleOutput, JavaString);
+
     fileName = env->GetStringUTFChars(kernelName, 0);
     char result[100];   // array to hold the result.
-    //std::strcpy(result,fileName); // copy string one into the result.
-    std::strcpy(result,fileName);
-    //std::strcat(result,"Kernel"); // append string two to the result.
+    std::strcpy(result,fileName); //place the given kernel name into a string
     openCLObjects.kernel = clCreateKernel(openCLObjects.program, result, &err);
     SAMPLE_CHECK_ERRORS(err);
-
-    /* -----------------------------------------------------------------------
-     * Step 7: Create command queue.
-     * OpenCL kernels are enqueued for execution to a particular device through
-     * special objects called command queues. Command queue provides ordering
-     * of calls and other OpenCL commands.
-     * This sample uses a simple in-order OpenCL command queue that doesn't
-     * enable execution of two kernels in parallel on a target device.
-     */
 
     openCLObjects.queue =
         clCreateCommandQueue
@@ -673,10 +615,6 @@ void initOpenCLFromInput
             &err
         );
     SAMPLE_CHECK_ERRORS(err);
-
-    // -----------------------------------------------------------------------
-
-    //LOGD("initOpenCL finished successfully");
 }
 
 
@@ -787,9 +725,6 @@ void nativeBasicOpenCL
             err = clReleaseMemObject(openCLObjects.inputBuffer);
             SAMPLE_CHECK_ERRORS(err);
         }
-
-        //LOGD("Creating input buffer in OpenCL");
-
 
         void* inputPixels = 0;
         AndroidBitmap_lockPixels(env, inputBitmap, &inputPixels);
@@ -1060,7 +995,6 @@ void nativeSaturatieOpenCL
     	LOGD("Aj :(");
         return;} /* method not found */
     jmethodID setTimeFromJNI = (*env).GetMethodID(MyJavaClass, "setTimeFromJNI", "(F)V"); //argument is float, return time is void
-    //jmethodID setTimeFromJNI = (*env).GetMethodID(MyJavaClass, "saturate",);
     (*env).CallVoidMethod(thisObject, setTimeFromJNI, ndrangeDuration);
 
     //LOGD("Done");
@@ -1129,14 +1063,15 @@ void nativeImage2DOpenCL
         image_format.image_channel_data_type=CL_UNORM_INT8;
         image_format.image_channel_order=CL_RGBA;
 
+//        http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clCreateImage2D.html
         openCLObjects.inputBuffer =
         	clCreateImage2D(openCLObjects.context,
         			CL_MEM_READ_ONLY,
         			&image_format,
         			bitmapInfo.width,
         			bitmapInfo.height,
-        			0, //eens testen met bufferSize of met 0 (ook aanpassen bij output buffer
-        			NULL,
+        			0,
+					NULL,
         			&err);
         SAMPLE_CHECK_ERRORS(err);
 //        err = clEnqueueWriteBuffer (	openCLObjects.queue,
