@@ -1,6 +1,10 @@
 package com.denayer.ovsr;
 
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.concurrent.TimeUnit;
 
 import android.text.InputType;
@@ -351,6 +355,24 @@ public class RsScript extends Object {
 	public String getTemplate()
 	{
 		String template = null;
+		try {
+			InputStream in = mContext.getAssets().open("templateRenderscript.txt");
+			InputStreamReader inputStreamReader = new InputStreamReader(in);
+			BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+			String receiveString = "";
+			StringBuilder stringBuilder = new StringBuilder();
+
+			while ( (receiveString = bufferedReader.readLine()) != null ) {
+				stringBuilder.append(receiveString).append("\n");
+			}
+			in.close();
+			template = stringBuilder.toString();
+		} catch (IOException e) {
+			Log.e("login activity", "Can not read file: " + e.toString());
+			e.printStackTrace();
+		}
+		
+		
 		return template;
 	}
 	public void codeFromFile(String code)

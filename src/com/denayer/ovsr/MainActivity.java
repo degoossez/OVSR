@@ -531,6 +531,7 @@ public class MainActivity extends Activity {
 		case R.id.Template:
 			if(!RenderScriptButton.isChecked()) CodeField.setText(RenderScriptObject.getTemplate());
 			else CodeField.setText(OpenCLObject.getTemplate());
+			return true;
 		case R.id.SaveF:
 			Intent intentSave = new Intent(getBaseContext(), FileDialog.class);
 			intentSave.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
