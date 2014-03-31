@@ -20,6 +20,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -60,12 +61,13 @@ public class MainActivity extends Activity {
 	private static final int PICK_FROM_FILE = 2;
 	private static final int REQUEST_LOAD = 3;
 	private static final int REQUEST_SAVE = 4;
-
+	private static final int REQUEST_SAVE_IMAGE = 5;
 	private Button SubmitButton;
 	private RadioButton RenderScriptButton;
 	private RadioButton OpenCLButton;
 	private EditText CodeField;
 	public TextView TimeView;
+	public TextView NetworkView;
 	public String fileName;
 	public String CodeFieldCode;
 	public String tabCodeString;
@@ -77,11 +79,6 @@ public class MainActivity extends Activity {
 
 	private TabHost myTabHost;
 
-	/*
-	 * Var's for settings activity
-	 */
-	public static final boolean AutoNaming;
-
 	//item in de lijst toevoegen voor nieuwe filters toe te voegen.
 	private String [] itemsFilterBox           = new String [] {"Edge", "Inverse","Sharpen","Mediaan","Saturatie","Blur"};
 
@@ -89,6 +86,14 @@ public class MainActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+		SharedPreferences settings = getSharedPreferences("Preferences", 0);
+		SharedPreferences.Editor editor = settings.edit();
+		if(!settings.getBoolean("AutoName", false))
+		{
+			editor.putBoolean("AutoName", false);
+			editor.commit();
+		}		
 
 		Input_button = (ImageButton)findViewById(R.id.imageButton1);
 		Output_button = (ImageButton)findViewById(R.id.imageButton2);
@@ -120,13 +125,18 @@ public class MainActivity extends Activity {
 		spec2.setIndicator("Console");        
 		TabSpec spec3 = myTabHost.newTabSpec("Log");
 		spec3.setContent(R.id.LogTab);
-		spec3.setIndicator("Log"); 
+		spec3.setIndicator("Log");
+		TabSpec spec4 = myTabHost.newTabSpec("Network");
+		spec4.setContent(R.id.NetworkTab);
+		spec4.setIndicator("Network"); 
 		myTabHost.addTab(spec1);
 		myTabHost.addTab(spec2);
 		myTabHost.addTab(spec3);     
-
+		myTabHost.addTab(spec4);
+		
 		SubmitButton=(Button) findViewById(R.id.submit_button);
 		TimeView=(TextView)findViewById(R.id.timeview);
+		NetworkView=(TextView)findViewById(R.id.networkview);
 		CodeField=(EditText)findViewById(R.id.editText1);
 		OpenCLObject = new OpenCL(MainActivity.this,(ImageButton)findViewById(R.id.imageButton2));
 		RenderScriptObject = new RsScript(this,(ImageButton)findViewById(R.id.imageButton2),TimeView);
@@ -167,7 +177,7 @@ public class MainActivity extends Activity {
 				} else {
 					Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
 					intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
-					intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] { "png" , "jpeg" , "jpg"});
+					intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] { "png" , "jpeg" , "jpg" , "bmp"});
 					startActivityForResult(intentLoad, PICK_FROM_FILE);
 				}
 			}
@@ -183,26 +193,40 @@ public class MainActivity extends Activity {
 		((ImageButton) findViewById(R.id.imageButton2)).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {  
-				//save the output bitmap to a file
-				File picDir = new File(Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM + "/OpenCL/");
-				picDir.mkdirs(); //creates directory when needed
-				picDir = new File(Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM + "/RenderScript/");
-				picDir.mkdirs(); //creates directory when needed
-				//fileName created after filter
-				String filePath = Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM + File.separator + fileName + ".jpg";            	
-				LogFileObject.writeToFile(" File saved to: " + filePath);
-				FileOutputStream out = null;
-				try {
-					out = new FileOutputStream(filePath);
-					outBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
-					createToast("Image saved!",false);	
-				} catch (Exception e) {
-					e.printStackTrace();
-				} finally {
-					try{
-						out.close();
-					} catch(Throwable ignore) {}
-				} 
+				SharedPreferences settings = getSharedPreferences("Preferences", 0);
+				if(!settings.getBoolean("AutoName", false))
+				{
+					String filePath = null;
+					//save the output bitmap to a file
+					File picDir = new File(Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM + "/OpenCL/");
+					picDir.mkdirs(); //creates directory when needed
+					picDir = new File(Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM + "/RenderScript/");
+					picDir.mkdirs(); //creates directory when needed
+					//fileName created after filter
+					filePath = Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM + File.separator + fileName + ".jpg";            	
+					LogFileObject.writeToFile(" File saved to: " + filePath);
+					FileOutputStream out = null;
+					try {
+						out = new FileOutputStream(filePath);
+						outBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+						createToast("Image saved!",false);	
+					} catch (Exception e) {
+						e.printStackTrace();
+					} finally {
+						try{
+							out.close();
+						} catch(Throwable ignore) {}
+					} 
+				}
+				else
+				{
+					//chose file
+					Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
+					intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
+					intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] { "png" , "jpeg" , "jpg" , "bmp"});
+					startActivityForResult(intentLoad, REQUEST_SAVE_IMAGE);
+				}
+
 			}
 		}); 
 		createBoxes();
@@ -321,7 +345,22 @@ public class MainActivity extends Activity {
 				e.printStackTrace();
 			}
 			setBitmaps();
-		}     
+		} else if(requestCode == REQUEST_SAVE_IMAGE) {
+			String filePath = data.getStringExtra(FileDialog.RESULT_PATH);
+			LogFileObject.writeToFile(" File saved to: " + filePath);
+			FileOutputStream out = null;
+			try {
+				out = new FileOutputStream(filePath);
+				outBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+				createToast("Image saved!",false);	
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				try{
+					out.close();
+				} catch(Throwable ignore) {}
+			} 			
+		}
 		System.gc();
 	}
 	public void setBitmaps()

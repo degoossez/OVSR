@@ -186,6 +186,23 @@
                             android:paddingRight="5dp"
                             android:textAlignment="center"/>
                     </LinearLayout>
+                     <LinearLayout
+                        android:id="@+id/NetworkTab"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" >
+
+                        <EditText
+                            android:id="@+id/networkview"
+                            android:layout_width="fill_parent"
+                            android:layout_height="fill_parent"
+                            android:background="#fff3f3f3"
+                            android:ems="10"
+                            android:freezesText="true"
+                            android:inputType="text|textMultiLine"
+                            android:paddingLeft="5dp"
+                            android:paddingRight="5dp"
+                            android:textAlignment="center"/>
+                    </LinearLayout>                   
                 </FrameLayout>
             </LinearLayout>
         </TabHost>

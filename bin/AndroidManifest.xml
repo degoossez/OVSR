@@ -31,7 +31,7 @@
         </activity>
         <activity
             android:name="com.lamerman.FileDialog"
-            android:label="Lamerman_external_FileDialog" >
+            android:label="File browser" >
         </activity>
         <activity
             android:name="com.denayer.ovsr.SettingsActivity"

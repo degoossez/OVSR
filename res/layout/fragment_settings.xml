@@ -34,7 +34,7 @@
                     android:text="Auto name"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
                 <CheckBox
-                    android:id="@+id/checkBox1"
+                    android:id="@+id/AutoName"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="9" />
