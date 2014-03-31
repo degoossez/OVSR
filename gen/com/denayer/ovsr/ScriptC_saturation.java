@@ -16,7 +16,7 @@
 
 /*
  * This file is auto-generated. DO NOT MODIFY!
- * The source Renderscript file: /home/dries/git/OVSR/src/com/denayer/ovsr/saturation.rs
+ * The source Renderscript file: /home/koen/git/OVSR/src/com/denayer/ovsr/saturation.rs
  */
 package com.denayer.ovsr;
 

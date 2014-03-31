@@ -328,6 +328,7 @@ public class RsScript extends Object {
 	}
 	public void codeFromFile(String code)
 	{
+		//implement function
 		
 	}	
 }
