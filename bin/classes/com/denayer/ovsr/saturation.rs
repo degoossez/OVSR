@@ -7,7 +7,6 @@
 
 rs_allocation out;
 rs_allocation in;
-rs_allocation timeAlloc;
 rs_script script;
 float saturation;
 
@@ -57,7 +56,7 @@ void filter()
     
     runtime = rsUptimeNanos() - t;
     rsDebug("Saturation elapsed time = ", runtime);
-    //rsSendToClient(1,  &runtime, sizeof(runtime));
+   
     
      
 }

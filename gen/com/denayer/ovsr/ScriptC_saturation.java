@@ -68,18 +68,7 @@ public class ScriptC_saturation extends ScriptC {
         return mExportVar_in;
     }
 
-    private final static int mExportVarIdx_timeAlloc = 2;
-    private Allocation mExportVar_timeAlloc;
-    public synchronized void set_timeAlloc(Allocation v) {
-        setVar(mExportVarIdx_timeAlloc, v);
-        mExportVar_timeAlloc = v;
-    }
-
-    public Allocation get_timeAlloc() {
-        return mExportVar_timeAlloc;
-    }
-
-    private final static int mExportVarIdx_script = 3;
+    private final static int mExportVarIdx_script = 2;
     private Script mExportVar_script;
     public synchronized void set_script(Script v) {
         setVar(mExportVarIdx_script, v);
@@ -90,7 +79,7 @@ public class ScriptC_saturation extends ScriptC {
         return mExportVar_script;
     }
 
-    private final static int mExportVarIdx_saturation = 4;
+    private final static int mExportVarIdx_saturation = 3;
     private float mExportVar_saturation;
     public synchronized void set_saturation(float v) {
         setVar(mExportVarIdx_saturation, v);

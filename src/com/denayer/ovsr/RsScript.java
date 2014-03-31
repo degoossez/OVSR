@@ -243,9 +243,8 @@ public class RsScript extends Object {
 		
 	    long startTime = System.nanoTime(); 
 
-		final RenderScript rs = RenderScript.create(mContext);
-		MyRsMessageHandler myHandler = new MyRsMessageHandler(mElapsedTime,MmainThread);
-		rs.setMessageHandler(myHandler);
+		final RenderScript rs = RenderScript.create(mContext);	
+		
 		
 	    Bitmap bmOut = Bitmap.createBitmap(bmIn.getWidth(), bmIn.getHeight(),
 	            bmIn.getConfig());
@@ -254,10 +253,7 @@ public class RsScript extends Object {
 	    allocIn = Allocation.createFromBitmap(rs, bmIn,
 	            Allocation.MipmapControl.MIPMAP_NONE,
 	            Allocation.USAGE_SCRIPT);
-	    Allocation allocOut = Allocation.createTyped(rs, allocIn.getType());
-	    
-	    Type t = new Type.Builder(rs, Element.I32(rs)).setX(1).create();
-	    Allocation allocT = Allocation.createTyped(rs, t);
+	    Allocation allocOut = Allocation.createTyped(rs, allocIn.getType());	    
 	    
 	    ScriptC_saturation scriptSat = new ScriptC_saturation(rs);	
 	    
@@ -266,9 +262,7 @@ public class RsScript extends Object {
 	    scriptSat.set_in(allocIn);
 	    scriptSat.set_out(allocOut);
 	    scriptSat.set_script(scriptSat);
-	    scriptSat.set_saturation(saturation/100);
-	    scriptSat.set_timeAlloc(allocT);
-	    
+	    scriptSat.set_saturation(saturation/100);	    
 	    
 	    scriptSat.invoke_filter();	   
 	    //scriptSat.forEach_root(allocIn, allocOut);
@@ -278,12 +272,7 @@ public class RsScript extends Object {
 	    long estimatedTime = System.nanoTime() - startTime;
 	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
         Log.i("koen","via java meting: " + String.valueOf(estimatedTime));
-        mElapsedTime.setText(String.valueOf(estimatedTime) + "ms");
-	    
-	    int [] time = new int[1];
-	    allocT.copyTo(time);
-	    
-	    //mElapsedTime.setText(String.valueOf(time[0]) + " ns");
+        mElapsedTime.setText(String.valueOf(estimatedTime) + "ms");	    
 	   
 	    return bmOut;
 	}
@@ -321,6 +310,12 @@ public class RsScript extends Object {
         mElapsedTime.setText(String.valueOf(estimatedTime) + "ms");
 		
 	}
+	
+	public void RenderScriptTemplate()
+	{
+		
+	}
+	
 	public String getTemplate()
 	{
 		String template = null;
