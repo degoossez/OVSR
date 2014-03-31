@@ -314,6 +314,38 @@ public class RsScript extends Object {
 	public void RenderScriptTemplate()
 	{
 		
+		if(inBitmap == null)
+			return;
+	    long startTime = System.nanoTime(); 
+		
+		final RenderScript rs = RenderScript.create(mContext);
+		Allocation allocIn;
+	    allocIn = Allocation.createFromBitmap(rs, inBitmap,
+	            Allocation.MipmapControl.MIPMAP_NONE,
+	            Allocation.USAGE_SCRIPT);
+	    Allocation allocOut = Allocation.createTyped(rs, allocIn.getType());
+	    
+	    MyResources myRes = new MyResources(mContext.getResources().getAssets(), mContext.getResources().getDisplayMetrics(), mContext.getResources().getConfiguration());
+	    myRes.setMyContext(mContext);
+	    Resources hackedResources = myRes;	    
+	    
+	    ScriptC_template script = new ScriptC_template(rs,hackedResources,rs.getApplicationContext().getResources().getIdentifier(
+                "template", "raw",rs.getApplicationContext().getPackageName()));	    
+	    
+	    
+	    script.set_in(allocIn);
+	    script.set_out(allocOut);
+	    script.set_script(script);
+	    
+	    script.invoke_filter();	   	  
+	    rs.finish();
+	    allocOut.copyTo(outBitmap);
+	    
+	    long estimatedTime = System.nanoTime() - startTime;
+	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
+        Log.i("koen","via java meting: " + String.valueOf(estimatedTime));
+        mElapsedTime.setText(String.valueOf(estimatedTime) + "ms");
+		
 	}
 	
 	public String getTemplate()

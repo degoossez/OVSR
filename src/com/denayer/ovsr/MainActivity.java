@@ -80,7 +80,7 @@ public class MainActivity extends Activity {
 	private TabHost myTabHost;
 
 	//item in de lijst toevoegen voor nieuwe filters toe te voegen.
-	private String [] itemsFilterBox           = new String [] {"Edge", "Inverse","Sharpen","Mediaan","Saturatie","Blur"};
+	private String [] itemsFilterBox           = new String [] {"Edge", "Inverse","Sharpen","Mediaan","Saturatie","Blur","Template"};
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

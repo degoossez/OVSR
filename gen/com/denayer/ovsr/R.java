@@ -99,6 +99,7 @@ public final class R {
         public static final int mediaan=0x7f040003;
         public static final int saturation=0x7f040004;
         public static final int sharpen=0x7f040005;
+        public static final int template=0x7f040006;
     }
     public static final class string {
         public static final int Delete=0x7f050011;

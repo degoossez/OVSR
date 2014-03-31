@@ -63,6 +63,7 @@ int raw inverse 0x7f040002
 int raw mediaan 0x7f040003
 int raw saturation 0x7f040004
 int raw sharpen 0x7f040005
+int raw template 0x7f040006
 int string Delete 0x7f050011
 int string File 0x7f050014
 int string History 0x7f05000e
