@@ -29,8 +29,8 @@ import android.renderscript.*;
 
 public class RsScript extends Object {
 
-	private static final int TCP_SERVER_PORT = 0;
-	private static final String TCP_SERVER_IP = null;
+	private static final int TCP_SERVER_PORT = 64000;
+	private static final String TCP_SERVER_IP = "10.123.100.123";
 	public Bitmap inBitmap = null;
 	public Bitmap outBitmap = null;
 	public Context mContext;
@@ -384,6 +384,7 @@ public class RsScript extends Object {
 	public void codeFromFile(String code)
 	{
 		//implement function
+		runTcpClient("Hi");
 		
 	}	
 	

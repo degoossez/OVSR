@@ -42,7 +42,7 @@ public class MyResources extends Resources{
         String fileName = "template.bc";
         
         //TODO make this a user setting
-        boolean privateDir = true;
+        boolean privateDir = false;
         
         if(!privateDir)
         {        
