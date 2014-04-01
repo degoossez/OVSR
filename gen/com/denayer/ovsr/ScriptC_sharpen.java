@@ -16,7 +16,7 @@
 
 /*
  * This file is auto-generated. DO NOT MODIFY!
- * The source Renderscript file: /home/koen/git/OVSR/src/com/denayer/ovsr/sharpen.rs
+ * The source Renderscript file: /home/dries/git/OVSR/src/com/denayer/ovsr/sharpen.rs
  */
 package com.denayer.ovsr;
 

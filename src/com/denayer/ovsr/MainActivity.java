@@ -12,6 +12,7 @@ import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+
 import com.lamerman.FileDialog;
 
 import android.annotation.SuppressLint;
@@ -26,6 +27,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -79,6 +81,8 @@ public class MainActivity extends Activity {
 
 	private TabHost myTabHost;
 
+    private TcpClient mTcpClient;	
+	
 	//item in de lijst toevoegen voor nieuwe filters toe te voegen.
 	private String [] itemsFilterBox           = new String [] {"Edge", "Inverse","Sharpen","Mediaan","Saturatie","Blur","Template"};
 
@@ -248,13 +252,16 @@ public class MainActivity extends Activity {
 				if(CodeField.getText().toString()!=""){
 					if(!RenderScriptButton.isChecked()) 
 					{
-						RenderScriptObject.codeFromFile(CodeField.getText().toString());
-						if(RenderScriptObject.getOutputBitmap()!=null)
-						{
-							outBitmap = RenderScriptObject.getOutputBitmap();
-							Output_button.setImageBitmap(RenderScriptObject.getOutputBitmap());
-						}
-						else createToast("Select image!",false);	
+		                    new ConnectTask().execute("");
+		                    createToast("ConnectTask().execute",false);
+		                    
+//						RenderScriptObject.codeFromFile(CodeField.getText().toString());
+//						if(RenderScriptObject.getOutputBitmap()!=null)
+//						{
+//							outBitmap = RenderScriptObject.getOutputBitmap();
+//							Output_button.setImageBitmap(RenderScriptObject.getOutputBitmap());
+//						}
+//						else createToast("Select image!",false);	
 					}
 					else 
 					{
@@ -529,7 +536,7 @@ public class MainActivity extends Activity {
 			startHistoryActivity();
 			return true;
 		case R.id.Template:
-			if(!RenderScriptButton.isChecked()) CodeField.setText(RenderScriptObject.getTemplate());
+			if(!RenderScriptButton.isChecked()) {mTcpClient.sendMessage("Hi"); Log.e("Debug","sendmessage");}//CodeField.setText(RenderScriptObject.getTemplate());
 			else CodeField.setText(OpenCLObject.getTemplate());
 			return true;
 		case R.id.SaveF:
@@ -582,4 +589,26 @@ public class MainActivity extends Activity {
 		}
 		return null;
 	}
+	
+
+    public class ConnectTask extends AsyncTask<String, String, TcpClient> {
+
+        @Override
+        protected TcpClient doInBackground(String... message) {
+            //we create a TCPClient object and
+            mTcpClient = new TcpClient(new TcpClient.OnMessageReceived() {
+                @Override
+                //here the messageReceived method is implemented
+                public void messageReceived(String message) {
+                    //this method calls the onProgressUpdate
+                    //publishProgress(message);
+                	Log.i("Debug","Input message: " + message);
+                }
+            });
+            mTcpClient.run();
+
+            return null;
+        }
+    }
+	
 }
