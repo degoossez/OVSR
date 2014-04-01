@@ -42,7 +42,7 @@ public class MyResources extends Resources{
         String fileName = "template.bc";
         
         //TODO make this a user setting
-        boolean privateDir = false;
+        boolean privateDir = true;
         
         if(!privateDir)
         {        
@@ -78,6 +78,7 @@ public class MyResources extends Resources{
         {
         	//read from apps private dir
         	try {
+        		Log.i("koen","path to file " + mContext.getApplicationInfo().dataDir);
 				res = mContext.openFileInput(fileName);
 				Log.i("koen","read .bc file in private app dir");
 				
