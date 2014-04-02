@@ -383,6 +383,11 @@ public class RsScript extends Object {
 	}
 	public void codeFromFile(String code)
 	{
+		//code contains the .bc file send from the server
+		//write the contents to template.bc in the apps private directory
+		//invoke template function to execute new code
+		
+		
 			
 	}	
 	
