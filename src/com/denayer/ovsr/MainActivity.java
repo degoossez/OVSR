@@ -30,6 +30,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -78,6 +79,11 @@ public class MainActivity extends Activity {
 	OpenCL OpenCLObject;
 	RsScript RenderScriptObject;
 	LogFile LogFileObject;   
+	private Button connectButton, disconnectButton;
+	private String byteCode = "";	//contains bytecode from server
+	private int packageCounter = 0;
+	private int packageNumber = 0;
+	private boolean isPackageNumber = false;
 
 	private TabHost myTabHost;
 
@@ -101,6 +107,14 @@ public class MainActivity extends Activity {
 
 		Input_button = (ImageButton)findViewById(R.id.imageButton1);
 		Output_button = (ImageButton)findViewById(R.id.imageButton2);
+		SubmitButton=(Button) findViewById(R.id.submit_button);
+		TimeView=(TextView)findViewById(R.id.timeview);
+		NetworkView=(TextView)findViewById(R.id.networkview);
+		CodeField=(EditText)findViewById(R.id.editText1);
+		RenderScriptButton = (RadioButton) findViewById(R.id.radioButton1);
+		OpenCLButton = (RadioButton) findViewById(R.id.radioButton2);
+		connectButton = (Button) findViewById(R.id.connect_button);
+		disconnectButton = (Button) findViewById(R.id.disconnect_button);
 
 		myTabHost= (TabHost) findViewById(R.id.tabhost);
 		myTabHost.setOnTabChangedListener(new OnTabChangeListener() {
@@ -138,16 +152,12 @@ public class MainActivity extends Activity {
 		myTabHost.addTab(spec3);     
 		myTabHost.addTab(spec4);
 		
-		SubmitButton=(Button) findViewById(R.id.submit_button);
-		TimeView=(TextView)findViewById(R.id.timeview);
-		NetworkView=(TextView)findViewById(R.id.networkview);
-		CodeField=(EditText)findViewById(R.id.editText1);
+
 		OpenCLObject = new OpenCL(MainActivity.this,(ImageButton)findViewById(R.id.imageButton2));
 		RenderScriptObject = new RsScript(this,(ImageButton)findViewById(R.id.imageButton2),TimeView);
 		LogFileObject = new LogFile(this);   
 
-		RenderScriptButton = (RadioButton) findViewById(R.id.radioButton1);
-		OpenCLButton = (RadioButton) findViewById(R.id.radioButton2);
+		
 
 		final String [] items           = new String [] {"From Camera", "From SD Card"};
 		ArrayAdapter<String> adapter  = new ArrayAdapter<String> (this, android.R.layout.select_dialog_item,items);
@@ -208,7 +218,7 @@ public class MainActivity extends Activity {
 					picDir.mkdirs(); //creates directory when needed
 					//fileName created after filter
 					filePath = Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM + File.separator + fileName + ".jpg";            	
-					LogFileObject.writeToFile(" File saved to: " + filePath);
+					LogFileObject.writeToFile(" File saved to: " + filePath,"LogFile.txt",false);
 					FileOutputStream out = null;
 					try {
 						out = new FileOutputStream(filePath);
@@ -246,14 +256,51 @@ public class MainActivity extends Activity {
 			public void beforeTextChanged(CharSequence s, int start, int count,int after) {			
 			}
 		});
+		
+		final Handler handlerUi = new Handler();	
+		
 		SubmitButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				if(CodeField.getText().toString()!=""){
-					if(!RenderScriptButton.isChecked()) 
+					if(!RenderScriptButton.isChecked() ) 
 					{
-		                    new ConnectTask().execute("");
-		                    createToast("ConnectTask().execute",false);
+						if(TcpClient.isConnected)
+						{
+							String message = CodeField.getText().toString();
+							
+							String lines[] = message.split("\\r?\\n");
+							
+							mTcpClient.sendMessage("STARTPACKAGE");
+							
+							
+							for(int i=0;i<lines.length;i++)
+							{
+								mTcpClient.sendMessage(lines[i]);
+								Log.i("koen", lines[i]);							
+								
+							}
+							
+							//wait some time
+							handlerUi.postDelayed(new Runnable() {
+	
+								@Override
+								public void run() {
+									// TODO Auto-generated method stub
+									mTcpClient.sendMessage("ENDPACKAGE");
+								}
+								
+							},100);		
+						}
+						else
+							createToast("Not connected", false);
+						
+						
+						
+						
+//						mTcpClient.sendMessage("Give bc"); Log.e("Debug","sendmessage");
+//		                createToast("message send",false);
+//		                isPackageNumber = true;	//next package will be number
 		                    
 //						RenderScriptObject.codeFromFile(CodeField.getText().toString());
 //						if(RenderScriptObject.getOutputBitmap()!=null)
@@ -282,6 +329,27 @@ public class MainActivity extends Activity {
 
 			}
 		});
+		
+		connectButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				
+            new ConnectTask().execute("");
+            createToast("connecting to " + TcpClient.SERVER_IP, false);
+		        
+			}
+		});
+		
+		disconnectButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				
+			mTcpClient.stopClient();
+            createToast("disconnected", false);
+		        
+			}
+		});		
+		
 		Display display = getWindowManager().getDefaultDisplay();
 		Point size = new Point();
 		display.getSize(size);
@@ -308,7 +376,7 @@ public class MainActivity extends Activity {
 		}
 		else if (requestCode == REQUEST_SAVE) {
 			String filePath = data.getStringExtra(FileDialog.RESULT_PATH);            	
-			LogFileObject.writeToFile("		Code file saved to: " + filePath);
+			LogFileObject.writeToFile("		Code file saved to: " + filePath, "LogFile.txt",false);
 			try{   
 				if(!CodeFieldCode.equals("")){
 					File CodeFile =new File(filePath);
@@ -354,7 +422,7 @@ public class MainActivity extends Activity {
 			setBitmaps();
 		} else if(requestCode == REQUEST_SAVE_IMAGE) {
 			String filePath = data.getStringExtra(FileDialog.RESULT_PATH);
-			LogFileObject.writeToFile(" File saved to: " + filePath);
+			LogFileObject.writeToFile(" File saved to: " + filePath,"LogFile.txt",false);
 			FileOutputStream out = null;
 			try {
 				out = new FileOutputStream(filePath);
@@ -479,7 +547,7 @@ public class MainActivity extends Activity {
 				{
 					String Method="OpenCL";
 					if(!RenderScriptButton.isChecked()) Method="RenderScript";
-					LogFileObject.writeToFile("\n" + Method + " : " + fileName + " : " + TimeView.getText());
+					LogFileObject.writeToFile("\n" + Method + " : " + fileName + " : " + TimeView.getText(), "LogFile.txt",false);
 				}
 			}
 		} );
@@ -536,7 +604,7 @@ public class MainActivity extends Activity {
 			startHistoryActivity();
 			return true;
 		case R.id.Template:
-			if(!RenderScriptButton.isChecked()) {mTcpClient.sendMessage("Hi"); Log.e("Debug","sendmessage");}//CodeField.setText(RenderScriptObject.getTemplate());
+			if(!RenderScriptButton.isChecked()) CodeField.setText(RenderScriptObject.getTemplate());
 			else CodeField.setText(OpenCLObject.getTemplate());
 			return true;
 		case R.id.SaveF:
@@ -602,7 +670,45 @@ public class MainActivity extends Activity {
                 public void messageReceived(String message) {
                     //this method calls the onProgressUpdate
                     //publishProgress(message);
-                	Log.i("Debug","Input message: " + message);
+                	
+                	Log.i("message","inside messageReceived");
+                	
+                	if(message.contains("Succesful"))
+                	{
+                		//TODO update consoleview
+                		
+                		mTcpClient.sendMessage("give bc");
+                		Log.i("message","give bc");
+                		isPackageNumber = true;
+                	}    
+                	else if(isPackageNumber)
+                	{
+                		Log.i("message",message);
+                		packageNumber = Integer.parseInt(message);
+                		isPackageNumber = false;
+                		
+                	}
+                	else 
+                	{             		
+                		byteCode.concat(message);                		
+                		
+                    	if(packageCounter == packageNumber - 1)
+                    	{
+                    		Log.i("message", "all packages received");
+                    		LogFileObject.writeToFile(byteCode, "template.bc", true);                    		
+                    		packageCounter = packageNumber = 0;
+                    		byteCode = "";
+                    		
+                    	}
+                    	
+                    	Log.i("Debug","Input message: " + message);
+                    	
+                    	packageCounter++;
+                	} 	
+                	
+                	
+                	
+                	
                 }
             });
             mTcpClient.run();
@@ -621,5 +727,7 @@ public class MainActivity extends Activity {
             //mAdapter.notifyDataSetChanged(); //tell the view it's data has changed, view will refresh itself
         }
     }
+    
+    
 	
 }

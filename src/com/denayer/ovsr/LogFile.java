@@ -20,11 +20,20 @@ public class LogFile extends Object {
 		mContext = context;
 		
 	}		
-	public void writeToFile(String data) {
-		String FileName = "LogFile.txt";
+	public void writeToFile(String data, String FileName, boolean overwrite) {				
 	    try {
-	        OutputStreamWriter MyOutputStreamWriter = new OutputStreamWriter(mContext.openFileOutput(FileName, Context.MODE_PRIVATE | Context.MODE_APPEND));
-	        MyOutputStreamWriter.append(data);
+	    	OutputStreamWriter MyOutputStreamWriter;
+	    	
+	    	if(!overwrite)
+	    	{
+		        MyOutputStreamWriter = new OutputStreamWriter(mContext.openFileOutput(FileName, Context.MODE_PRIVATE | Context.MODE_APPEND));
+		        MyOutputStreamWriter.append(data);
+	    	}
+	    	else
+	    	{
+		        MyOutputStreamWriter = new OutputStreamWriter(mContext.openFileOutput(FileName, Context.MODE_PRIVATE));
+		        MyOutputStreamWriter.write(data);	    		
+	    	}
 	        MyOutputStreamWriter.close();
 	    }
 	    catch (IOException e) {
