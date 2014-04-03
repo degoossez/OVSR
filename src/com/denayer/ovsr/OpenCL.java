@@ -307,7 +307,8 @@ public class OpenCL extends Object {
 	                bmpOrig,
 	                bmpOpenCL
 	            );
-	    	shutdownOpenCL();		  }
+	    	shutdownOpenCL();		  
+	    	}
 		});
 		alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
 		  public void onClick(DialogInterface dialog, int whichButton) {

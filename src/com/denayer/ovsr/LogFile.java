@@ -31,6 +31,7 @@ public class LogFile extends Object {
 	    	}
 	    	else
 	    	{
+	    		Log.i("Debug","Data" + data);
 		        MyOutputStreamWriter = new OutputStreamWriter(mContext.openFileOutput(FileName, Context.MODE_PRIVATE));
 		        MyOutputStreamWriter.write(data);	    		
 	    	}

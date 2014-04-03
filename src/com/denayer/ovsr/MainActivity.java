@@ -9,15 +9,16 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
 
 import com.lamerman.FileDialog;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -70,6 +71,7 @@ public class MainActivity extends Activity {
 	private RadioButton OpenCLButton;
 	private EditText CodeField;
 	public TextView TimeView;
+	public TextView ConsoleView;
 	public TextView NetworkView;
 	public String fileName;
 	public String CodeFieldCode;
@@ -80,15 +82,12 @@ public class MainActivity extends Activity {
 	RsScript RenderScriptObject;
 	LogFile LogFileObject;   
 	private Button connectButton, disconnectButton;
-	private String byteCode = "";	//contains bytecode from server
-	private int packageCounter = 0;
-	private int packageNumber = 0;
-	private boolean isPackageNumber = false;
 
 	private TabHost myTabHost;
 
-    private TcpClient mTcpClient;	
-	
+	private TcpClient mTcpClient;	
+	MyFTPClient ftpclient = null;
+	ProgressDialog dialog = null ;
 	//item in de lijst toevoegen voor nieuwe filters toe te voegen.
 	private String [] itemsFilterBox           = new String [] {"Edge", "Inverse","Sharpen","Mediaan","Saturatie","Blur","Template"};
 
@@ -97,6 +96,8 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
+		ftpclient = new MyFTPClient();
+		
 		SharedPreferences settings = getSharedPreferences("Preferences", 0);
 		SharedPreferences.Editor editor = settings.edit();
 		if(!settings.getBoolean("AutoName", false))
@@ -108,6 +109,7 @@ public class MainActivity extends Activity {
 		Input_button = (ImageButton)findViewById(R.id.imageButton1);
 		Output_button = (ImageButton)findViewById(R.id.imageButton2);
 		SubmitButton=(Button) findViewById(R.id.submit_button);
+		ConsoleView=(TextView)findViewById(R.id.ConsoleView);
 		TimeView=(TextView)findViewById(R.id.timeview);
 		NetworkView=(TextView)findViewById(R.id.networkview);
 		CodeField=(EditText)findViewById(R.id.editText1);
@@ -151,13 +153,11 @@ public class MainActivity extends Activity {
 		myTabHost.addTab(spec2);
 		myTabHost.addTab(spec3);     
 		myTabHost.addTab(spec4);
-		
+
 
 		OpenCLObject = new OpenCL(MainActivity.this,(ImageButton)findViewById(R.id.imageButton2));
 		RenderScriptObject = new RsScript(this,(ImageButton)findViewById(R.id.imageButton2),TimeView);
 		LogFileObject = new LogFile(this);   
-
-		
 
 		final String [] items           = new String [] {"From Camera", "From SD Card"};
 		ArrayAdapter<String> adapter  = new ArrayAdapter<String> (this, android.R.layout.select_dialog_item,items);
@@ -256,9 +256,9 @@ public class MainActivity extends Activity {
 			public void beforeTextChanged(CharSequence s, int start, int count,int after) {			
 			}
 		});
-		
+
 		final Handler handlerUi = new Handler();	
-		
+
 		SubmitButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -268,47 +268,32 @@ public class MainActivity extends Activity {
 						if(TcpClient.isConnected)
 						{
 							String message = CodeField.getText().toString();
-							
+
 							String lines[] = message.split("\\r?\\n");
-							
+
 							mTcpClient.sendMessage("STARTPACKAGE");
-							
-							
+
+
 							for(int i=0;i<lines.length;i++)
 							{
 								mTcpClient.sendMessage(lines[i]);
 								Log.i("koen", lines[i]);							
-								
+
 							}
-							
+
 							//wait some time
 							handlerUi.postDelayed(new Runnable() {
-	
+
 								@Override
 								public void run() {
 									// TODO Auto-generated method stub
 									mTcpClient.sendMessage("ENDPACKAGE");
 								}
-								
+
 							},100);		
 						}
 						else
 							createToast("Not connected", false);
-						
-						
-						
-						
-//						mTcpClient.sendMessage("Give bc"); Log.e("Debug","sendmessage");
-//		                createToast("message send",false);
-//		                isPackageNumber = true;	//next package will be number
-		                    
-//						RenderScriptObject.codeFromFile(CodeField.getText().toString());
-//						if(RenderScriptObject.getOutputBitmap()!=null)
-//						{
-//							outBitmap = RenderScriptObject.getOutputBitmap();
-//							Output_button.setImageBitmap(RenderScriptObject.getOutputBitmap());
-//						}
-//						else createToast("Select image!",false);	
 					}
 					else 
 					{
@@ -329,27 +314,29 @@ public class MainActivity extends Activity {
 
 			}
 		});
-		
+
 		connectButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				
-            new ConnectTask().execute("");
-            createToast("connecting to " + TcpClient.SERVER_IP, false);
-		        
+
+				new ConnectTask().execute("");
+				createToast("connecting to " + TcpClient.SERVER_IP, false);
+
 			}
 		});
-		
+
 		disconnectButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				
-			mTcpClient.stopClient();
-            createToast("disconnected", false);
-		        
+				if(TcpClient.isConnected)
+				{
+					mTcpClient.stopClient();
+				}
+				createToast("disconnected", false);
+
 			}
 		});		
-		
+
 		Display display = getWindowManager().getDefaultDisplay();
 		Point size = new Point();
 		display.getSize(size);
@@ -657,77 +644,100 @@ public class MainActivity extends Activity {
 		}
 		return null;
 	}
-	
 
-    public class ConnectTask extends AsyncTask<String, String, TcpClient> {
 
-        @Override
-        protected TcpClient doInBackground(String... message) {
-            //we create a TCPClient object and
-            mTcpClient = new TcpClient(new TcpClient.OnMessageReceived() {
-                @Override
-                //here the messageReceived method is implemented
-                public void messageReceived(String message) {
-                    //this method calls the onProgressUpdate
-                    //publishProgress(message);
-                	
-                	Log.i("message","inside messageReceived");
-                	
-                	if(message.contains("Succesful"))
-                	{
-                		//TODO update consoleview
-                		
-                		mTcpClient.sendMessage("give bc");
-                		Log.i("message","give bc");
-                		isPackageNumber = true;
-                	}    
-                	else if(isPackageNumber)
-                	{
-                		Log.i("message",message);
-                		packageNumber = Integer.parseInt(message);
-                		isPackageNumber = false;
-                		
-                	}
-                	else 
-                	{             		
-                		byteCode.concat(message);                		
-                		
-                    	if(packageCounter == packageNumber - 1)
-                    	{
-                    		Log.i("message", "all packages received");
-                    		LogFileObject.writeToFile(byteCode, "template.bc", true);                    		
-                    		packageCounter = packageNumber = 0;
-                    		byteCode = "";
-                    		
-                    	}
-                    	
-                    	Log.i("Debug","Input message: " + message);
-                    	
-                    	packageCounter++;
-                	} 	
-                	
-                	
-                	
-                	
-                }
-            });
-            mTcpClient.run();
+	public class ConnectTask extends AsyncTask<String, String, TcpClient> {
 
-            return null;
-        }
-        //wanneer publishProgress opgeroepen wordt, word deze functie gecalled, 
-        @Override
-        protected void onProgressUpdate(String... values) {
-            super.onProgressUpdate(values);
+		@Override
+		protected TcpClient doInBackground(String... message) {
+			//we create a TCPClient object and
+			mTcpClient = new TcpClient(new TcpClient.OnMessageReceived() {
+				@Override
+				//here the messageReceived method is implemented
+				public void messageReceived(String message) {
+					//this method calls the onProgressUpdate
+					//publishProgress(message);
+					
+//					Log.i("message","messageReceived: " + message);
 
-            //in the arrayList we add the messaged received from server
-            //arrayList.add(values[0]);
-            // notify the adapter that the data set has changed. This means that new message received
-            // from server was added to the list
-            //mAdapter.notifyDataSetChanged(); //tell the view it's data has changed, view will refresh itself
-        }
-    }
-    
-    
-	
+					if(message.contains("Succesful"))
+					{
+						//TODO update consoleview
+						mTcpClient.sendMessage("give bc");
+						Log.i("message","give bc");
+
+					}    
+					else if(message.contains("UPLOADED"))
+					{
+						//LogFileObject.writeToFile(byteCode, "template.bc", true); 
+						//Connect to ftp server and fetch te file.
+						new Thread(new Runnable() {
+							public void run(){
+								boolean status = false;
+								Log.i("MainAct","FtpThread");
+								// Replace your UID & PW here
+								publishProgress("start");
+								status = ftpclient.ftpConnect("192.168.0.198", "joe", "test", 21);
+								if (status == true) {
+									Log.d("FTP", "Connection Success");
+									status = ftpclient.ftpDownload("/template.bc", getFilesDir().getPath() + "/template.bc");
+									publishProgress("stop");
+									if(status){
+									publishProgress("updateBitmap");
+									}
+									else
+									{
+										createToast("Downloading failed", true);
+									}
+								} else {
+									publishProgress("stop");
+									createToast("Connection with TCP server failed!", false);
+									Log.d("FTP", "Connection failed");
+								}
+							}
+						}).start();
+					}
+					else
+					{
+						publishProgress(message);
+						Log.i("Error","Error message: " + message);
+					}
+				}
+			});
+			mTcpClient.run();
+
+			return null;
+		}
+		//wanneer publishProgress opgeroepen wordt, word deze functie gecalled, 
+		@Override
+		protected void onProgressUpdate(String... values) {
+			super.onProgressUpdate(values);
+			Log.i("onProgressUpdate",values[0]);
+			if(values[0] == "updateBitmap"){
+				RenderScriptObject.RenderScriptTemplate();
+				Output_button.setImageBitmap(RenderScriptObject.getOutputBitmap()); 
+			}
+			else if(values[0]=="start")
+			{
+				dialog = ProgressDialog.show(MainActivity.this, "", "Processing. Please wait...", true); 
+			}
+			else if(values[0]=="stop")
+			{
+				dialog.dismiss();
+			}
+			else
+			{
+				ConsoleView.setText(values[0]);
+				myTabHost.setCurrentTabByTag("Console");
+			}
+			//in the arrayList we add the messaged received from server
+			//arrayList.add(values[0]);
+			// notify the adapter that the data set has changed. This means that new message received
+			// from server was added to the list
+			//mAdapter.notifyDataSetChanged(); //tell the view it's data has changed, view will refresh itself
+		}
+	}
+
+
+
 }
