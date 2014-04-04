@@ -53,7 +53,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.TabHost.TabSpec;
 
+
 public class MainActivity extends Activity {
+	public static String IP_ADDR="192.168.0.198";
 	private Uri mImageCaptureUri;
 	private ImageButton Input_button;
 	private ImageButton Output_button;
@@ -82,9 +84,9 @@ public class MainActivity extends Activity {
 	RsScript RenderScriptObject;
 	LogFile LogFileObject;   
 	private Button connectButton, disconnectButton;
-
+	
 	private TabHost myTabHost;
-
+	
 	private TcpClient mTcpClient;	
 	MyFTPClient ftpclient = null;
 	ProgressDialog dialog = null ;
@@ -280,7 +282,8 @@ public class MainActivity extends Activity {
 								Log.i("koen", lines[i]);							
 
 							}
-
+							//separator zodat de code en het ENDPACKAGE bericht niet aan elkaar kunnen hangen
+							mTcpClient.sendMessage("\n");
 							//wait some time
 							handlerUi.postDelayed(new Runnable() {
 
@@ -678,7 +681,7 @@ public class MainActivity extends Activity {
 								Log.i("MainAct","FtpThread");
 								// Replace your UID & PW here
 								publishProgress("start");
-								status = ftpclient.ftpConnect("192.168.0.198", "joe", "test", 21);
+								status = ftpclient.ftpConnect(IP_ADDR, "joe", "test", 21);
 								if (status == true) {
 									Log.d("FTP", "Connection Success");
 									status = ftpclient.ftpDownload("/template.bc", getFilesDir().getPath() + "/template.bc");
