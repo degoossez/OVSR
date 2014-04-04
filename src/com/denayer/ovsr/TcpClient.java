@@ -15,7 +15,7 @@ import java.nio.charset.Charset;
 
 public class TcpClient {
 
-	public static final String SERVER_IP = "192.168.0.198"; //your computer IP address
+	public static final String SERVER_IP = "172.72.5.6"; //your computer IP address
 	public static final int SERVER_PORT = 64000;
 	// message to send to the server
 	private String mServerMessage;
