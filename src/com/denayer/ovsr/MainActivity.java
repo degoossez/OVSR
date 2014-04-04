@@ -97,7 +97,7 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 
 		ftpclient = new MyFTPClient();
-
+		
 		SharedPreferences settings = getSharedPreferences("Preferences", 0);
 		SharedPreferences.Editor editor = settings.edit();
 		if(!settings.getBoolean("AutoName", false))
@@ -267,7 +267,6 @@ public class MainActivity extends Activity {
 					{
 						if(TcpClient.isConnected)
 						{
-							ConsoleView.setText("");
 							String message = CodeField.getText().toString();
 
 							String lines[] = message.split("\\r?\\n");
@@ -278,7 +277,8 @@ public class MainActivity extends Activity {
 							for(int i=0;i<lines.length;i++)
 							{
 								mTcpClient.sendMessage(lines[i]);
-								Log.i("koen", lines[i]);	
+								Log.i("koen", lines[i]);							
+
 							}
 
 							//wait some time
@@ -287,8 +287,8 @@ public class MainActivity extends Activity {
 								@Override
 								public void run() {
 									// TODO Auto-generated method stub
-									Log.i("Debug","ENDPACKAGE");
 									mTcpClient.sendMessage("ENDPACKAGE");
+									Log.i("ENDPACKAGE","ENDPACKAGE");
 								}
 
 							},100);		
@@ -658,8 +658,8 @@ public class MainActivity extends Activity {
 				public void messageReceived(String message) {
 					//this method calls the onProgressUpdate
 					//publishProgress(message);
-
-					//					Log.i("message","messageReceived: " + message);
+					
+					Log.i("message","messageReceived: " + message);
 
 					if(message.contains("Succesful"))
 					{
@@ -678,13 +678,13 @@ public class MainActivity extends Activity {
 								Log.i("MainAct","FtpThread");
 								// Replace your UID & PW here
 								publishProgress("start");
-								status = ftpclient.ftpConnect("172.72.5.6", "joe", "test", 21);
+								status = ftpclient.ftpConnect("192.168.0.198", "joe", "test", 21);
 								if (status == true) {
 									Log.d("FTP", "Connection Success");
 									status = ftpclient.ftpDownload("/template.bc", getFilesDir().getPath() + "/template.bc");
 									publishProgress("stop");
 									if(status){
-										publishProgress("updateBitmap");
+									publishProgress("updateBitmap");
 									}
 									else
 									{
@@ -729,9 +729,13 @@ public class MainActivity extends Activity {
 			else
 			{
 				ConsoleView.append(values[0]);
-				//ConsoleView.setText(values[0]);
 				myTabHost.setCurrentTabByTag("Console");
 			}
+			//in the arrayList we add the messaged received from server
+			//arrayList.add(values[0]);
+			// notify the adapter that the data set has changed. This means that new message received
+			// from server was added to the list
+			//mAdapter.notifyDataSetChanged(); //tell the view it's data has changed, view will refresh itself
 		}
 	}
 
