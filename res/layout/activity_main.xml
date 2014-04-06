@@ -31,21 +31,23 @@
                 android:id="@+id/imageButton1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:adjustViewBounds="true"
                 android:contentDescription="@string/content_desc"
                 android:padding="0dp"
-                android:src="@drawable/ic_launcher" />
+                android:src="@drawable/ic_launcher"
+                android:layout_weight="1"/>
+                <!-- android:scaleType="fitXY" --> 
 
             <ImageButton
                 android:id="@+id/imageButton2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:adjustViewBounds="true"
                 android:contentDescription="@string/content_desc"
                 android:padding="0dp"
-                android:src="@drawable/ic_launcher" />
+                android:src="@drawable/ic_launcher"
+                android:layout_weight="1"/>
+                <!-- android:scaleType="fitXY" --> 
         </LinearLayout>
 
         <LinearLayout

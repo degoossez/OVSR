@@ -16,6 +16,7 @@ import java.util.Date;
 import com.lamerman.FileDialog;
 
 import android.annotation.SuppressLint;
+import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -46,7 +47,9 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
+import android.widget.RelativeLayout;
 import android.widget.TabHost;
 import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TextView;
@@ -200,13 +203,13 @@ public class MainActivity extends Activity {
 		} );
 		final AlertDialog dialog = builder.create();
 
-		((ImageButton) findViewById(R.id.imageButton1)).setOnClickListener(new View.OnClickListener() {
+		Input_button.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				dialog.show();            	
 			}
 		});
-		((ImageButton) findViewById(R.id.imageButton2)).setOnClickListener(new View.OnClickListener() {
+		Output_button.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {  
 				SharedPreferences settings = getSharedPreferences("Preferences", 0);
@@ -273,7 +276,7 @@ public class MainActivity extends Activity {
 
 							String lines[] = message.split("\\r?\\n");
 
-							mTcpClient.sendMessage("STARTPACKAGE");
+							mTcpClient.sendMessage("STARTPACKAGE " + String.valueOf(android.os.Build.VERSION.SDK_INT)+ "\n");
 
 
 							for(int i=0;i<lines.length;i++)
@@ -654,14 +657,10 @@ public class MainActivity extends Activity {
 
 		@Override
 		protected TcpClient doInBackground(String... message) {
-			//we create a TCPClient object and
+			//we create a TCPClient object
 			mTcpClient = new TcpClient(new TcpClient.OnMessageReceived() {
 				@Override
-				//here the messageReceived method is implemented
-				public void messageReceived(String message) {
-					//this method calls the onProgressUpdate
-					//publishProgress(message);
-					
+				public void messageReceived(String message) {				
 					Log.i("message","messageReceived: " + message);
 
 					if(message.contains("Succesful"))
@@ -734,11 +733,6 @@ public class MainActivity extends Activity {
 				ConsoleView.append(values[0]);
 				myTabHost.setCurrentTabByTag("Console");
 			}
-			//in the arrayList we add the messaged received from server
-			//arrayList.add(values[0]);
-			// notify the adapter that the data set has changed. This means that new message received
-			// from server was added to the list
-			//mAdapter.notifyDataSetChanged(); //tell the view it's data has changed, view will refresh itself
 		}
 	}
 
