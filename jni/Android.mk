@@ -2,12 +2,10 @@ LOCAL_PATH		:= $(call my-dir)
 LOCAL_PATH_EXT	:= $(call my-dir)/../external/
 include $(CLEAR_VARS)
 
-#MY_ODROID := true
-#MY_NEXUS := false
 
 MY_ODROID := false
-MY_NEXUS := true
-
+MY_NEXUS := false
+MY_QUALCOMM := true
 LOCAL_MODULE    := OVSR
 
 LOCAL_CFLAGS 	+= -DANDROID_CL 
@@ -27,7 +25,10 @@ endif
 ifeq ($(MY_NEXUS),true)
 	LOCAL_LDLIBS 	+= $(LOCAL_PATH)/../external/libGLES_mali.so
 endif
-
+#Qualcomm dev board
+ifeq ($(MY_QUALCOMM),true)
+	LOCAL_LDLIBS      += $(LOCAL_PATH)/../external/libOpenCL.so
+endif
 LOCAL_ARM_MODE  := arm
 
 include $(BUILD_SHARED_LIBRARY)

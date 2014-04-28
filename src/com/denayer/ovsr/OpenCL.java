@@ -34,6 +34,7 @@ public class OpenCL extends Object {
     	mContext = context; //<-- fill it with the Context you passed
     	outputButton = outImageButton;
     	try { 
+    		//Odroid lib
     		System.load("/system/vendor/lib/libPVROCL.so");
     		Log.i("Debug", "libPVROCL Loaded"); 
     	}
@@ -51,6 +52,17 @@ public class OpenCL extends Object {
 	    		sfoundLibrary = false;
 	    	}
     	}
+    	if(sfoundLibrary==false)
+    	{
+	    	try { 
+	    		System.load("/system/lib/libOpenCL.so");
+	    		Log.i("Debug", "libOpenCL Qualcomm loaded");
+	    		sfoundLibrary=true;
+	    	}
+	    	catch (UnsatisfiedLinkError e) {
+	    		sfoundLibrary = false;
+	    	}
+    	}    	
     	try {
     		System.loadLibrary("OVSR");  
     		Log.i("Debug","My Lib Loaded!");
@@ -131,8 +143,8 @@ public class OpenCL extends Object {
     	String kernelName="sharpen";
     	Log.i("DEBUG","BEFORE runOpencl sharpen");
     	initOpenCL(kernelName);
- //   	nativeBasicOpenCL(
-    	nativeImage2DOpenCL( //TODO nativeImage2DOpenCL testen
+    	nativeBasicOpenCL(
+ //   	nativeImage2DOpenCL( //TODO nativeImage2DOpenCL testen
                 bmpOrig,
                 bmpOpenCL
             );

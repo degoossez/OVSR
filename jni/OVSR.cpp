@@ -747,6 +747,17 @@ void nativeBasicOpenCL
     void* outputPixels = 0;
     AndroidBitmap_lockPixels(env, outputBitmap, &outputPixels);
 
+//    cl_mem outputBuffer =
+//        clCreateBuffer
+//        (
+//            openCLObjects.context,
+//            CL_MEM_READ_WRITE, //CL_MEM_WRITE_ONLY | CL_MEM_COPY_HOST_PTR, //| CL_MEM_USE_HOST_PTR,
+//            bufferSize,    // Buffer size in bytes, same as the input buffer.
+//            NULL, //outputPixels,  // Area, above which the buffer is created.
+//            &err
+//        );
+//    SAMPLE_CHECK_ERRORS(err);
+
     cl_mem outputBuffer =
         clCreateBuffer
         (
@@ -757,8 +768,6 @@ void nativeBasicOpenCL
             &err
         );
     SAMPLE_CHECK_ERRORS(err);
-
-    cl_uint edgeKernel[9] = {0,1,0,1,-4,1,0,1,0};
 
     err = clSetKernelArg(openCLObjects.kernel, 0, sizeof(openCLObjects.inputBuffer), &openCLObjects.inputBuffer);
     SAMPLE_CHECK_ERRORS(err);
