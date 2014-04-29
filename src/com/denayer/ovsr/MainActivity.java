@@ -58,7 +58,7 @@ import android.widget.TabHost.TabSpec;
 
 
 public class MainActivity extends Activity {
-	public static String IP_ADDR="192.168.0.198";
+	public static String IP_ADDR="10.123.100.123";
 	private Uri mImageCaptureUri;
 	private ImageButton Input_button;
 	private ImageButton Output_button;
@@ -196,13 +196,13 @@ public class MainActivity extends Activity {
 				} else {
 					Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
 					intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
-					intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] { "png" , "jpeg" , "jpg" , "bmp"});
+					intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] { "png" , "jpeg" , "jpg" , "bmp", "gif"});
 					startActivityForResult(intentLoad, PICK_FROM_FILE);
 				}
 			}
 		} );
 		final AlertDialog dialog = builder.create();
-
+		
 		Input_button.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -297,7 +297,7 @@ public class MainActivity extends Activity {
 									Log.i("ENDPACKAGE","ENDPACKAGE");
 								}
 
-							},100);		
+							},1000);		
 						}
 						else
 							createToast("Not connected", false);
@@ -571,7 +571,23 @@ public class MainActivity extends Activity {
 				OpenCLButton.setChecked(true);
 				RenderScriptButton.setChecked(false);
 			}
-
+		});
+		ConsoleView.addTextChangedListener(new  TextWatcher() {
+			@Override
+			public void afterTextChanged(Editable arg0) {
+				if(arg0.toString().contains("error"))
+				{
+					myTabHost.setCurrentTabByTag("Console");
+				}
+			}
+			@Override
+			public void beforeTextChanged(CharSequence arg0, int arg1,
+					int arg2, int arg3) {			
+			}
+			@Override
+			public void onTextChanged(CharSequence arg0, int arg1, int arg2,
+					int arg3) {			
+			}
 		});
 		//einde radio buttons
 	}

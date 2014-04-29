@@ -91,14 +91,14 @@ public class OpenCL extends Object {
             Bitmap inputBitmap,
             Bitmap outputBitmap
         );
-    private native void nativeSaturatieOpenCL(
-            Bitmap inputBitmap,
-            Bitmap outputBitmap,
-            float saturatie
-        );
     private native void nativeImage2DOpenCL(
             Bitmap inputBitmap,
             Bitmap outputBitmap
+        );
+    private native void nativeSaturatieImage2DOpenCL(
+            Bitmap inputBitmap,
+            Bitmap outputBitmap,
+            float saturatie
         );
     private native void shutdownOpenCL ();
 	
@@ -111,7 +111,8 @@ public class OpenCL extends Object {
     	String kernelName="edge";
     	Log.i("DEBUG","BEFORE runOpencl");
     	initOpenCL(kernelName);
-    	nativeBasicOpenCL(
+    	//nativeBasicOpenCL(
+        nativeImage2DOpenCL(
                 bmpOrig,
                 bmpOpenCL
             );
@@ -127,7 +128,8 @@ public class OpenCL extends Object {
     	String kernelName="inverse";
     	Log.i("DEBUG","BEFORE runOpencl");
     	initOpenCL(kernelName);
-    	nativeBasicOpenCL(
+    	//nativeBasicOpenCL(
+    	nativeImage2DOpenCL(
                 bmpOrig,
                 bmpOpenCL
             );
@@ -143,8 +145,8 @@ public class OpenCL extends Object {
     	String kernelName="sharpen";
     	Log.i("DEBUG","BEFORE runOpencl sharpen");
     	initOpenCL(kernelName);
-    	nativeBasicOpenCL(
- //   	nativeImage2DOpenCL( //TODO nativeImage2DOpenCL testen
+  //  	nativeBasicOpenCL(
+    	nativeImage2DOpenCL(
                 bmpOrig,
                 bmpOpenCL
             );
@@ -176,7 +178,8 @@ public class OpenCL extends Object {
     	String kernelName="blur";
     	Log.i("DEBUG","BEFORE runOpencl blur");
     	initOpenCL(kernelName);
-    	nativeBasicOpenCL(
+    	//nativeBasicOpenCL(
+    	nativeImage2DOpenCL(
                 bmpOrig,
                 bmpOpenCL
             );
@@ -234,7 +237,8 @@ public class OpenCL extends Object {
     	String kernelName="saturatie";
     	Log.i("DEBUG","BEFORE runOpencl Saturatie");
     	initOpenCL(kernelName);
-    	nativeSaturatieOpenCL(
+    	//nativeSaturatieOpenCL(
+    	nativeSaturatieImage2DOpenCL(
                 bmpOrig,
                 bmpOpenCL,
                 saturatie
@@ -315,7 +319,8 @@ public class OpenCL extends Object {
 		public void onClick(DialogInterface dialog, int whichButton) {
 			String value = input.getText().toString();
 			initOpenCLFromInput(code, value);
-	    	nativeBasicOpenCL(
+	    	//nativeBasicOpenCL(
+	    	nativeImage2DOpenCL(		
 	                bmpOrig,
 	                bmpOpenCL
 	            );
