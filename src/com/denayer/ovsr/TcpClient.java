@@ -13,7 +13,7 @@ import java.net.Socket;
 
 public class TcpClient {
 
-	public static final String SERVER_IP = "10.123.100.123"; //your computer IP address
+	public static final String SERVER_IP = "10.123.101.153"; //your computer IP address
 	public static final int SERVER_PORT = 64000;
 	// message to send to the server
 	private String mServerMessage;

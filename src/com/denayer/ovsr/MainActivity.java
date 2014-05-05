@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
@@ -15,10 +16,12 @@ import java.util.Date;
 
 import com.lamerman.FileDialog;
 
+
 import android.annotation.SuppressLint;
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -55,10 +58,12 @@ import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.TabHost.TabSpec;
+import java.security.*;
+
 
 
 public class MainActivity extends Activity {
-	public static String IP_ADDR="10.123.100.123";
+	public static String IP_ADDR="10.123.101.153";
 	private Uri mImageCaptureUri;
 	private ImageButton Input_button;
 	private ImageButton Output_button;
@@ -88,13 +93,16 @@ public class MainActivity extends Activity {
 	LogFile LogFileObject;   
 	private Button connectButton, disconnectButton;
 	
+	public String username = "";
+	public String passwd = "";
+	
 	private TabHost myTabHost;
 	
 	private TcpClient mTcpClient;	
 	MyFTPClient ftpclient = null;
 	ProgressDialog dialog = null ;
 	//item in de lijst toevoegen voor nieuwe filters toe te voegen.
-	private String [] itemsFilterBox           = new String [] {"Edge", "Inverse","Sharpen","Mediaan","Saturatie","Blur","Template"};
+	private String [] itemsFilterBox = new String [] {"Edge", "Inverse","Sharpen","Mediaan","Saturatie","Blur"};
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -213,7 +221,7 @@ public class MainActivity extends Activity {
 			@Override
 			public void onClick(View v) {  
 				SharedPreferences settings = getSharedPreferences("Preferences", 0);
-				if(!settings.getBoolean("AutoName", false))
+				if(settings.getBoolean("AutoName", false))
 				{
 					String filePath = null;
 					//save the output bitmap to a file
@@ -272,32 +280,105 @@ public class MainActivity extends Activity {
 					{
 						if(TcpClient.isConnected)
 						{
-							String message = CodeField.getText().toString();
+							final Dialog dialog = new Dialog(MainActivity.this);
+							dialog.setContentView(R.layout.login);
+						    dialog.setTitle("Login");
 
-							String lines[] = message.split("\\r?\\n");
+						    // get the Refferences of views
+						    final  EditText editTextUserName=(EditText)dialog.findViewById(R.id.editTextUserNameToLogin);
+						    final  EditText editTextPassword=(EditText)dialog.findViewById(R.id.editTextPasswordToLogin);
+						    
+						    editTextUserName.setText(username);
+						    editTextPassword.setText(passwd);
+						    
+							Button btnSignIn=(Button)dialog.findViewById(R.id.buttonSignIn);
+								
+							// Set On ClickListener
+							btnSignIn.setOnClickListener(new View.OnClickListener() {
+								
+								public void onClick(View v) {
+									ConsoleView.setText("");
+									// get The User name and Password
+									username=editTextUserName.getText().toString();
+									passwd=editTextPassword.getText().toString();
+									
+									String message = CodeField.getText().toString();
 
-							mTcpClient.sendMessage("STARTPACKAGE " + String.valueOf(android.os.Build.VERSION.SDK_INT)+ "\n");
+									String lines[] = message.split("\\r?\\n");
+									
+									//create hash
+									byte[] bytesOfMessage = null;
+									try {
+										bytesOfMessage = passwd.getBytes("UTF-8");
+									} catch (UnsupportedEncodingException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+
+									MessageDigest md = null;
+									try {
+										md = MessageDigest.getInstance("MD5");
+									} catch (NoSuchAlgorithmException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+									byte[] hash= md.digest(bytesOfMessage);
+									
+									Log.i("send",byteArrayToHex(hash));
+									
+									String strHash = bytesToHex(hash);
+									
+									Log.i("send after conversion",strHash);
+
+									mTcpClient.sendMessage("STARTPACKAGE " + username + " " + strHash + " " + String.valueOf(android.os.Build.VERSION.SDK_INT)+ "\n");
 
 
-							for(int i=0;i<lines.length;i++)
-							{
-								mTcpClient.sendMessage(lines[i]);
-								Log.i("koen", lines[i]);							
+									for(int i=0;i<lines.length;i++)
+									{
+										mTcpClient.sendMessage(lines[i]);
+										Log.i("koen", lines[i]);							
 
-							}
-							//separator zodat de code en het ENDPACKAGE bericht niet aan elkaar kunnen hangen
-							mTcpClient.sendMessage("\n");
-							//wait some time
-							handlerUi.postDelayed(new Runnable() {
+									}
+									//separator zodat de code en het ENDPACKAGE bericht niet aan elkaar kunnen hangen
+									mTcpClient.sendMessage("\n");
+									//wait some time
+									handlerUi.postDelayed(new Runnable() {
 
-								@Override
-								public void run() {
-									// TODO Auto-generated method stub
-									mTcpClient.sendMessage("ENDPACKAGE");
-									Log.i("ENDPACKAGE","ENDPACKAGE");
+										@Override
+										public void run() {
+											// TODO Auto-generated method stub
+											mTcpClient.sendMessage("ENDPACKAGE");
+											Log.i("ENDPACKAGE","ENDPACKAGE");
+										}
+
+									},1000);	
+									
+									
+									
+									
+									dialog.dismiss();
+									
+									
+									
+									// fetch the Password form database for respective user name
+									//String storedPassword=loginDataBaseAdapter.getSinlgeEntry(userName);
+									
+									// check if the Stored password matches with  Password entered by user
+//									if(password.equals(storedPassword))
+//									{
+//										Toast.makeText(HomeActivity.this, "Congrats: Login Successfull", Toast.LENGTH_LONG).show();
+//										dialog.dismiss();
+//									}
+//									else
+//									{
+//										Toast.makeText(HomeActivity.this, "User Name or Password does not match", Toast.LENGTH_LONG).show();
+//									}
 								}
-
-							},1000);		
+							});
+							
+							dialog.show();
+							
+								
 						}
 						else
 							createToast("Not connected", false);
@@ -326,6 +407,7 @@ public class MainActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 
+				
 				new ConnectTask().execute("");
 				createToast("connecting to " + TcpClient.SERVER_IP, false);
 
@@ -682,6 +764,7 @@ public class MainActivity extends Activity {
 					if(message.contains("Succesful"))
 					{
 						//TODO update consoleview
+						ConsoleView.setText("Build Succesful");
 						mTcpClient.sendMessage("give bc");
 						Log.i("message","give bc");
 
@@ -751,6 +834,27 @@ public class MainActivity extends Activity {
 			}
 		}
 	}
+	
+	String byteArrayToHex(byte[] a) {
+		   StringBuilder sb = new StringBuilder();
+		   for(byte b: a)
+		      sb.append(String.format("%02x", b&0xff));
+		   return sb.toString();
+		}
+	
+	final protected static char[] hexArray = "0123456789abcdef".toCharArray();
+	
+	public static String bytesToHex(byte[] bytes) {
+	    char[] hexChars = new char[bytes.length * 2];
+	    for ( int j = 0; j < bytes.length; j++ ) {
+	        int v = bytes[j] & 0xFF;
+	        hexChars[j * 2] = hexArray[v >>> 4];
+	        hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+	    }
+	    return new String(hexChars);
+	}
+	
+	
 
 
 

@@ -40,22 +40,27 @@ public final class R {
         public static final int CodeTab=0x7f0a0008;
         public static final int ConsoleTab=0x7f0a000b;
         public static final int ConsoleView=0x7f0a000c;
-        public static final int Delete=0x7f0a0026;
-        public static final int File=0x7f0a0028;
+        public static final int Delete=0x7f0a002d;
+        public static final int File=0x7f0a002f;
         public static final int FilterButton=0x7f0a0006;
-        public static final int History=0x7f0a0027;
-        public static final int Home=0x7f0a0025;
-        public static final int LoadF=0x7f0a002a;
+        public static final int History=0x7f0a002e;
+        public static final int Home=0x7f0a002c;
+        public static final int LoadF=0x7f0a0031;
         public static final int LogField=0x7f0a0001;
         public static final int LogTab=0x7f0a000d;
         public static final int NetworkTab=0x7f0a000f;
-        public static final int SaveF=0x7f0a0029;
-        public static final int Settings=0x7f0a0024;
-        public static final int Template=0x7f0a002b;
+        public static final int SaveF=0x7f0a0030;
+        public static final int Settings=0x7f0a002b;
+        public static final int Template=0x7f0a0032;
+        public static final int buttonSignIN=0x7f0a0026;
+        public static final int buttonSignIn=0x7f0a002a;
+        public static final int buttonSignUP=0x7f0a0027;
         public static final int connect_button=0x7f0a0011;
         public static final int container=0x7f0a0013;
         public static final int disconnect_button=0x7f0a0012;
         public static final int editText1=0x7f0a0009;
+        public static final int editTextPasswordToLogin=0x7f0a0029;
+        public static final int editTextUserNameToLogin=0x7f0a0028;
         public static final int fdButtonCancel=0x7f0a001c;
         public static final int fdButtonCreate=0x7f0a001d;
         public static final int fdButtonNew=0x7f0a0017;
@@ -74,10 +79,12 @@ public final class R {
         public static final int radioButton1=0x7f0a0005;
         public static final int radioButton2=0x7f0a0004;
         public static final int relativeLayout01=0x7f0a0014;
+        public static final int rememberUser=0x7f0a0025;
         public static final int scrollView1=0x7f0a0000;
         public static final int submit_button=0x7f0a000a;
         public static final int tabhost=0x7f0a0007;
         public static final int textView1=0x7f0a0022;
+        public static final int textView2=0x7f0a0024;
         public static final int textViewFilename=0x7f0a001a;
         public static final int timeview=0x7f0a000e;
     }
@@ -88,6 +95,7 @@ public final class R {
         public static final int file_dialog_main=0x7f030003;
         public static final int file_dialog_row=0x7f030004;
         public static final int fragment_settings=0x7f030005;
+        public static final int login=0x7f030006;
     }
     public static final class menu {
         public static final int display_message_activty=0x7f090000;
