@@ -73,14 +73,14 @@
 		    android:gravity="center_vertical" >
 		 
 		    <Button
-		        android:id="@+id/buttonSignIN"
+		        android:id="@+id/buttonSignIN2"
 		        android:layout_width="fill_parent"
 		        android:layout_height="wrap_content"
 		         android:text="Sign In" 
 		         android:onClick="signIn"/>
 		 
 		    <Button
-		        android:id="@+id/buttonSignUP"
+		        android:id="@+id/buttonSignUP2"
 		        android:layout_width="fill_parent"
 		        android:layout_height="wrap_content"
 		        android:text="Sign Up" />

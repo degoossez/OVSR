@@ -76,6 +76,7 @@ public class MainActivity extends Activity {
 	private static final int REQUEST_LOAD = 3;
 	private static final int REQUEST_SAVE = 4;
 	private static final int REQUEST_SAVE_IMAGE = 5;
+	private static final int SETTINGS = 6;
 	private Button SubmitButton;
 	private RadioButton RenderScriptButton;
 	private RadioButton OpenCLButton;
@@ -280,103 +281,46 @@ public class MainActivity extends Activity {
 					{
 						if(TcpClient.isConnected)
 						{
-							final Dialog dialog = new Dialog(MainActivity.this);
-							dialog.setContentView(R.layout.login);
-						    dialog.setTitle("Login");
-
-						    // get the Refferences of views
-						    final  EditText editTextUserName=(EditText)dialog.findViewById(R.id.editTextUserNameToLogin);
-						    final  EditText editTextPassword=(EditText)dialog.findViewById(R.id.editTextPasswordToLogin);
-						    
-						    editTextUserName.setText(username);
-						    editTextPassword.setText(passwd);
-						    
-							Button btnSignIn=(Button)dialog.findViewById(R.id.buttonSignIn);
+										
+							//if user is not logged in
+							if(username == "" && passwd == "")
+							{
+								final Dialog dialog = new Dialog(MainActivity.this);
+								dialog.setContentView(R.layout.login);
+							    dialog.setTitle("Login");
+	
+							    // get the Refferences of views
+							    final  EditText editTextUserName=(EditText)dialog.findViewById(R.id.editTextUserNameToLogin);
+							    final  EditText editTextPassword=(EditText)dialog.findViewById(R.id.editTextPasswordToLogin);
+							    
+							    editTextUserName.setText(username);
+							    editTextPassword.setText(passwd);
+							    
+								Button btnSignIn=(Button)dialog.findViewById(R.id.buttonSignIn);
+									
+								// Set On ClickListener
+								btnSignIn.setOnClickListener(new View.OnClickListener() {
+									
+									public void onClick(View v) {
+										
+										// get The User name and Password
+										username=editTextUserName.getText().toString();
+										passwd=editTextPassword.getText().toString();
+										
+										sendRenderscriptMessage(username, passwd);													
+										
+										dialog.dismiss();								
+										
+									}
+								});
 								
-							// Set On ClickListener
-							btnSignIn.setOnClickListener(new View.OnClickListener() {
+								dialog.show();
+							}
+							else
+							{
+								sendRenderscriptMessage(username, passwd);
 								
-								public void onClick(View v) {
-									ConsoleView.setText("");
-									// get The User name and Password
-									username=editTextUserName.getText().toString();
-									passwd=editTextPassword.getText().toString();
-									
-									String message = CodeField.getText().toString();
-
-									String lines[] = message.split("\\r?\\n");
-									
-									//create hash
-									byte[] bytesOfMessage = null;
-									try {
-										bytesOfMessage = passwd.getBytes("UTF-8");
-									} catch (UnsupportedEncodingException e) {
-										// TODO Auto-generated catch block
-										e.printStackTrace();
-									}
-
-									MessageDigest md = null;
-									try {
-										md = MessageDigest.getInstance("MD5");
-									} catch (NoSuchAlgorithmException e) {
-										// TODO Auto-generated catch block
-										e.printStackTrace();
-									}
-									byte[] hash= md.digest(bytesOfMessage);
-									
-									Log.i("send",byteArrayToHex(hash));
-									
-									String strHash = bytesToHex(hash);
-									
-									Log.i("send after conversion",strHash);
-
-									mTcpClient.sendMessage("STARTPACKAGE " + username + " " + strHash + " " + String.valueOf(android.os.Build.VERSION.SDK_INT)+ "\n");
-
-
-									for(int i=0;i<lines.length;i++)
-									{
-										mTcpClient.sendMessage(lines[i]);
-										Log.i("koen", lines[i]);							
-
-									}
-									//separator zodat de code en het ENDPACKAGE bericht niet aan elkaar kunnen hangen
-									mTcpClient.sendMessage("\n");
-									//wait some time
-									handlerUi.postDelayed(new Runnable() {
-
-										@Override
-										public void run() {
-											// TODO Auto-generated method stub
-											mTcpClient.sendMessage("ENDPACKAGE");
-											Log.i("ENDPACKAGE","ENDPACKAGE");
-										}
-
-									},1000);	
-									
-									
-									
-									
-									dialog.dismiss();
-									
-									
-									
-									// fetch the Password form database for respective user name
-									//String storedPassword=loginDataBaseAdapter.getSinlgeEntry(userName);
-									
-									// check if the Stored password matches with  Password entered by user
-//									if(password.equals(storedPassword))
-//									{
-//										Toast.makeText(HomeActivity.this, "Congrats: Login Successfull", Toast.LENGTH_LONG).show();
-//										dialog.dismiss();
-//									}
-//									else
-//									{
-//										Toast.makeText(HomeActivity.this, "User Name or Password does not match", Toast.LENGTH_LONG).show();
-//									}
-								}
-							});
-							
-							dialog.show();
+							}
 							
 								
 						}
@@ -511,6 +455,32 @@ public class MainActivity extends Activity {
 					out.close();
 				} catch(Throwable ignore) {}
 			} 			
+		}
+		else if(requestCode == SETTINGS)
+		{
+			if(mTcpClient.isConnected)
+			{
+				//data from settingsactivity
+				String str = data.getStringExtra("login");
+				String[] split= str.split("\\s+");
+				if(split.length == 2)
+				{
+					username = split[0];
+					passwd = split[1];
+					String hash = createHash(passwd);					
+					
+					
+					Log.i("tcp send","LOGIN " + username + " " + hash + " ENDLOGIN");
+					mTcpClient.sendMessage("LOGIN " + username + " " + hash + " ENDLOGIN");
+					
+				}
+				else
+					Log.i("main","error splitting string");
+			}
+			else
+				createToast("Not connected", false);
+						
+						
 		}
 		System.gc();
 	}
@@ -713,7 +683,7 @@ public class MainActivity extends Activity {
 			return true;   
 		case R.id.Settings:
 			Intent intent = new Intent(this,SettingsActivity.class);
-			startActivity(intent);
+			startActivityForResult(intent, SETTINGS);
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -779,7 +749,7 @@ public class MainActivity extends Activity {
 								Log.i("MainAct","FtpThread");
 								// Replace your UID & PW here
 								publishProgress("start");
-								status = ftpclient.ftpConnect(IP_ADDR, "joe", "test", 21);
+								status = ftpclient.ftpConnect(IP_ADDR, username, passwd, 21);
 								if (status == true) {
 									Log.d("FTP", "Connection Success");
 									status = ftpclient.ftpDownload("/template.bc", getFilesDir().getPath() + "/template.bc");
@@ -789,15 +759,30 @@ public class MainActivity extends Activity {
 									}
 									else
 									{
-										createToast("Downloading failed", true);
+										//Cannot create toasts in ftpthread
+										//http://stackoverflow.com/questions/3875184/cant-create-handler-inside-thread-that-has-not-called-looper-prepare
+											
+										//createToast("Downloading failed", true);
 									}
 								} else {
 									publishProgress("stop");
-									createToast("Connection with TCP server failed!", false);
 									Log.d("FTP", "Connection failed");
+									//createToast("Connection with TCP server failed!", false);
+									
+									
+									
+									
 								}
 							}
 						}).start();
+					}
+					else if(message.contains("login ok"))
+					{
+						publishProgress("login_ok");						
+					}
+					else if(message.contains("login error"))
+					{
+						publishProgress("login_nok");						
 					}
 					else
 					{
@@ -827,6 +812,18 @@ public class MainActivity extends Activity {
 			{
 				dialog.dismiss();
 			}
+			else if(values[0] == "login_ok")
+			{
+				createToast("Login succesful", false);
+				
+			}
+			else if(values[0] == "login_nok")
+			{
+				createToast("Wrong username or password", false);
+				username = "";
+				passwd = "";
+
+			}
 			else
 			{
 				ConsoleView.append(values[0]);
@@ -852,6 +849,72 @@ public class MainActivity extends Activity {
 	        hexChars[j * 2 + 1] = hexArray[v & 0x0F];
 	    }
 	    return new String(hexChars);
+	}
+	
+	public String createHash(String passwd)
+	{
+		//create hash
+		byte[] bytesOfMessage = null;
+		try {
+			bytesOfMessage = passwd.getBytes("UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		MessageDigest md = null;
+		try {
+			md = MessageDigest.getInstance("MD5");
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		byte[] hash= md.digest(bytesOfMessage);
+		
+		Log.i("send",byteArrayToHex(hash));
+		
+		String strHash = bytesToHex(hash);
+		
+		return strHash;
+		
+	}
+	
+	public void sendRenderscriptMessage(String username, String passwd)
+	{
+		final Handler handlerUi = new Handler();
+		
+		ConsoleView.setText("");
+		
+		String message = CodeField.getText().toString();
+
+		String lines[] = message.split("\\r?\\n");
+		
+		String strHash = createHash(passwd);
+		
+		Log.i("send after conversion",strHash);
+
+		mTcpClient.sendMessage("STARTPACKAGE " + username + " " + strHash + " " + String.valueOf(android.os.Build.VERSION.SDK_INT)+ "\n");
+
+
+		for(int i=0;i<lines.length;i++)
+		{
+			mTcpClient.sendMessage(lines[i]);
+			Log.i("koen", lines[i]);							
+
+		}
+		//separator zodat de code en het ENDPACKAGE bericht niet aan elkaar kunnen hangen
+		mTcpClient.sendMessage("\n");
+		//wait some time
+		handlerUi.postDelayed(new Runnable() {
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				mTcpClient.sendMessage("ENDPACKAGE");
+				Log.i("ENDPACKAGE","ENDPACKAGE");
+			}
+
+		},1000);
 	}
 	
 	
