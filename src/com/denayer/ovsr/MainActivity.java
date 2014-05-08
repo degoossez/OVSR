@@ -762,6 +762,7 @@ public class MainActivity extends Activity {
 								boolean status = false;
 								Log.i("MainAct","FtpThread");
 								// Replace your UID & PW here
+								Log.i("ftp","ftp connect with " + username + " " + passwd);
 								publishProgress("start");
 								status = ftpclient.ftpConnect(IP_ADDR, username, passwd, 21);
 								if (status == true) {
