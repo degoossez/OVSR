@@ -63,7 +63,7 @@ import java.security.*;
 
 
 public class MainActivity extends Activity {
-	public static String IP_ADDR="10.68.242.169";
+	public static String IP_ADDR="192.168.1.3";
 	private Uri mImageCaptureUri;
 	private ImageButton Input_button;
 	private ImageButton Output_button;
