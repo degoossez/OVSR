@@ -31,4 +31,4 @@ ifeq ($(MY_QUALCOMM),true)
 endif
 LOCAL_ARM_MODE  := arm
 
-include $(BUILD_SHARED_LIBRARY)
+include $(PREBUILT_SHARED_LIBRARY)

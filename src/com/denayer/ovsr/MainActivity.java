@@ -14,8 +14,19 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import com.lamerman.FileDialog;
+import org.bytedeco.javacv.*;
+import org.bytedeco.javacpp.*;
+import org.bytedeco.javacpp.opencv_core.IplImage;
 
+import static org.bytedeco.javacpp.opencv_core.*;
+import static org.bytedeco.javacpp.opencv_imgproc.*;
+import static org.bytedeco.javacpp.opencv_calib3d.*;
+import static org.bytedeco.javacpp.opencv_objdetect.*;
+import static org.bytedeco.javacpp.opencv_core.*;
+import static org.bytedeco.javacpp.opencv_imgproc.*;
+import static org.bytedeco.javacpp.opencv_highgui.*;
+
+import com.lamerman.FileDialog;
 
 import android.annotation.SuppressLint;
 import android.app.ActionBar.LayoutParams;
@@ -77,6 +88,8 @@ public class MainActivity extends Activity {
 	private static final int REQUEST_SAVE = 4;
 	private static final int REQUEST_SAVE_IMAGE = 5;
 	private static final int SETTINGS = 6;
+	private static final int PICK_VIDEO = 7;
+	private static final int REQUEST_PATH = 8;
 	private Button SubmitButton;
 	private RadioButton RenderScriptButton;
 	private RadioButton OpenCLButton;
@@ -98,6 +111,11 @@ public class MainActivity extends Activity {
 	public String passwd = "";
 	
 	private TabHost myTabHost;
+
+	public boolean isImage = false;
+	public String videoPath;
+	public String savePath;
+	private Method m;
 	
 	private TcpClient mTcpClient;	
 	MyFTPClient ftpclient = null;
@@ -173,7 +191,7 @@ public class MainActivity extends Activity {
 		RenderScriptObject = new RsScript(this,(ImageButton)findViewById(R.id.imageButton2),TimeView);
 		LogFileObject = new LogFile(this);   
 
-		final String [] items           = new String [] {"From Camera", "From SD Card"};
+		final String [] items           = new String [] {"From Camera", "From SD Card", "Select Video"};
 		ArrayAdapter<String> adapter  = new ArrayAdapter<String> (this, android.R.layout.select_dialog_item,items);
 		AlertDialog.Builder builder     = new AlertDialog.Builder(this);
 
@@ -202,11 +220,16 @@ public class MainActivity extends Activity {
 					}
 
 					dialog.cancel();
+				} else if(item==1) {
+					Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
+					intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
+					intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] { "png" , "jpeg" , "jpg" , "bmp"});
+					startActivityForResult(intentLoad, PICK_FROM_FILE);						
 				} else {
 					Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
 					intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
-					intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] { "png" , "jpeg" , "jpg" , "bmp", "gif"});
-					startActivityForResult(intentLoad, PICK_FROM_FILE);
+					intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] {"png" , "jpeg" , "jpg" , "bmp", "mp4"});
+					startActivityForResult(intentLoad, PICK_VIDEO);
 				}
 			}
 		} );
@@ -396,6 +419,11 @@ public class MainActivity extends Activity {
 			FileContent = LogFileObject.readFromFile(PathLoadFile,"");
 			CodeField.setText(FileContent);
 		}
+		else if(requestCode== REQUEST_PATH)
+		{
+			savePath = data.getStringExtra(FileDialog.RESULT_PATH);
+			editVideo(m,data.getBooleanExtra("isRs", true));
+		}
 		else if (requestCode == REQUEST_SAVE) {
 			String filePath = data.getStringExtra(FileDialog.RESULT_PATH);            	
 			LogFileObject.writeToFile("		Code file saved to: " + filePath, "LogFile.txt",false);
@@ -442,6 +470,8 @@ public class MainActivity extends Activity {
 				e.printStackTrace();
 			}
 			setBitmaps();
+		} else if (requestCode == PICK_VIDEO){
+			videoPath = data.getStringExtra(FileDialog.RESULT_PATH);
 		} else if(requestCode == REQUEST_SAVE_IMAGE) {
 			String filePath = data.getStringExtra(FileDialog.RESULT_PATH);
 			LogFileObject.writeToFile(" File saved to: " + filePath,"LogFile.txt",false);
@@ -543,9 +573,19 @@ public class MainActivity extends Activity {
 					String FunctionName = "RenderScript" + itemsFilterBox[item];
 					Filter = "RenderScript/" + itemsFilterBox[item];
 					try {
-						Method m = RsScript.class.getMethod(FunctionName);
+						m = RsScript.class.getMethod(FunctionName);
 						try {
-							m.invoke(RenderScriptObject, null);
+							if(isImage){
+								m.invoke(RenderScriptObject, null);
+							}
+							else
+							{
+								Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
+								intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
+								intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] {"mp4", "avi","3gp"});
+								intentLoad.putExtra("isRs", true);
+								startActivityForResult(intentLoad, REQUEST_PATH);
+							}
 						} catch (IllegalAccessException e) {
 							e.printStackTrace();
 						} catch (IllegalArgumentException e) {
@@ -556,7 +596,7 @@ public class MainActivity extends Activity {
 					} catch (NoSuchMethodException e) {
 						e.printStackTrace();
 					}
-					if(RenderScriptObject.getOutputBitmap()!=null)
+					if(RenderScriptObject.getOutputBitmap()!=null && isImage)
 					{
 						outBitmap = RenderScriptObject.getOutputBitmap();
 						Output_button.setImageBitmap(RenderScriptObject.getOutputBitmap());
@@ -575,9 +615,19 @@ public class MainActivity extends Activity {
 						Filter = "OpenCL/" + itemsFilterBox[item];
 						try {
 							//MainActivity obj = new MainActivity();
-							Method m = OpenCL.class.getMethod(FunctionName);
+							m = OpenCL.class.getMethod(FunctionName);
 							try {
-								m.invoke(OpenCLObject, null);
+								if(isImage){
+									m.invoke(OpenCLObject, null);
+								}
+								else
+								{
+									Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
+									intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
+									intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] {"mp4", "avi","3gp"});
+									intentLoad.putExtra("isRs", false);
+									startActivityForResult(intentLoad, REQUEST_PATH);
+								}
 							} catch (IllegalAccessException e) {
 								e.printStackTrace();
 							} catch (IllegalArgumentException e) {
@@ -588,7 +638,7 @@ public class MainActivity extends Activity {
 						} catch (NoSuchMethodException e) {
 							e.printStackTrace();
 						}	
-						if(OpenCLObject.getBitmap()!=null)
+						if(OpenCLObject.getBitmap()!=null && isImage)
 						{
 							outBitmap = OpenCLObject.getBitmap();
 							Output_button.setImageBitmap(outBitmap);
@@ -948,7 +998,56 @@ public class MainActivity extends Activity {
 
 		},1000);
 	}
-	
+	public void editVideo(Method m, boolean isRs)
+	{
+		try {
+			FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(videoPath); 
+			grabber.start();
+			Log.i("Height",String.valueOf(grabber.getImageHeight()));
+			Log.i("Width",String.valueOf(grabber.getImageWidth()));
+			FFmpegFrameRecorder recorder = new FFmpegFrameRecorder(savePath, grabber.getImageWidth(), grabber.getImageHeight());
+
+			recorder.setFormat("mp4");
+			recorder.setVideoCodec(avcodec.AV_CODEC_ID_MPEG4);
+			recorder.setVideoBitrate(33000);
+			recorder.setFrameRate(24);				
+
+			IplImage image = IplImage.create(grabber.getImageWidth(), grabber.getImageHeight(), IPL_DEPTH_8U, 4);
+			IplImage frame2 = IplImage.create(image.width(), image.height(), IPL_DEPTH_8U, 4);
+			Bitmap MyBitmap = Bitmap.createBitmap(frame2.width(), frame2.height(), Bitmap.Config.ARGB_8888);   
+			recorder.start();
+			while(true)
+			{					
+				image = grabber.grab();
+				if(image==null)
+				{
+					break;
+				}
+				opencv_imgproc.cvCvtColor(image, frame2, opencv_imgproc.CV_BGR2RGBA);
+				MyBitmap.copyPixelsFromBuffer(frame2.getByteBuffer());
+
+				if(isRs)
+				{
+					RenderScriptObject.setInputBitmap(MyBitmap);
+					m.invoke(RenderScriptObject, null);
+					MyBitmap = RenderScriptObject.getOutputBitmap();		            	
+				}
+				else
+				{
+					OpenCLObject.setBitmap(MyBitmap);
+					m.invoke(OpenCLObject, null);
+					MyBitmap = OpenCLObject.getBitmap();		            	
+				}
+				MyBitmap.copyPixelsToBuffer(frame2.getByteBuffer());
+				opencv_imgproc.cvCvtColor(frame2, image, opencv_imgproc.CV_RGBA2BGR);		            
+				recorder.record(image);
+			}
+			recorder.stop();
+			grabber.stop();
+		}catch(Exception e){
+			e.printStackTrace();
+		}		
+	}
 	
 
 

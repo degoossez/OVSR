@@ -53,10 +53,7 @@ public class RsScript extends Object {
 	public void setInputBitmap(Bitmap in)
 	{
 		inBitmap = in;
-		if(outBitmap==null)
-		{
-		outBitmap = Bitmap.createBitmap(inBitmap.getWidth(), inBitmap.getHeight(),inBitmap.getConfig());
-		}
+		outBitmap = Bitmap.createBitmap(inBitmap.getWidth(), inBitmap.getHeight(), Bitmap.Config.ARGB_8888);
 	}
 	
 	public Bitmap getOutputBitmap()
@@ -97,6 +94,10 @@ public class RsScript extends Object {
         Log.i("koen","via java meting: " + String.valueOf(estimatedTime));
         mElapsedTime.setText(String.valueOf(estimatedTime) + "ms");
 		
+        input.destroy();
+        output.destroy();
+        rs.destroy();
+        script.destroy();
 	}
 	
 	public void RenderScriptInverse()
@@ -128,7 +129,10 @@ public class RsScript extends Object {
         Log.i("koen","via java meting: " + String.valueOf(estimatedTime));
         mElapsedTime.setText(String.valueOf(estimatedTime) + "ms");
 	    
-		
+        allocOut.destroy();
+        allocIn.destroy();
+        rs.destroy();
+        script.destroy();
 	}	
 	
 	public void RenderScriptSharpen()
@@ -165,6 +169,10 @@ public class RsScript extends Object {
         Log.i("koen","via java meting: " + String.valueOf(estimatedTime));
         mElapsedTime.setText(String.valueOf(estimatedTime) + "ms");
 		
+        output.destroy();
+        input.destroy();
+        rs.destroy();
+        script.destroy();
 	}
 	
 	public void RenderScriptBlur()
@@ -199,6 +207,10 @@ public class RsScript extends Object {
         Log.i("koen","via java meting: " + String.valueOf(estimatedTime));
         mElapsedTime.setText(String.valueOf(estimatedTime) + "ms");
 		
+        output.destroy();
+        input.destroy();
+        rs.destroy();
+        script.destroy();
 	
 	}
 	
@@ -246,6 +258,8 @@ public class RsScript extends Object {
 	        ll.addView(progressView);
 	        dialog.setView(ll);
         dialog.show(); 
+
+        
 	}
 	
 	public Bitmap saturate(Bitmap bmIn, float saturation)
@@ -284,6 +298,11 @@ public class RsScript extends Object {
         Log.i("koen","via java meting: " + String.valueOf(estimatedTime));
         mElapsedTime.setText(String.valueOf(estimatedTime) + "ms");	    
 	   
+        allocIn.destroy();
+        allocOut.destroy();
+        rs.destroy();
+        scriptSat.destroy();
+        
 	    return bmOut;
 	}
 	
@@ -319,6 +338,10 @@ public class RsScript extends Object {
         Log.i("koen","via java meting: " + String.valueOf(estimatedTime));
         mElapsedTime.setText(String.valueOf(estimatedTime) + "ms");
 		
+        input.destroy();
+        output.destroy();
+        rs.destroy();
+        script.destroy();
 	}
 	
 	public void RenderScriptTemplate()
@@ -356,6 +379,10 @@ public class RsScript extends Object {
         Log.i("koen","via java meting: " + String.valueOf(estimatedTime));
         mElapsedTime.setText(String.valueOf(estimatedTime) + "ms");
 		
+        allocIn.destroy();
+        allocOut.destroy();
+        rs.destroy();
+        script.destroy();
 	}
 	
 	public String getTemplate()
