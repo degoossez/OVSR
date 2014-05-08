@@ -122,6 +122,7 @@ public class RsScript extends Object {
 	    rs.finish();
 	    allocOut.copyTo(outBitmap);
 	    
+	    	    
 	    long estimatedTime = System.nanoTime() - startTime;
 	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
         Log.i("koen","via java meting: " + String.valueOf(estimatedTime));

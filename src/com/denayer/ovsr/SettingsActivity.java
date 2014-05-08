@@ -24,6 +24,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Toast;
 import android.os.Build;
 import android.content.Context;
 
@@ -186,26 +187,37 @@ public class SettingsActivity extends Activity {
 
 					final Dialog dialog = new Dialog(con);
 					dialog.setContentView(R.layout.signup);
-				    dialog.setTitle("Create account");
+				    dialog.setTitle("Create account");				    
+				    
+				    final  EditText editTextUserName=(EditText)dialog.findViewById(R.id.editTextUserName);
+				    final  EditText editTextPassword=(EditText)dialog.findViewById(R.id.singUpEditTextPassword);
+				    final  EditText editTextConfirmPassword=(EditText)dialog.findViewById(R.id.singUpEditTextConfirmPassword);
 				    
 					Button btncreate=(Button)dialog.findViewById(R.id.buttonCreateAccount);		
 					
 					btncreate.setOnClickListener(new View.OnClickListener() {
 						
 						public void onClick(View v) {
-							// get The User name and Password
-//							String username=editTextUserName.getText().toString();
-//							String passwd=editTextPassword.getText().toString();						
-//							
-//							Intent returnIntent = new Intent();
-//							returnIntent.putExtra("login",username + " " + passwd);
-//							act.setResult(RESULT_OK,returnIntent);     
-//							
-//							dialog.dismiss();
-//							act.finish();
+							// get The User name and Password	
 							
+							String username=editTextUserName.getText().toString();
+							String passwd=editTextPassword.getText().toString();
+							String passwdConfirm=editTextConfirmPassword.getText().toString();
+
+							Log.i("create",username + "/" + passwd + "/" + passwdConfirm  +"/");
 							
-							
+							if(passwd.equals(passwdConfirm))
+							{							
+								Intent returnIntent = new Intent();
+								returnIntent.putExtra("login",username + " " + passwd + " " + passwdConfirm);
+								act.setResult(RESULT_OK,returnIntent); 
+								dialog.dismiss();
+								act.finish();
+							}
+							else
+							{
+								Log.i("account error","confirm passwd error");
+							}
 							
 						}
 					});

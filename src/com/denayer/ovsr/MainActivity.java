@@ -63,7 +63,7 @@ import java.security.*;
 
 
 public class MainActivity extends Activity {
-	public static String IP_ADDR="10.123.101.153";
+	public static String IP_ADDR="10.68.242.169";
 	private Uri mImageCaptureUri;
 	private ImageButton Input_button;
 	private ImageButton Output_button;
@@ -366,6 +366,7 @@ public class MainActivity extends Activity {
 					mTcpClient.stopClient();
 				}
 				createToast("disconnected", false);
+				
 
 			}
 		});		
@@ -380,6 +381,7 @@ public class MainActivity extends Activity {
 		Input_button.setImageBitmap(bitmap);
 		OpenCLObject.setBitmap(bitmap);
 		RenderScriptObject.setInputBitmap(bitmap);
+		
 	}
 
 	@Override
@@ -463,15 +465,27 @@ public class MainActivity extends Activity {
 				//data from settingsactivity
 				String str = data.getStringExtra("login");
 				String[] split= str.split("\\s+");
+				
+				//login request
 				if(split.length == 2)
 				{
 					username = split[0];
 					passwd = split[1];
-					String hash = createHash(passwd);					
-					
+					String hash = createHash(passwd);						
 					
 					Log.i("tcp send","LOGIN " + username + " " + hash + " ENDLOGIN");
 					mTcpClient.sendMessage("LOGIN " + username + " " + hash + " ENDLOGIN");
+					
+				}
+				//create account request
+				else if(split.length == 3)
+				{	
+					String newUser = split[0];
+					String newPas = split[1];
+					
+					Log.i("tcp account", "ACCOUNT " + newUser + " " + newPas + " ENDACCOUNT");
+					mTcpClient.sendMessage("ACCOUNT " + newUser + " " + newPas + " ENDACCOUNT");
+					
 					
 				}
 				else
@@ -784,6 +798,15 @@ public class MainActivity extends Activity {
 					{
 						publishProgress("login_nok");						
 					}
+					else if(message.contains("acount error"))
+					{
+						publishProgress("account_error");
+					}
+					else if(message.contains("acount created"))
+					{
+						publishProgress("acount_created");
+
+					}
 					else
 					{
 						publishProgress(message);
@@ -823,6 +846,14 @@ public class MainActivity extends Activity {
 				username = "";
 				passwd = "";
 
+			}
+			else if(values[0] == "account_error")				
+			{
+				createToast("Accountname already in use", false);
+			}
+			else if(values[0] == "acount_created")
+			{
+				createToast("Acount created", false);
 			}
 			else
 			{
