@@ -29,40 +29,47 @@ public final class R {
         public static final int activity_vertical_margin=0x7f070001;
     }
     public static final class drawable {
-        public static final int file=0x7f020000;
-        public static final int folder=0x7f020001;
-        public static final int ic_launcher=0x7f020002;
-        public static final int icon=0x7f020003;
-        public static final int logo=0x7f020004;
+        public static final int camera=0x7f020000;
+        public static final int file=0x7f020001;
+        public static final int folder=0x7f020002;
+        public static final int ic_action_camera=0x7f020003;
+        public static final int ic_action_picture=0x7f020004;
+        public static final int ic_action_video=0x7f020005;
+        public static final int ic_launcher=0x7f020006;
+        public static final int icon=0x7f020007;
+        public static final int logo=0x7f020008;
     }
     public static final class id {
         public static final int AutoName=0x7f0a0023;
+        public static final int Camera=0x7f0a0038;
         public static final int CodeTab=0x7f0a0008;
         public static final int ConsoleTab=0x7f0a000b;
         public static final int ConsoleView=0x7f0a000c;
-        public static final int Delete=0x7f0a0031;
-        public static final int File=0x7f0a0033;
+        public static final int Delete=0x7f0a0032;
+        public static final int File=0x7f0a0034;
         public static final int FilterButton=0x7f0a0006;
-        public static final int History=0x7f0a0032;
-        public static final int Home=0x7f0a0030;
-        public static final int LoadF=0x7f0a0035;
+        public static final int History=0x7f0a0033;
+        public static final int Home=0x7f0a0031;
+        public static final int LoadF=0x7f0a0036;
         public static final int LogField=0x7f0a0001;
         public static final int LogTab=0x7f0a000d;
         public static final int NetworkTab=0x7f0a000f;
-        public static final int SaveF=0x7f0a0034;
-        public static final int Settings=0x7f0a002f;
-        public static final int Template=0x7f0a0036;
-        public static final int buttonCreateAccount=0x7f0a002e;
+        public static final int Picture=0x7f0a003a;
+        public static final int SaveF=0x7f0a0035;
+        public static final int Settings=0x7f0a0030;
+        public static final int Template=0x7f0a0037;
+        public static final int Video=0x7f0a0039;
+        public static final int buttonCreateAccount=0x7f0a002f;
         public static final int buttonSignIN2=0x7f0a0026;
-        public static final int buttonSignIn=0x7f0a002a;
+        public static final int buttonSignIn=0x7f0a002b;
         public static final int buttonSignUP2=0x7f0a0027;
         public static final int connect_button=0x7f0a0011;
         public static final int container=0x7f0a0013;
         public static final int disconnect_button=0x7f0a0012;
         public static final int editText1=0x7f0a0009;
-        public static final int editTextPasswordToLogin=0x7f0a0029;
-        public static final int editTextUserName=0x7f0a002b;
-        public static final int editTextUserNameToLogin=0x7f0a0028;
+        public static final int editTextPasswordToLogin=0x7f0a002a;
+        public static final int editTextUserName=0x7f0a002c;
+        public static final int editTextUserNameToLogin=0x7f0a0029;
         public static final int fdButtonCancel=0x7f0a001c;
         public static final int fdButtonCreate=0x7f0a001d;
         public static final int fdButtonNew=0x7f0a0017;
@@ -76,6 +83,7 @@ public final class R {
         public static final int imageButton1=0x7f0a0002;
         public static final int imageButton2=0x7f0a0003;
         public static final int linearLayout1=0x7f0a0021;
+        public static final int myVideoView=0x7f0a0028;
         public static final int networkview=0x7f0a0010;
         public static final int path=0x7f0a001e;
         public static final int radioButton1=0x7f0a0005;
@@ -83,8 +91,8 @@ public final class R {
         public static final int relativeLayout01=0x7f0a0014;
         public static final int rememberUser=0x7f0a0025;
         public static final int scrollView1=0x7f0a0000;
-        public static final int singUpEditTextConfirmPassword=0x7f0a002d;
-        public static final int singUpEditTextPassword=0x7f0a002c;
+        public static final int singUpEditTextConfirmPassword=0x7f0a002e;
+        public static final int singUpEditTextPassword=0x7f0a002d;
         public static final int submit_button=0x7f0a000a;
         public static final int tabhost=0x7f0a0007;
         public static final int textView1=0x7f0a0022;
@@ -105,7 +113,8 @@ public final class R {
     public static final class menu {
         public static final int display_message_activty=0x7f090000;
         public static final int main=0x7f090001;
-        public static final int settings=0x7f090002;
+        public static final int main_activity_actions=0x7f090002;
+        public static final int settings=0x7f090003;
     }
     public static final class raw {
         public static final int blur=0x7f040000;
@@ -123,6 +132,9 @@ public final class R {
         public static final int Home=0x7f050010;
         public static final int LoadF=0x7f050015;
         public static final int SaveF=0x7f050012;
+        public static final int Select_Camera=0x7f050018;
+        public static final int Select_Picture=0x7f05001a;
+        public static final int Select_Video=0x7f050019;
         public static final int Template=0x7f050013;
         public static final int action_settings=0x7f05000a;
         public static final int app_name=0x7f050000;

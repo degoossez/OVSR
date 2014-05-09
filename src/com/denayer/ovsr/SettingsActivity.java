@@ -13,6 +13,7 @@ import android.app.Fragment;
 import android.content.ClipData.Item;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,7 +25,9 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.MediaController;
 import android.widget.Toast;
+import android.widget.VideoView;
 import android.os.Build;
 import android.content.Context;
 
@@ -42,7 +45,7 @@ public class SettingsActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_settings);
-
+		
 		if (savedInstanceState == null) {
 			getFragmentManager().beginTransaction()
 			.add(R.id.container, new PlaceholderFragment()).commit();
@@ -51,6 +54,7 @@ public class SettingsActivity extends Activity {
 		
 		con = this;
 		act = this;
+				
 	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -228,6 +232,16 @@ public class SettingsActivity extends Activity {
 
 				}
 			});
+			
+			VideoView videoView;
+			videoView = (VideoView) rootView.findViewById(R.id.myVideoView);
+			MediaController mediaController = new MediaController(act);
+			mediaController.setAnchorView(videoView);
+			//URI either from net
+			Uri video = Uri.parse("/sdcard/DCIM/Camera/testvid.mp4");
+			videoView.setMediaController(mediaController);
+			videoView.setVideoURI(video);
+			videoView.start();
 			
 			return rootView;
 		}

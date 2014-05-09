@@ -29,6 +29,7 @@ import static org.bytedeco.javacpp.opencv_highgui.*;
 import com.lamerman.FileDialog;
 
 import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -69,6 +70,7 @@ import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.TabHost.TabSpec;
+
 import java.security.*;
 
 
@@ -128,6 +130,9 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
+		ActionBar actionBar = getActionBar();
+		actionBar.setTitle("");
+		
 		ftpclient = new MyFTPClient();
 		
 		SharedPreferences settings = getSharedPreferences("Preferences", 0);
@@ -191,54 +196,54 @@ public class MainActivity extends Activity {
 		RenderScriptObject = new RsScript(this,(ImageButton)findViewById(R.id.imageButton2),TimeView);
 		LogFileObject = new LogFile(this);   
 
-		final String [] items           = new String [] {"From Camera", "From SD Card", "Select Video"};
-		ArrayAdapter<String> adapter  = new ArrayAdapter<String> (this, android.R.layout.select_dialog_item,items);
-		AlertDialog.Builder builder     = new AlertDialog.Builder(this);
+//		final String [] items           = new String [] {"From Camera", "From SD Card", "Select Video"};
+//		ArrayAdapter<String> adapter  = new ArrayAdapter<String> (this, android.R.layout.select_dialog_item,items);
+//		AlertDialog.Builder builder     = new AlertDialog.Builder(this);
 
-		builder.setTitle("Select Image");
-		builder.setAdapter( adapter, new DialogInterface.OnClickListener() {
-			@SuppressLint("SimpleDateFormat")
-			public void onClick( DialogInterface dialog, int item ) {
-				if (item == 0) {
-					Intent intent    = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-					//save file for camera
-					String SavePath = Environment.getExternalStorageDirectory().toString();
-					SimpleDateFormat formatter = new SimpleDateFormat("yyMMddHHmmss");
-					Date now = new Date();
-					String fileCameraName = formatter.format(now) + ".jpg";
-					file = new File(SavePath, "OVSR"+fileCameraName);
-
-					mImageCaptureUri = Uri.fromFile(file);
-
-					try {
-						intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, mImageCaptureUri);
-						intent.putExtra("return-data", true);
-
-						startActivityForResult(intent, PICK_FROM_CAMERA);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-
-					dialog.cancel();
-				} else if(item==1) {
-					Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
-					intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
-					intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] { "png" , "jpeg" , "jpg" , "bmp"});
-					startActivityForResult(intentLoad, PICK_FROM_FILE);						
-				} else {
-					Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
-					intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
-					intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] {"png" , "jpeg" , "jpg" , "bmp", "mp4"});
-					startActivityForResult(intentLoad, PICK_VIDEO);
-				}
-			}
-		} );
-		final AlertDialog dialog = builder.create();
-		
+//		builder.setTitle("Select Image");
+//		builder.setAdapter( adapter, new DialogInterface.OnClickListener() {
+//			@SuppressLint("SimpleDateFormat")
+//			public void onClick( DialogInterface dialog, int item ) {
+//				if (item == 0) {
+//					Intent intent    = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//					//save file for camera
+//					String SavePath = Environment.getExternalStorageDirectory().toString();
+//					SimpleDateFormat formatter = new SimpleDateFormat("yyMMddHHmmss");
+//					Date now = new Date();
+//					String fileCameraName = formatter.format(now) + ".jpg";
+//					file = new File(SavePath, "OVSR"+fileCameraName);
+//
+//					mImageCaptureUri = Uri.fromFile(file);
+//
+//					try {
+//						intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, mImageCaptureUri);
+//						intent.putExtra("return-data", true);
+//
+//						startActivityForResult(intent, PICK_FROM_CAMERA);
+//					} catch (Exception e) {
+//						e.printStackTrace();
+//					}
+//					dialog.cancel();
+//				} else if(item==1) {
+//					Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
+//					intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
+//					intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] { "png" , "jpeg" , "jpg" , "bmp"});
+//					startActivityForResult(intentLoad, PICK_FROM_FILE);						
+//				} else {
+//					Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
+//					intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
+//					intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] {"png" , "jpeg" , "jpg" , "bmp", "mp4"});
+//					startActivityForResult(intentLoad, PICK_VIDEO);
+//				}
+//			}
+//		} );
+//		final AlertDialog dialog = builder.create();
+//		
 		Input_button.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				dialog.show();            	
+				//dialog.show();
+				createToast("Click on the images!", false);
 			}
 		});
 		Output_button.setOnClickListener(new View.OnClickListener() {
@@ -342,10 +347,7 @@ public class MainActivity extends Activity {
 							else
 							{
 								sendRenderscriptMessage(username, passwd);
-								
-							}
-							
-								
+							}				
 						}
 						else
 							createToast("Not connected", false);
@@ -748,6 +750,37 @@ public class MainActivity extends Activity {
 		case R.id.Settings:
 			Intent intent = new Intent(this,SettingsActivity.class);
 			startActivityForResult(intent, SETTINGS);
+			return true;
+		case R.id.Camera:
+			Intent intentCamera    = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+			//save file for camera
+			String SavePath = Environment.getExternalStorageDirectory().toString();
+			SimpleDateFormat formatter = new SimpleDateFormat("yyMMddHHmmss");
+			Date now = new Date();
+			String fileCameraName = formatter.format(now) + ".jpg";
+			file = new File(SavePath, "OVSR"+fileCameraName);
+
+			mImageCaptureUri = Uri.fromFile(file);
+
+			try {
+				intentCamera.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, mImageCaptureUri);
+				intentCamera.putExtra("return-data", true);
+				startActivityForResult(intentCamera, PICK_FROM_CAMERA);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return true;
+		case R.id.Video:
+			Intent intentVideo = new Intent(getBaseContext(), FileDialog.class);
+			intentVideo.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
+			intentVideo.putExtra(FileDialog.FORMAT_FILTER, new String[] { "mp4" });
+			startActivityForResult(intentVideo, PICK_VIDEO);
+			return true;
+		case R.id.Picture:
+			Intent intentPicture = new Intent(getBaseContext(), FileDialog.class);
+			intentPicture.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
+			intentPicture.putExtra(FileDialog.FORMAT_FILTER, new String[] {"png" , "jpeg" , "jpg" , "bmp"});
+			startActivityForResult(intentPicture, PICK_FROM_FILE);
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);

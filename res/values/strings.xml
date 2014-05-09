@@ -15,6 +15,9 @@
     <string name="File">File</string>
     <string name="LoadF">Load File</string>
     <string name="title_activity_activity_test">ActivityTestActivity</string>
-    <string name="title_activity_settings">SettingsActivity</string>
-
+    <string name="title_activity_settings">Settings</string>
+    <string name="Select_Camera">Select Camera</string>
+    <string name="Select_Video">Select Video</string>
+    <string name="Select_Picture">Select Image</string>
+    
 </resources>

@@ -1,4 +1,5 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android" 
+    xmlns:yourapp="http://schemas.android.com/apk/res-auto" >
 
     <item
         android:id="@+id/Settings"
@@ -21,4 +22,17 @@
     
     <item android:id="@+id/Template"
           android:title="@string/Template" />
+    
+        <item android:id="@+id/Camera"
+          android:icon="@drawable/ic_action_camera"
+          android:title="@string/Select_Camera"
+          android:showAsAction="always"/>
+        <item android:id="@+id/Video"
+          android:icon="@drawable/ic_action_video"
+          android:title="@string/Select_Video"
+          android:showAsAction="always"/>
+        <item android:id="@+id/Picture"
+          android:icon="@drawable/ic_action_picture"
+          android:title="@string/Select_Picture"
+          android:showAsAction="always"/>        
 </menu>
