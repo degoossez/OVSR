@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -19,18 +18,9 @@ import org.bytedeco.javacpp.*;
 import org.bytedeco.javacpp.opencv_core.IplImage;
 
 import static org.bytedeco.javacpp.opencv_core.*;
-import static org.bytedeco.javacpp.opencv_imgproc.*;
-import static org.bytedeco.javacpp.opencv_calib3d.*;
-import static org.bytedeco.javacpp.opencv_objdetect.*;
-import static org.bytedeco.javacpp.opencv_core.*;
-import static org.bytedeco.javacpp.opencv_imgproc.*;
-import static org.bytedeco.javacpp.opencv_highgui.*;
-
 import com.lamerman.FileDialog;
 
-import android.annotation.SuppressLint;
 import android.app.ActionBar;
-import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -43,8 +33,6 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
-import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnPreparedListener;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -63,13 +51,9 @@ import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.MediaController;
-import android.widget.MediaController.MediaPlayerControl;
 import android.widget.RadioButton;
-import android.widget.RelativeLayout;
 import android.widget.TabHost;
 import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TextView;
@@ -89,7 +73,6 @@ public class MainActivity extends Activity {
 	private Bitmap bitmap   = null;
 	private Bitmap outBitmap   = null;
 	private File file;
-	private String Filter;
 	private static final int PICK_FROM_CAMERA = 1;
 	private static final int PICK_FROM_FILE = 2;
 	private static final int REQUEST_LOAD = 3;
@@ -121,6 +104,7 @@ public class MainActivity extends Activity {
 	private TabHost myTabHost;
 
 	public boolean isImage = true;
+	public boolean isRenderScript = true;
 	public String videoPath;
 	public String savePath;
 	private Method m;
@@ -130,7 +114,8 @@ public class MainActivity extends Activity {
 	Uri videoIn;
 	private TcpClient mTcpClient;	
 	MyFTPClient ftpclient = null;
-	ProgressDialog dialog = null ;
+	ProgressDialog dialog = null;
+	ProgressDialog videoProcessDialog = null;
 	//item in de lijst toevoegen voor nieuwe filters toe te voegen.
 	private String [] itemsFilterBox = new String [] {"Edge", "Inverse","Sharpen","Mediaan","Saturatie","Blur"};
 
@@ -223,7 +208,7 @@ public class MainActivity extends Activity {
 			}
 		});
 
-		final Handler handlerUi = new Handler();	
+		new Handler();	
 
 		SubmitButton.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -348,7 +333,8 @@ public class MainActivity extends Activity {
 		else if(requestCode== REQUEST_PATH)
 		{
 			savePath = data.getStringExtra(FileDialog.RESULT_PATH);
-			editVideo(m,data.getBooleanExtra("isRs", true));
+			//editVideo();
+			new EditVideoTask().execute(null,null,null);
 		}
 		else if (requestCode == REQUEST_SAVE) {
 			String filePath = data.getStringExtra(FileDialog.RESULT_PATH);            	
@@ -400,65 +386,9 @@ public class MainActivity extends Activity {
 			videoPath = data.getStringExtra(FileDialog.RESULT_PATH);
 			mediaControllerIn = new MediaController(this);
 			mediaControllerIn.setAnchorView(Input_Video);
-			mediaControllerIn.setMediaPlayer(new MediaController.MediaPlayerControl() {
-				
-				@Override
-				public void start() {
-					// TODO Auto-generated method stub
-					view1Thread.start();
-				}
-				public void seekTo(int pos) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public void pause() {
-					// TODO Auto-generated method stub
-					try {
-						view1Thread.wait();
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}	
-				}
-				public boolean isPlaying() {
-					// TODO Auto-generated method stub
-					return false;
-				}
-				public int getDuration() {
-					// TODO Auto-generated method stub
-					return 0;
-				}
-				public int getCurrentPosition() {
-					// TODO Auto-generated method stub
-					return 0;
-				}
-				public int getBufferPercentage() {
-					// TODO Auto-generated method stub
-					return 0;
-				}
-				public int getAudioSessionId() {
-					// TODO Auto-generated method stub
-					return 0;
-				}
-				public boolean canSeekForward() {
-					// TODO Auto-generated method stub
-					return false;
-				}
-				public boolean canSeekBackward() {
-					// TODO Auto-generated method stub
-					return false;
-				}
-				public boolean canPause() {
-					// TODO Auto-generated method stub
-					return false;
-				}
-			}); 
 			videoIn = Uri.parse(new File(videoPath).toString());
 			Input_Video.setMediaController(mediaControllerIn);
 			Input_Video.setVideoURI(videoIn);
-
 		} else if(requestCode == REQUEST_SAVE_IMAGE) {
 			String filePath = data.getStringExtra(FileDialog.RESULT_PATH);
 			LogFileObject.writeToFile(" File saved to: " + filePath,"LogFile.txt",false);
@@ -477,7 +407,7 @@ public class MainActivity extends Activity {
 		}
 		else if(requestCode == SETTINGS)
 		{
-			if(mTcpClient.isConnected)
+			if(TcpClient.isConnected)
 			{
 				//data from settingsactivity
 				String str = data.getStringExtra("login");
@@ -556,9 +486,9 @@ public class MainActivity extends Activity {
 				Date now = new Date();
 				if(!RenderScriptButton.isChecked())
 				{		
+					isRenderScript = true;
 					fileName = "RenderScript/" + itemsFilterBox[item] + formatter.format(now);
 					String FunctionName = "RenderScript" + itemsFilterBox[item];
-					Filter = "RenderScript/" + itemsFilterBox[item];
 					try {
 						m = RsScript.class.getMethod(FunctionName);
 						try {
@@ -579,7 +509,6 @@ public class MainActivity extends Activity {
 								Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
 								intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
 								intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] {"mp4", "avi","3gp"});
-								intentLoad.putExtra("isRs", true);
 								startActivityForResult(intentLoad, REQUEST_PATH);
 							}
 						} catch (IllegalAccessException e) {
@@ -595,11 +524,11 @@ public class MainActivity extends Activity {
 				}
 				else
 				{
+					isRenderScript = false;
 					if(OpenCLObject.getOpenCLSupport())
 					{		
 						fileName = "OpenCL/" + itemsFilterBox[item] + formatter.format(now);
 						String FunctionName = "OpenCL" + itemsFilterBox[item];
-						Filter = "OpenCL/" + itemsFilterBox[item];
 						try {
 							//MainActivity obj = new MainActivity();
 							m = OpenCL.class.getMethod(FunctionName);
@@ -849,10 +778,7 @@ public class MainActivity extends Activity {
 		}
 		return null;
 	}
-
-
 	public class ConnectTask extends AsyncTask<String, String, TcpClient> {
-
 		@Override
 		protected TcpClient doInBackground(String... message) {
 			//we create a TCPClient object
@@ -863,11 +789,9 @@ public class MainActivity extends Activity {
 
 					if(message.contains("Succesful"))
 					{
-						//TODO update consoleview
 						ConsoleView.setText("Build Succesful");
 						mTcpClient.sendMessage("give bc");
 						Log.i("message","give bc");
-
 					}    
 					else if(message.contains("UPLOADED"))
 					{
@@ -951,9 +875,8 @@ public class MainActivity extends Activity {
 			else if(values[0] == "login_ok")
 			{
 				createToast("Login succesful", false);
-
 			}
-			else if(values[0] == "login_nok")
+			else if(values[0] == "login_no	k")
 			{
 				createToast("Wrong username or password", false);
 				username = "";
@@ -1002,7 +925,6 @@ public class MainActivity extends Activity {
 		try {
 			bytesOfMessage = passwd.getBytes("UTF-8");
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -1010,7 +932,6 @@ public class MainActivity extends Activity {
 		try {
 			md = MessageDigest.getInstance("MD5");
 		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		byte[] hash= md.digest(bytesOfMessage);
@@ -1060,131 +981,81 @@ public class MainActivity extends Activity {
 
 		},1000);
 	}
-	public void editVideo(Method m, boolean isRs)
-	{
-		try {
-			FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(videoPath); 
-			grabber.start();
-			Log.i("Height",String.valueOf(grabber.getImageHeight()));
-			Log.i("Width",String.valueOf(grabber.getImageWidth()));
-			FFmpegFrameRecorder recorder = new FFmpegFrameRecorder(savePath, grabber.getImageWidth(), grabber.getImageHeight());
+	public class EditVideoTask	 extends AsyncTask<String, String, Long> {
+		@Override
+		protected Long doInBackground(String... message) {
+			try {
+				FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(videoPath); 
+				grabber.start();
+				int LengthInFrames = grabber.getLengthInFrames();
+				publishProgress("Start",String.valueOf(LengthInFrames));
+				FFmpegFrameRecorder recorder = new FFmpegFrameRecorder(savePath, grabber.getImageWidth(), grabber.getImageHeight());
 
-			recorder.setFormat("mp4");
-			recorder.setVideoCodec(avcodec.AV_CODEC_ID_MPEG4);
-			recorder.setVideoBitrate(33000);
-			recorder.setFrameRate(24);				
+				recorder.setFormat("mp4");
+				recorder.setVideoCodec(avcodec.AV_CODEC_ID_MPEG4);
+				recorder.setVideoBitrate(33000);
+				recorder.setFrameRate(24);				
 
-			IplImage image = IplImage.create(grabber.getImageWidth(), grabber.getImageHeight(), IPL_DEPTH_8U, 4);
-			IplImage frame2 = IplImage.create(image.width(), image.height(), IPL_DEPTH_8U, 4);
-			Bitmap MyBitmap = Bitmap.createBitmap(frame2.width(), frame2.height(), Bitmap.Config.ARGB_8888);   
-			recorder.start();
-			while(true)
-			{					
-				image = grabber.grab();
-				if(image==null)
-				{
-					break;
+				IplImage image = IplImage.create(grabber.getImageWidth(), grabber.getImageHeight(), IPL_DEPTH_8U, 4);
+				IplImage frame2 = IplImage.create(image.width(), image.height(), IPL_DEPTH_8U, 4);
+				Bitmap MyBitmap = Bitmap.createBitmap(frame2.width(), frame2.height(), Bitmap.Config.ARGB_8888);   
+				recorder.start();
+				int counter = 0;
+				while(true)
+				{					
+					image = grabber.grab();
+					if(image==null)
+					{
+						break;
+					}
+					opencv_imgproc.cvCvtColor(image, frame2, opencv_imgproc.CV_BGR2RGBA);
+					MyBitmap.copyPixelsFromBuffer(frame2.getByteBuffer());
+					if(isRenderScript)
+					{
+						RenderScriptObject.setInputBitmap(MyBitmap);
+						m.invoke(RenderScriptObject, null);
+						MyBitmap = RenderScriptObject.getOutputBitmap();		            	
+					}
+					else
+					{
+						OpenCLObject.setBitmap(MyBitmap);
+						m.invoke(OpenCLObject, null);
+						MyBitmap = OpenCLObject.getBitmap();		            	
+					}
+					MyBitmap.copyPixelsToBuffer(frame2.getByteBuffer());
+					opencv_imgproc.cvCvtColor(frame2, image, opencv_imgproc.CV_RGBA2BGR);		            
+					recorder.record(image);
+					counter++;
+					publishProgress(String.valueOf(counter*100/LengthInFrames));
 				}
-				opencv_imgproc.cvCvtColor(image, frame2, opencv_imgproc.CV_BGR2RGBA);
-				MyBitmap.copyPixelsFromBuffer(frame2.getByteBuffer());
-
-				if(isRs)
-				{
-					RenderScriptObject.setInputBitmap(MyBitmap);
-					m.invoke(RenderScriptObject, null);
-					MyBitmap = RenderScriptObject.getOutputBitmap();		            	
-				}
-				else
-				{
-					OpenCLObject.setBitmap(MyBitmap);
-					m.invoke(OpenCLObject, null);
-					MyBitmap = OpenCLObject.getBitmap();		            	
-				}
-				MyBitmap.copyPixelsToBuffer(frame2.getByteBuffer());
-				opencv_imgproc.cvCvtColor(frame2, image, opencv_imgproc.CV_RGBA2BGR);		            
-				recorder.record(image);
+				recorder.stop();
+				grabber.stop();	
+				publishProgress("Done");
+			}catch(Exception e){
+				e.printStackTrace();
 			}
-			recorder.stop();
-			grabber.stop();
-			mediaControllerOut = new MediaController(this);
-			mediaControllerOut.setAnchorView(Output_Video);
-			mediaControllerOut.setMediaPlayer(new MediaController.MediaPlayerControl() {
-				
-				@Override
-				public void start() {
-					// TODO Auto-generated method stub
-					view2Thread.start();
-				}
-				public void seekTo(int pos) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public void pause() {
-					// TODO Auto-generated method stub
-					try {
-						view2Thread.wait();
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}	
-				}
-				public boolean isPlaying() {
-					// TODO Auto-generated method stub
-					return false;
-				}
-				public int getDuration() {
-					// TODO Auto-generated method stub
-					return 0;
-				}
-				public int getCurrentPosition() {
-					// TODO Auto-generated method stub
-					return 0;
-				}
-				public int getBufferPercentage() {
-					// TODO Auto-generated method stub
-					return 0;
-				}
-				public int getAudioSessionId() {
-					// TODO Auto-generated method stub
-					return 0;
-				}
-				public boolean canSeekForward() {
-					// TODO Auto-generated method stub
-					return false;
-				}
-				public boolean canSeekBackward() {
-					// TODO Auto-generated method stub
-					return false;
-				}
-				public boolean canPause() {
-					// TODO Auto-generated method stub
-					return false;
-				}
-			}); 
-			videoOut = Uri.parse(new File(savePath).toString());
-			Output_Video.setMediaController(mediaControllerOut);
-			Output_Video.setVideoURI(videoOut);
-		}catch(Exception e){
-			e.printStackTrace();
-		}	
-		
+			return null;	
+		}
+		@Override
+		protected void onProgressUpdate(String... values) {
+			super.onProgressUpdate(values);
+			if(values[0]=="Done"){
+				videoProcessDialog.dismiss();
+				mediaControllerOut = new MediaController(MainActivity.this);
+				mediaControllerOut.setAnchorView(Output_Video);
+				videoOut = Uri.parse(new File(savePath).toString());
+				Output_Video.setMediaController(mediaControllerOut);
+				Output_Video.setVideoURI(videoOut);
+			} else if(values[0]=="Start"){
+				videoProcessDialog = new ProgressDialog(MainActivity.this);
+				videoProcessDialog.setMessage("Editing the video. Please wait.");
+				videoProcessDialog.setIndeterminate(false);
+				videoProcessDialog.setMax(Integer.valueOf(values[1]));
+				videoProcessDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+				videoProcessDialog.show();
+			} else {
+				videoProcessDialog.setProgress(Integer.valueOf(values[0]));
+			}
+		}
 	}
-
-	Thread view1Thread = new Thread(new Runnable(){
-		@Override
-		public void run(){
-			android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_DISPLAY);
-			Input_Video.start();
-		}});
-	Thread view2Thread = new Thread(new Runnable(){
-		@Override
-		public void run(){
-			android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_DISPLAY);
-			Output_Video.start();
-		}});
-
-
-
 }
