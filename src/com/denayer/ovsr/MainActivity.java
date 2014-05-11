@@ -876,7 +876,12 @@ public class MainActivity extends Activity {
 			}
 			else if(values[0]=="start")
 			{
-				dialog = ProgressDialog.show(MainActivity.this, "", "Processing. Please wait...", true); 
+				dialog = new ProgressDialog(MainActivity.this);
+				dialog.setMessage("Processing. Please wait...");
+				dialog.setIndeterminate(false);
+				dialog.setCancelable(false);
+				dialog.setCanceledOnTouchOutside(false);
+				dialog.show();
 			}
 			else if(values[0]=="stop")
 			{
@@ -995,22 +1000,30 @@ public class MainActivity extends Activity {
 		@Override
 		protected Long doInBackground(String... message) {
 			try {
+				publishProgress("Load");
 				FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(videoPath); 
 				grabber.start();
-				int LengthInFrames = grabber.getLengthInFrames();
+				int LengthInFrames = 0;
+				int counter = 0;
+				while(true)
+				{
+					if(grabber.grab()==null) break;
+					LengthInFrames++;
+				}
 				publishProgress("Start",String.valueOf(LengthInFrames));
 				FFmpegFrameRecorder recorder = new FFmpegFrameRecorder(savePath, grabber.getImageWidth(), grabber.getImageHeight());
 
 				recorder.setFormat("mp4");
 				recorder.setVideoCodec(avcodec.AV_CODEC_ID_MPEG4);
 				recorder.setVideoBitrate(33000);
-				recorder.setFrameRate(24);				
+				recorder.setFrameRate(grabber.getFrameRate());				
 
 				IplImage image = IplImage.create(grabber.getImageWidth(), grabber.getImageHeight(), IPL_DEPTH_8U, 4);
 				IplImage frame2 = IplImage.create(image.width(), image.height(), IPL_DEPTH_8U, 4);
 				Bitmap MyBitmap = Bitmap.createBitmap(frame2.width(), frame2.height(), Bitmap.Config.ARGB_8888);   
 				recorder.start();
-				int counter = 0;
+
+				grabber.setFrameNumber(0);
 				while(true)
 				{					
 					image = grabber.grab();
@@ -1057,11 +1070,20 @@ public class MainActivity extends Activity {
 				Output_Video.setMediaController(mediaControllerOut);
 				Output_Video.setVideoURI(videoOut);
 			} else if(values[0]=="Start"){
+				videoProcessDialog.dismiss();
 				videoProcessDialog = new ProgressDialog(MainActivity.this);
 				videoProcessDialog.setMessage("Editing the video. Please wait.");
 				videoProcessDialog.setIndeterminate(false);
+				videoProcessDialog.setCancelable(false);
+				videoProcessDialog.setCanceledOnTouchOutside(false);
 				videoProcessDialog.setMax(Integer.valueOf(values[1]));
 				videoProcessDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+				videoProcessDialog.show();
+			} else if(values[0]=="Load") {
+				videoProcessDialog = new ProgressDialog(MainActivity.this);
+				videoProcessDialog.setMessage("Loading JavaCV library's.");	
+				videoProcessDialog.setCancelable(false);
+				videoProcessDialog.setCanceledOnTouchOutside(false);
 				videoProcessDialog.show();
 			} else {
 				videoProcessDialog.setProgress(Integer.valueOf(values[0]));
