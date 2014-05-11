@@ -19,5 +19,6 @@
     <string name="Select_Camera">Select Camera</string>
     <string name="Select_Video">Select Video</string>
     <string name="Select_Picture">Select Image</string>
+    <string name="Save_Picture">Save Image</string>
     
 </resources>

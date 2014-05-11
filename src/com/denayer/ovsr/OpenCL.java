@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -25,14 +26,14 @@ public class OpenCL extends Object {
 	private Context mContext; //<-- declare a Context reference
 	Bitmap bmpOrig, bmpOpenCL;
 	float saturatie=0;
-	public ImageButton outputButton;
+	public ImageView outputButton;
 	final int info[] = new int[3]; // Width, Height, Execution time (ms)
 	static boolean sfoundLibrary = true;
 
  
-	public OpenCL(Context context, ImageButton outImageButton) {
+	public OpenCL(Context context, ImageView imageView) {
     	mContext = context; //<-- fill it with the Context you passed
-    	outputButton = outImageButton;
+    	outputButton = imageView;
     	try { 
     		//Odroid lib
     		System.load("/system/vendor/lib/libPVROCL.so");

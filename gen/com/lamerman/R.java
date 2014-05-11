@@ -13,22 +13,22 @@ public final class R {
 	public static final class drawable {
 		public static final int file = 0x7f020001;
 		public static final int folder = 0x7f020002;
-		public static final int icon = 0x7f020007;
+		public static final int icon = 0x7f020008;
 	}
 	public static final class id {
-		public static final int fdButtonCancel = 0x7f0a001c;
-		public static final int fdButtonCreate = 0x7f0a001d;
-		public static final int fdButtonNew = 0x7f0a0017;
-		public static final int fdButtonSelect = 0x7f0a0018;
-		public static final int fdEditTextFile = 0x7f0a001b;
-		public static final int fdLinearLayoutCreate = 0x7f0a0019;
-		public static final int fdLinearLayoutList = 0x7f0a0015;
-		public static final int fdLinearLayoutSelect = 0x7f0a0016;
-		public static final int fdrowimage = 0x7f0a001f;
-		public static final int fdrowtext = 0x7f0a0020;
-		public static final int path = 0x7f0a001e;
-		public static final int relativeLayout01 = 0x7f0a0014;
-		public static final int textViewFilename = 0x7f0a001a;
+		public static final int fdButtonCancel = 0x7f0a001e;
+		public static final int fdButtonCreate = 0x7f0a001f;
+		public static final int fdButtonNew = 0x7f0a0019;
+		public static final int fdButtonSelect = 0x7f0a001a;
+		public static final int fdEditTextFile = 0x7f0a001d;
+		public static final int fdLinearLayoutCreate = 0x7f0a001b;
+		public static final int fdLinearLayoutList = 0x7f0a0017;
+		public static final int fdLinearLayoutSelect = 0x7f0a0018;
+		public static final int fdrowimage = 0x7f0a0021;
+		public static final int fdrowtext = 0x7f0a0022;
+		public static final int path = 0x7f0a0020;
+		public static final int relativeLayout01 = 0x7f0a0016;
+		public static final int textViewFilename = 0x7f0a001c;
 	}
 	public static final class layout {
 		public static final int file_dialog_main = 0x7f030003;

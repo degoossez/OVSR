@@ -13,41 +13,64 @@
         android:orientation="vertical"
         android:layout_weight="1" >
 
-        <TextView
+<!--         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:orientation="horizontal"
             android:text="@string/choose_image"
-            android:textStyle="bold|italic" />
+            android:textStyle="bold|italic" /> -->
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="fill_parent"
+            android:layout_width="fill_parent"
+            android:layout_height="0dip"
             android:layout_weight="2"
             android:weightSum="2" >
 
-            <ImageButton
-                android:id="@+id/imageButton1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:adjustViewBounds="true"
+            <FrameLayout 
+                android:layout_weight="1"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+            <ImageView
+                android:id="@+id/ImageView1"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
                 android:contentDescription="@string/content_desc"
                 android:padding="0dp"
-                android:src="@drawable/ic_launcher"
-                android:layout_weight="1"/>
+                android:src="@drawable/ic_launcher"/>
+                <!-- android:scaleType="fitXY" -->
+            <VideoView
+                android:id="@+id/VideoView1"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:contentDescription="@string/content_desc"
+                android:padding="0dp"
+                android:layout_gravity="center"
+                android:orientation="vertical" />                                
+            </FrameLayout>
+            <FrameLayout 
+                android:layout_weight="1"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">                
+            <ImageView
+                android:id="@+id/ImageView2"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:contentDescription="@string/content_desc"
+                android:padding="0dp"
+                android:src="@drawable/ic_launcher"/>
                 <!-- android:scaleType="fitXY" --> 
 
-            <ImageButton
-                android:id="@+id/imageButton2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:adjustViewBounds="true"
+            <VideoView
+                android:id="@+id/VideoView2"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
                 android:contentDescription="@string/content_desc"
                 android:padding="0dp"
-                android:src="@drawable/ic_launcher"
-                android:layout_weight="1"/>
-                <!-- android:scaleType="fitXY" --> 
+                android:layout_gravity="center"
+                android:orientation="vertical" />                                              
+            </FrameLayout>
+                
         </LinearLayout>
 
         <LinearLayout

@@ -34,5 +34,9 @@
         <item android:id="@+id/Picture"
           android:icon="@drawable/ic_action_picture"
           android:title="@string/Select_Picture"
-          android:showAsAction="always"/>        
+          android:showAsAction="always"/>   
+        <item android:id="@+id/Save"
+          android:icon="@drawable/ic_action_save"
+          android:title="@string/Save_Picture"
+          android:showAsAction="always"/>       
 </menu>

@@ -43,6 +43,8 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnPreparedListener;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -62,7 +64,10 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.MediaController;
+import android.widget.MediaController.MediaPlayerControl;
 import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.TabHost;
@@ -70,16 +75,17 @@ import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.TabHost.TabSpec;
+import android.widget.VideoView;
 
 import java.security.*;
-
-
 
 public class MainActivity extends Activity {
 	public static String IP_ADDR="192.168.1.3";
 	private Uri mImageCaptureUri;
-	private ImageButton Input_button;
-	private ImageButton Output_button;
+	private ImageView Input_Image;
+	private ImageView Output_Image;
+	private VideoView Input_Video;
+	private VideoView Output_Video;
 	private Bitmap bitmap   = null;
 	private Bitmap outBitmap   = null;
 	private File file;
@@ -108,17 +114,20 @@ public class MainActivity extends Activity {
 	RsScript RenderScriptObject;
 	LogFile LogFileObject;   
 	private Button connectButton, disconnectButton;
-	
+
 	public String username = "";
 	public String passwd = "";
-	
+
 	private TabHost myTabHost;
 
-	public boolean isImage = false;
+	public boolean isImage = true;
 	public String videoPath;
 	public String savePath;
 	private Method m;
-	
+	MediaController mediaControllerOut;
+	MediaController mediaControllerIn;
+	Uri videoOut;
+	Uri videoIn;
 	private TcpClient mTcpClient;	
 	MyFTPClient ftpclient = null;
 	ProgressDialog dialog = null ;
@@ -132,9 +141,9 @@ public class MainActivity extends Activity {
 
 		ActionBar actionBar = getActionBar();
 		actionBar.setTitle("");
-		
+
 		ftpclient = new MyFTPClient();
-		
+
 		SharedPreferences settings = getSharedPreferences("Preferences", 0);
 		SharedPreferences.Editor editor = settings.edit();
 		if(!settings.getBoolean("AutoName", false))
@@ -143,8 +152,12 @@ public class MainActivity extends Activity {
 			editor.commit();
 		}		
 
-		Input_button = (ImageButton)findViewById(R.id.imageButton1);
-		Output_button = (ImageButton)findViewById(R.id.imageButton2);
+		Input_Image = (ImageView)findViewById(R.id.ImageView1);
+		Output_Image = (ImageView)findViewById(R.id.ImageView2);
+		Input_Video = (VideoView)findViewById(R.id.VideoView1);
+		Output_Video = (VideoView)findViewById(R.id.VideoView2);
+		Input_Video.setVisibility(View.INVISIBLE);
+		Output_Video.setVisibility(View.INVISIBLE);
 		SubmitButton=(Button) findViewById(R.id.submit_button);
 		ConsoleView=(TextView)findViewById(R.id.ConsoleView);
 		TimeView=(TextView)findViewById(R.id.timeview);
@@ -192,99 +205,10 @@ public class MainActivity extends Activity {
 		myTabHost.addTab(spec4);
 
 
-		OpenCLObject = new OpenCL(MainActivity.this,(ImageButton)findViewById(R.id.imageButton2));
-		RenderScriptObject = new RsScript(this,(ImageButton)findViewById(R.id.imageButton2),TimeView);
+		OpenCLObject = new OpenCL(MainActivity.this,(ImageView)findViewById(R.id.ImageView1));
+		RenderScriptObject = new RsScript(this,(ImageView)findViewById(R.id.ImageView2),TimeView);
 		LogFileObject = new LogFile(this);   
 
-//		final String [] items           = new String [] {"From Camera", "From SD Card", "Select Video"};
-//		ArrayAdapter<String> adapter  = new ArrayAdapter<String> (this, android.R.layout.select_dialog_item,items);
-//		AlertDialog.Builder builder     = new AlertDialog.Builder(this);
-
-//		builder.setTitle("Select Image");
-//		builder.setAdapter( adapter, new DialogInterface.OnClickListener() {
-//			@SuppressLint("SimpleDateFormat")
-//			public void onClick( DialogInterface dialog, int item ) {
-//				if (item == 0) {
-//					Intent intent    = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-//					//save file for camera
-//					String SavePath = Environment.getExternalStorageDirectory().toString();
-//					SimpleDateFormat formatter = new SimpleDateFormat("yyMMddHHmmss");
-//					Date now = new Date();
-//					String fileCameraName = formatter.format(now) + ".jpg";
-//					file = new File(SavePath, "OVSR"+fileCameraName);
-//
-//					mImageCaptureUri = Uri.fromFile(file);
-//
-//					try {
-//						intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, mImageCaptureUri);
-//						intent.putExtra("return-data", true);
-//
-//						startActivityForResult(intent, PICK_FROM_CAMERA);
-//					} catch (Exception e) {
-//						e.printStackTrace();
-//					}
-//					dialog.cancel();
-//				} else if(item==1) {
-//					Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
-//					intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
-//					intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] { "png" , "jpeg" , "jpg" , "bmp"});
-//					startActivityForResult(intentLoad, PICK_FROM_FILE);						
-//				} else {
-//					Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
-//					intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
-//					intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] {"png" , "jpeg" , "jpg" , "bmp", "mp4"});
-//					startActivityForResult(intentLoad, PICK_VIDEO);
-//				}
-//			}
-//		} );
-//		final AlertDialog dialog = builder.create();
-//		
-		Input_button.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				//dialog.show();
-				createToast("Click on the images!", false);
-			}
-		});
-		Output_button.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {  
-				SharedPreferences settings = getSharedPreferences("Preferences", 0);
-				if(settings.getBoolean("AutoName", false))
-				{
-					String filePath = null;
-					//save the output bitmap to a file
-					File picDir = new File(Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM + "/OpenCL/");
-					picDir.mkdirs(); //creates directory when needed
-					picDir = new File(Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM + "/RenderScript/");
-					picDir.mkdirs(); //creates directory when needed
-					//fileName created after filter
-					filePath = Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM + File.separator + fileName + ".jpg";            	
-					LogFileObject.writeToFile(" File saved to: " + filePath,"LogFile.txt",false);
-					FileOutputStream out = null;
-					try {
-						out = new FileOutputStream(filePath);
-						outBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
-						createToast("Image saved!",false);	
-					} catch (Exception e) {
-						e.printStackTrace();
-					} finally {
-						try{
-							out.close();
-						} catch(Throwable ignore) {}
-					} 
-				}
-				else
-				{
-					//chose file
-					Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
-					intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
-					intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] { "png" , "jpeg" , "jpg" , "bmp"});
-					startActivityForResult(intentLoad, REQUEST_SAVE_IMAGE);
-				}
-
-			}
-		}); 
 		createBoxes();
 		CodeField.addTextChangedListener(new TextWatcher() {
 			@Override
@@ -309,39 +233,39 @@ public class MainActivity extends Activity {
 					{
 						if(TcpClient.isConnected)
 						{
-										
+
 							//if user is not logged in
 							if(username == "" && passwd == "")
 							{
 								final Dialog dialog = new Dialog(MainActivity.this);
 								dialog.setContentView(R.layout.login);
-							    dialog.setTitle("Login");
-	
-							    // get the Refferences of views
-							    final  EditText editTextUserName=(EditText)dialog.findViewById(R.id.editTextUserNameToLogin);
-							    final  EditText editTextPassword=(EditText)dialog.findViewById(R.id.editTextPasswordToLogin);
-							    
-							    editTextUserName.setText(username);
-							    editTextPassword.setText(passwd);
-							    
+								dialog.setTitle("Login");
+
+								// get the Refferences of views
+								final  EditText editTextUserName=(EditText)dialog.findViewById(R.id.editTextUserNameToLogin);
+								final  EditText editTextPassword=(EditText)dialog.findViewById(R.id.editTextPasswordToLogin);
+
+								editTextUserName.setText(username);
+								editTextPassword.setText(passwd);
+
 								Button btnSignIn=(Button)dialog.findViewById(R.id.buttonSignIn);
-									
+
 								// Set On ClickListener
 								btnSignIn.setOnClickListener(new View.OnClickListener() {
-									
+
 									public void onClick(View v) {
-										
+
 										// get The User name and Password
 										username=editTextUserName.getText().toString();
 										passwd=editTextPassword.getText().toString();
-										
+
 										sendRenderscriptMessage(username, passwd);													
-										
+
 										dialog.dismiss();								
-										
+
 									}
 								});
-								
+
 								dialog.show();
 							}
 							else
@@ -360,7 +284,7 @@ public class MainActivity extends Activity {
 							if(OpenCLObject.getBitmap()!=null)
 							{
 								outBitmap = OpenCLObject.getBitmap();
-								Output_button.setImageBitmap(outBitmap);
+								Output_Image.setImageBitmap(outBitmap);
 								Log.i("Main","setImageBitmap done");
 							}
 							else createToast("Select image!",false);					
@@ -376,7 +300,7 @@ public class MainActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 
-				
+
 				new ConnectTask().execute("");
 				createToast("connecting to " + TcpClient.SERVER_IP, false);
 
@@ -391,7 +315,7 @@ public class MainActivity extends Activity {
 					mTcpClient.stopClient();
 				}
 				createToast("disconnected", false);
-				
+
 
 			}
 		});		
@@ -403,10 +327,10 @@ public class MainActivity extends Activity {
 		int height = size.y/2 - 15;
 		bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.logo);
 		bitmap = Bitmap.createScaledBitmap(bitmap, width, height, false);
-		Input_button.setImageBitmap(bitmap);
+		Input_Image.setImageBitmap(bitmap);
 		OpenCLObject.setBitmap(bitmap);
 		RenderScriptObject.setInputBitmap(bitmap);
-		
+
 	}
 
 	@Override
@@ -474,6 +398,67 @@ public class MainActivity extends Activity {
 			setBitmaps();
 		} else if (requestCode == PICK_VIDEO){
 			videoPath = data.getStringExtra(FileDialog.RESULT_PATH);
+			mediaControllerIn = new MediaController(this);
+			mediaControllerIn.setAnchorView(Input_Video);
+			mediaControllerIn.setMediaPlayer(new MediaController.MediaPlayerControl() {
+				
+				@Override
+				public void start() {
+					// TODO Auto-generated method stub
+					view1Thread.start();
+				}
+				public void seekTo(int pos) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void pause() {
+					// TODO Auto-generated method stub
+					try {
+						view1Thread.wait();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}	
+				}
+				public boolean isPlaying() {
+					// TODO Auto-generated method stub
+					return false;
+				}
+				public int getDuration() {
+					// TODO Auto-generated method stub
+					return 0;
+				}
+				public int getCurrentPosition() {
+					// TODO Auto-generated method stub
+					return 0;
+				}
+				public int getBufferPercentage() {
+					// TODO Auto-generated method stub
+					return 0;
+				}
+				public int getAudioSessionId() {
+					// TODO Auto-generated method stub
+					return 0;
+				}
+				public boolean canSeekForward() {
+					// TODO Auto-generated method stub
+					return false;
+				}
+				public boolean canSeekBackward() {
+					// TODO Auto-generated method stub
+					return false;
+				}
+				public boolean canPause() {
+					// TODO Auto-generated method stub
+					return false;
+				}
+			}); 
+			videoIn = Uri.parse(new File(videoPath).toString());
+			Input_Video.setMediaController(mediaControllerIn);
+			Input_Video.setVideoURI(videoIn);
+
 		} else if(requestCode == REQUEST_SAVE_IMAGE) {
 			String filePath = data.getStringExtra(FileDialog.RESULT_PATH);
 			LogFileObject.writeToFile(" File saved to: " + filePath,"LogFile.txt",false);
@@ -497,36 +482,36 @@ public class MainActivity extends Activity {
 				//data from settingsactivity
 				String str = data.getStringExtra("login");
 				String[] split= str.split("\\s+");
-				
+
 				//login request
 				if(split.length == 2)
 				{
 					username = split[0];
 					passwd = split[1];
 					String hash = createHash(passwd);						
-					
+
 					Log.i("tcp send","LOGIN " + username + " " + hash + " ENDLOGIN");
 					mTcpClient.sendMessage("LOGIN " + username + " " + hash + " ENDLOGIN");
-					
+
 				}
 				//create account request
 				else if(split.length == 3)
 				{	
 					String newUser = split[0];
 					String newPas = split[1];
-					
+
 					Log.i("tcp account", "ACCOUNT " + newUser + " " + newPas + " ENDACCOUNT");
 					mTcpClient.sendMessage("ACCOUNT " + newUser + " " + newPas + " ENDACCOUNT");
-					
-					
+
+
 				}
 				else
 					Log.i("main","error splitting string");
 			}
 			else
 				createToast("Not connected", false);
-						
-						
+
+
 		}
 		System.gc();
 	}
@@ -540,8 +525,8 @@ public class MainActivity extends Activity {
 		Log.i("Debug","Width: " + width + " " + "Height: " + height);
 
 		bitmap = Bitmap.createScaledBitmap(bitmap, width, height, false);
-		Input_button.setImageBitmap(bitmap);
-		Output_button.setImageBitmap(Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888));
+		Input_Image.setImageBitmap(bitmap);
+		Output_Image.setImageBitmap(Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888));
 
 		OpenCLObject.setBitmap(bitmap);
 		RenderScriptObject.setInputBitmap(bitmap);
@@ -579,6 +564,15 @@ public class MainActivity extends Activity {
 						try {
 							if(isImage){
 								m.invoke(RenderScriptObject, null);
+								if(RenderScriptObject.getOutputBitmap()!=null && isImage)
+								{
+									outBitmap = RenderScriptObject.getOutputBitmap();
+									Output_Image.setImageBitmap(RenderScriptObject.getOutputBitmap());
+								}
+								else
+								{
+									createToast("Select image!",false);	
+								}
 							}
 							else
 							{
@@ -598,15 +592,6 @@ public class MainActivity extends Activity {
 					} catch (NoSuchMethodException e) {
 						e.printStackTrace();
 					}
-					if(RenderScriptObject.getOutputBitmap()!=null && isImage)
-					{
-						outBitmap = RenderScriptObject.getOutputBitmap();
-						Output_button.setImageBitmap(RenderScriptObject.getOutputBitmap());
-					}
-					else
-					{
-						createToast("Select image!",false);	
-					}
 				}
 				else
 				{
@@ -621,6 +606,15 @@ public class MainActivity extends Activity {
 							try {
 								if(isImage){
 									m.invoke(OpenCLObject, null);
+									if(OpenCLObject.getBitmap()!=null && isImage)
+									{
+										outBitmap = OpenCLObject.getBitmap();
+										Output_Image.setImageBitmap(outBitmap);
+									}
+									else
+									{
+										createToast("Select image!",false);					
+									}
 								}
 								else
 								{
@@ -640,15 +634,6 @@ public class MainActivity extends Activity {
 						} catch (NoSuchMethodException e) {
 							e.printStackTrace();
 						}	
-						if(OpenCLObject.getBitmap()!=null && isImage)
-						{
-							outBitmap = OpenCLObject.getBitmap();
-							Output_button.setImageBitmap(outBitmap);
-						}
-						else
-						{
-							createToast("Select image!",false);					
-						}
 					}
 					else
 					{
@@ -752,6 +737,7 @@ public class MainActivity extends Activity {
 			startActivityForResult(intent, SETTINGS);
 			return true;
 		case R.id.Camera:
+			isImage=true;
 			Intent intentCamera    = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 			//save file for camera
 			String SavePath = Environment.getExternalStorageDirectory().toString();
@@ -759,9 +745,7 @@ public class MainActivity extends Activity {
 			Date now = new Date();
 			String fileCameraName = formatter.format(now) + ".jpg";
 			file = new File(SavePath, "OVSR"+fileCameraName);
-
 			mImageCaptureUri = Uri.fromFile(file);
-
 			try {
 				intentCamera.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, mImageCaptureUri);
 				intentCamera.putExtra("return-data", true);
@@ -771,16 +755,65 @@ public class MainActivity extends Activity {
 			}
 			return true;
 		case R.id.Video:
+			isImage=false;
+			Input_Image.setVisibility(View.INVISIBLE);
+			Input_Video.setVisibility(View.VISIBLE);
+			Output_Image.setVisibility(View.INVISIBLE);
+			Output_Video.setVisibility(View.VISIBLE);
 			Intent intentVideo = new Intent(getBaseContext(), FileDialog.class);
 			intentVideo.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
 			intentVideo.putExtra(FileDialog.FORMAT_FILTER, new String[] { "mp4" });
+			createToast("Select a video", false);
 			startActivityForResult(intentVideo, PICK_VIDEO);
 			return true;
 		case R.id.Picture:
+			isImage=true;
+			Input_Image.setVisibility(View.VISIBLE);
+			Input_Video.setVisibility(View.INVISIBLE);
+			Output_Image.setVisibility(View.VISIBLE);
+			Output_Video.setVisibility(View.INVISIBLE);
 			Intent intentPicture = new Intent(getBaseContext(), FileDialog.class);
 			intentPicture.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
 			intentPicture.putExtra(FileDialog.FORMAT_FILTER, new String[] {"png" , "jpeg" , "jpg" , "bmp"});
 			startActivityForResult(intentPicture, PICK_FROM_FILE);
+			return true;
+		case R.id.Save:
+			SharedPreferences settings = getSharedPreferences("Preferences", 0);
+			if(isImage){
+				if(settings.getBoolean("AutoName", false))
+				{
+					String filePath = null;
+					//save the output bitmap to a file
+					File picDir = new File(Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM + "/OpenCL/");
+					picDir.mkdirs(); //creates directory when needed
+					picDir = new File(Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM + "/RenderScript/");
+					picDir.mkdirs(); //creates directory when needed
+					//fileName created after filter
+					filePath = Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM + File.separator + fileName + ".jpg";            	
+					LogFileObject.writeToFile(" File saved to: " + filePath,"LogFile.txt",false);
+					FileOutputStream out = null;
+					try {
+						out = new FileOutputStream(filePath);
+						outBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+						createToast("Image saved!",false);	
+					} catch (Exception e) {
+						e.printStackTrace();
+					} finally {
+						try{
+							out.close();
+						} catch(Throwable ignore) {}
+					} 
+				}
+				else
+				{
+					//chose file
+					Intent intentSaveImage = new Intent(getBaseContext(), FileDialog.class);
+					intentSaveImage.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
+					intentSaveImage.putExtra(FileDialog.FORMAT_FILTER, new String[] { "png" , "jpeg" , "jpg" , "bmp"});
+					startActivityForResult(intentSaveImage, REQUEST_SAVE_IMAGE);
+				}
+			}
+			else createToast("Video is already saved", false);
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -853,23 +886,19 @@ public class MainActivity extends Activity {
 									status = ftpclient.ftpDownload("/template.bc", getFilesDir().getPath() + "/template.bc");
 									publishProgress("stop");
 									if(status){
-									publishProgress("updateBitmap");
+										publishProgress("updateBitmap");
 									}
 									else
 									{
 										//Cannot create toasts in ftpthread
 										//http://stackoverflow.com/questions/3875184/cant-create-handler-inside-thread-that-has-not-called-looper-prepare
-											
+
 										//createToast("Downloading failed", true);
 									}
 								} else {
 									publishProgress("stop");
 									Log.d("FTP", "Connection failed");
 									//createToast("Connection with TCP server failed!", false);
-									
-									
-									
-									
 								}
 							}
 						}).start();
@@ -909,7 +938,7 @@ public class MainActivity extends Activity {
 			Log.i("onProgressUpdate",values[0]);
 			if(values[0] == "updateBitmap"){
 				RenderScriptObject.RenderScriptTemplate();
-				Output_button.setImageBitmap(RenderScriptObject.getOutputBitmap()); 
+				Output_Image.setImageBitmap(RenderScriptObject.getOutputBitmap()); 
 			}
 			else if(values[0]=="start")
 			{
@@ -922,7 +951,7 @@ public class MainActivity extends Activity {
 			else if(values[0] == "login_ok")
 			{
 				createToast("Login succesful", false);
-				
+
 			}
 			else if(values[0] == "login_nok")
 			{
@@ -946,26 +975,26 @@ public class MainActivity extends Activity {
 			}
 		}
 	}
-	
+
 	String byteArrayToHex(byte[] a) {
-		   StringBuilder sb = new StringBuilder();
-		   for(byte b: a)
-		      sb.append(String.format("%02x", b&0xff));
-		   return sb.toString();
-		}
-	
-	final protected static char[] hexArray = "0123456789abcdef".toCharArray();
-	
-	public static String bytesToHex(byte[] bytes) {
-	    char[] hexChars = new char[bytes.length * 2];
-	    for ( int j = 0; j < bytes.length; j++ ) {
-	        int v = bytes[j] & 0xFF;
-	        hexChars[j * 2] = hexArray[v >>> 4];
-	        hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-	    }
-	    return new String(hexChars);
+		StringBuilder sb = new StringBuilder();
+		for(byte b: a)
+			sb.append(String.format("%02x", b&0xff));
+		return sb.toString();
 	}
-	
+
+	final protected static char[] hexArray = "0123456789abcdef".toCharArray();
+
+	public static String bytesToHex(byte[] bytes) {
+		char[] hexChars = new char[bytes.length * 2];
+		for ( int j = 0; j < bytes.length; j++ ) {
+			int v = bytes[j] & 0xFF;
+			hexChars[j * 2] = hexArray[v >>> 4];
+			hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+		}
+		return new String(hexChars);
+	}
+
 	public String createHash(String passwd)
 	{
 		//create hash
@@ -985,27 +1014,27 @@ public class MainActivity extends Activity {
 			e.printStackTrace();
 		}
 		byte[] hash= md.digest(bytesOfMessage);
-		
+
 		Log.i("send",byteArrayToHex(hash));
-		
+
 		String strHash = bytesToHex(hash);
-		
+
 		return strHash;
-		
+
 	}
-	
+
 	public void sendRenderscriptMessage(String username, String passwd)
 	{
 		final Handler handlerUi = new Handler();
-		
+
 		ConsoleView.setText("");
-		
+
 		String message = CodeField.getText().toString();
 
 		String lines[] = message.split("\\r?\\n");
-		
+
 		String strHash = createHash(passwd);
-		
+
 		Log.i("send after conversion",strHash);
 
 		mTcpClient.sendMessage("STARTPACKAGE " + username + " " + strHash + " " + String.valueOf(android.os.Build.VERSION.SDK_INT)+ "\n");
@@ -1077,11 +1106,84 @@ public class MainActivity extends Activity {
 			}
 			recorder.stop();
 			grabber.stop();
+			mediaControllerOut = new MediaController(this);
+			mediaControllerOut.setAnchorView(Output_Video);
+			mediaControllerOut.setMediaPlayer(new MediaController.MediaPlayerControl() {
+				
+				@Override
+				public void start() {
+					// TODO Auto-generated method stub
+					view2Thread.start();
+				}
+				public void seekTo(int pos) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void pause() {
+					// TODO Auto-generated method stub
+					try {
+						view2Thread.wait();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}	
+				}
+				public boolean isPlaying() {
+					// TODO Auto-generated method stub
+					return false;
+				}
+				public int getDuration() {
+					// TODO Auto-generated method stub
+					return 0;
+				}
+				public int getCurrentPosition() {
+					// TODO Auto-generated method stub
+					return 0;
+				}
+				public int getBufferPercentage() {
+					// TODO Auto-generated method stub
+					return 0;
+				}
+				public int getAudioSessionId() {
+					// TODO Auto-generated method stub
+					return 0;
+				}
+				public boolean canSeekForward() {
+					// TODO Auto-generated method stub
+					return false;
+				}
+				public boolean canSeekBackward() {
+					// TODO Auto-generated method stub
+					return false;
+				}
+				public boolean canPause() {
+					// TODO Auto-generated method stub
+					return false;
+				}
+			}); 
+			videoOut = Uri.parse(new File(savePath).toString());
+			Output_Video.setMediaController(mediaControllerOut);
+			Output_Video.setVideoURI(videoOut);
 		}catch(Exception e){
 			e.printStackTrace();
-		}		
+		}	
+		
 	}
-	
+
+	Thread view1Thread = new Thread(new Runnable(){
+		@Override
+		public void run(){
+			android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_DISPLAY);
+			Input_Video.start();
+		}});
+	Thread view2Thread = new Thread(new Runnable(){
+		@Override
+		public void run(){
+			android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_DISPLAY);
+			Output_Video.start();
+		}});
 
 
 

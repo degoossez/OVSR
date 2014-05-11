@@ -15,6 +15,7 @@ import android.text.InputType;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -34,16 +35,16 @@ public class RsScript extends Object {
 	public Bitmap outBitmap = null;
 	public Context mContext;
 	public float saturationValue = 0;
-	public ImageButton outputButton;
+	public ImageView outputButton;
 	public TextView mElapsedTime;
 	public MainActivity MmainThread;
 	
 	
-	public RsScript(MainActivity mActiv, ImageButton outImageButton, TextView view) {
+	public RsScript(MainActivity mActiv, ImageView imageView, TextView view) {
 		
 	   mContext = mActiv;	//needed by renderscript
 	   MmainThread = mActiv;	//needed for updating UI components from a subthread
-	   outputButton = outImageButton;
+	   outputButton = imageView;
 	   mElapsedTime = view;
 	   
 	   

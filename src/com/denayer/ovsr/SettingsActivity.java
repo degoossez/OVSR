@@ -232,17 +232,7 @@ public class SettingsActivity extends Activity {
 
 				}
 			});
-			
-			VideoView videoView;
-			videoView = (VideoView) rootView.findViewById(R.id.myVideoView);
-			MediaController mediaController = new MediaController(act);
-			mediaController.setAnchorView(videoView);
-			//URI either from net
-			Uri video = Uri.parse("/sdcard/DCIM/Camera/testvid.mp4");
-			videoView.setMediaController(mediaController);
-			videoView.setVideoURI(video);
-			videoView.start();
-			
+					
 			return rootView;
 		}
 	}	
