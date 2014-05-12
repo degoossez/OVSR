@@ -2,7 +2,6 @@ LOCAL_PATH		:= $(call my-dir)
 LOCAL_PATH_EXT	:= $(call my-dir)/../external/
 include $(CLEAR_VARS)
 
-
 MY_ODROID := false
 MY_NEXUS := false
 MY_QUALCOMM := true
@@ -31,4 +30,4 @@ ifeq ($(MY_QUALCOMM),true)
 endif
 LOCAL_ARM_MODE  := arm
 
-include $(PREBUILT_SHARED_LIBRARY)
+include $(BUILD_SHARED_LIBRARY)

@@ -1,0 +1,2 @@
+cd armeabi-v7a
+mv -r ~/AndroidJavaCVLibs/*

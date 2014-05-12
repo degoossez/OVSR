@@ -676,6 +676,10 @@ public class MainActivity extends Activity {
 			startActivityForResult(intent, SETTINGS);
 			return true;
 		case R.id.Camera:
+			Input_Image.setVisibility(View.VISIBLE);
+			Input_Video.setVisibility(View.INVISIBLE);
+			Output_Image.setVisibility(View.VISIBLE);
+			Output_Video.setVisibility(View.INVISIBLE);
 			isImage=true;
 			Intent intentCamera    = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 			//save file for camera
@@ -986,10 +990,8 @@ public class MainActivity extends Activity {
 		mTcpClient.sendMessage("\n");
 		//wait some time
 		handlerUi.postDelayed(new Runnable() {
-
 			@Override
 			public void run() {
-				// TODO Auto-generated method stub
 				mTcpClient.sendMessage("ENDPACKAGE");
 				Log.i("ENDPACKAGE","ENDPACKAGE");
 			}
@@ -1049,7 +1051,7 @@ public class MainActivity extends Activity {
 					opencv_imgproc.cvCvtColor(frame2, image, opencv_imgproc.CV_RGBA2BGR);		            
 					recorder.record(image);
 					counter++;
-					publishProgress(String.valueOf(counter*100/LengthInFrames));
+					publishProgress(String.valueOf(LengthInFrames));
 				}
 				recorder.stop();
 				grabber.stop();	
