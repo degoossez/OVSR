@@ -39,7 +39,7 @@ public class OpenCL extends Object {
 	public ImageView outputButton;
 	final int info[] = new int[3]; // Width, Height, Execution time (ms)
 	static boolean sfoundLibrary = true;
-
+	String kernelName = "";
  
 	public OpenCL(Context context, ImageView imageView) {
     	mContext = context; //<-- fill it with the Context you passed
@@ -315,34 +315,18 @@ public class OpenCL extends Object {
 		
 		return template;
 	}
+	public void setKernelName(String name) {
+		kernelName = name;
+	}
 	public void codeFromFile(final String code)
 	{
 		Log.i("Debug","OpenCL: " + code);
 
-		AlertDialog.Builder alert = new AlertDialog.Builder(mContext);
-
-		alert.setTitle("Enter the kernel name:");
-
-		// Set an EditText view to get user input 
-		final EditText input = new EditText(mContext);
-		alert.setView(input);
-		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-		public void onClick(DialogInterface dialog, int whichButton) {
-			String value = input.getText().toString();
-			initOpenCLFromInput(code, value);
-	    	//nativeBasicOpenCL(
+			initOpenCLFromInput(code, kernelName);
 	    	nativeImage2DOpenCL(		
 	                bmpOrig,
 	                bmpOpenCL
 	            );
-	    	shutdownOpenCL();		  
-	    	}
-		});
-		alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-		  public void onClick(DialogInterface dialog, int whichButton) {
-		    // Canceled.
-		  }
-		});
-		alert.show();
+	    	shutdownOpenCL();		
 	}
 }

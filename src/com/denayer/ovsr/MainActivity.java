@@ -7,7 +7,7 @@
  *
  *THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
-*/
+ */
 package com.denayer.ovsr;
 
 import java.io.BufferedWriter;
@@ -127,6 +127,8 @@ public class MainActivity extends Activity {
 	MyFTPClient ftpclient = null;
 	ProgressDialog dialog = null;
 	ProgressDialog videoProcessDialog = null;
+	
+	private EditVideoTask MyEditVideoATask;
 	//item in de lijst toevoegen voor nieuwe filters toe te voegen.
 	private String [] itemsFilterBox = new String [] {"Edge", "Inverse","Sharpen","Mediaan","Saturatie","Blur"};
 
@@ -228,6 +230,7 @@ public class MainActivity extends Activity {
 				if(CodeField.getText().toString()!=""){
 					if(!RenderScriptButton.isChecked() ) 
 					{
+						isRenderScript=true;
 						if(TcpClient.isConnected)
 						{
 
@@ -277,26 +280,42 @@ public class MainActivity extends Activity {
 					{
 						if(OpenCLObject.getOpenCLSupport())
 						{		
-							if(isImage){
-								OpenCLObject.codeFromFile(CodeField.getText().toString());	
-								if(OpenCLObject.getBitmap()!=null && isImage)
-								{
-									outBitmap = OpenCLObject.getBitmap();
-									Output_Image.setImageBitmap(outBitmap);
+							AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
+
+							alert.setTitle("Enter the kernel name:");
+
+							// Set an EditText view to get user input 
+							final EditText input = new EditText(MainActivity.this);
+							alert.setView(input);
+							alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int whichButton) {
+								OpenCLObject.setKernelName(input.getText().toString());
+								isRenderScript=false;								
+								if(isImage){
+									OpenCLObject.codeFromFile(CodeField.getText().toString());	
+									if(OpenCLObject.getBitmap()!=null && isImage)
+									{
+										outBitmap = OpenCLObject.getBitmap();
+										Output_Image.setImageBitmap(outBitmap);
+									}
+									else
+									{
+										createToast("Select image!",false);					
+									}
 								}
 								else
 								{
-									createToast("Select image!",false);					
+									Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
+									intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
+									intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] {"mp4", "avi","3gp","gif"});
+									intentLoad.putExtra("isRs", false);
+									startActivityForResult(intentLoad, REQUEST_PATH);
+								}	
 								}
-							}
-							else
-							{
-								Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
-								intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
-								intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] {"mp4", "avi","3gp"});
-								intentLoad.putExtra("isRs", false);
-								startActivityForResult(intentLoad, REQUEST_PATH);
-							}				
+							});		
+							alert.show();
+							
+			
 						}
 						else createToast("No OpenCL support!",false);
 					}
@@ -309,7 +328,7 @@ public class MainActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 
-			    new ConnectTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+				new ConnectTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 				createToast("connecting to " + TcpClient.SERVER_IP, false);
 
 			}
@@ -357,7 +376,7 @@ public class MainActivity extends Activity {
 		{
 			savePath = data.getStringExtra(FileDialog.RESULT_PATH);
 			Log.e("requestCode","REQUEST_PATH");
-		    new EditVideoTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+			MyEditVideoATask = (EditVideoTask) new EditVideoTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		}
 		else if (requestCode == REQUEST_SAVE) {
 			String filePath = data.getStringExtra(FileDialog.RESULT_PATH);            	
@@ -532,7 +551,7 @@ public class MainActivity extends Activity {
 							{
 								Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
 								intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
-								intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] {"mp4", "avi","3gp"});
+								intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] {"mp4", "avi","3gp","gif"});
 								startActivityForResult(intentLoad, REQUEST_PATH);
 							}
 						} catch (IllegalAccessException e) {
@@ -573,7 +592,7 @@ public class MainActivity extends Activity {
 								{
 									Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
 									intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
-									intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] {"mp4", "avi","3gp"});
+									intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] {"mp4", "avi","3gp","gif"});
 									startActivityForResult(intentLoad, REQUEST_PATH);
 								}
 							} catch (IllegalAccessException e) {
@@ -618,7 +637,6 @@ public class MainActivity extends Activity {
 				RenderScriptButton.setChecked(true);
 				OpenCLButton.setChecked(false);
 			}
-
 		});
 		OpenCLButton.setOnClickListener(new OnClickListener() {
 			@Override
@@ -718,7 +736,7 @@ public class MainActivity extends Activity {
 			Output_Video.setVisibility(View.VISIBLE);
 			Intent intentVideo = new Intent(getBaseContext(), FileDialog.class);
 			intentVideo.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
-			intentVideo.putExtra(FileDialog.FORMAT_FILTER, new String[] { "mp4" });
+			intentVideo.putExtra(FileDialog.FORMAT_FILTER, new String[] { "mp4", "avi","3gp","gif" });
 			createToast("Select a video", false);
 			startActivityForResult(intentVideo, PICK_VIDEO);
 			return true;
@@ -734,27 +752,6 @@ public class MainActivity extends Activity {
 			startActivityForResult(intentPicture, PICK_FROM_FILE);
 			return true;
 		case R.id.Save:
-//			if(isImage){
-//				Log.i("isImage","true");
-//				if(OpenCLObject.getBitmap()!=null && isImage)
-//				{
-//					RenderScriptObject.RenderScriptTemplate();
-//					Output_Image.setImageBitmap(RenderScriptObject.getOutputBitmap()); 
-//				}
-//				else
-//				{
-//					createToast("Select image!",false);					
-//				}
-//			}
-//			else
-//			{
-//				Log.i("isImage","false");
-//				Log.i("isRuntime",String.valueOf(isRuntime));
-//				Intent intentLoad1 = new Intent(getBaseContext(), FileDialog.class);
-//				intentLoad1.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
-//				intentLoad1.putExtra(FileDialog.FORMAT_FILTER, new String[] {"mp4", "avi","3gp"});
-//				startActivityForResult(intentLoad1, REQUEST_PATH);
-//			}
 			SharedPreferences settings = getSharedPreferences("Preferences", 0);
 			if(isImage){
 				if(settings.getBoolean("AutoName", false))
@@ -851,7 +848,6 @@ public class MainActivity extends Activity {
 								Log.i("MainAct","FtpThread");
 								// Replace your UID & PW here
 								Log.i("ftp","ftp connect with " + username + " " + passwd);
-								//publishProgress("start");
 								status = ftpclient.ftpConnect(IP_ADDR, username, passwd, 21);
 								if (status == true) {
 									Log.d("FTP", "Connection Success");
@@ -909,39 +905,30 @@ public class MainActivity extends Activity {
 			super.onProgressUpdate(values);
 			Log.i("onProgressUpdate",values[0]);
 			if(values[0] == "updateBitmap"){
-					try {
-						if(isImage){
-							if(OpenCLObject.getBitmap()!=null && isImage)
-							{
-								RenderScriptObject.RenderScriptTemplate();
-								Output_Image.setImageBitmap(RenderScriptObject.getOutputBitmap()); 
-							}
-							else
-							{
-								createToast("Select image!",false);					
-							}
+				try {
+					if(isImage){
+						if(OpenCLObject.getBitmap()!=null && isImage)
+						{
+							RenderScriptObject.RenderScriptTemplate();
+							Output_Image.setImageBitmap(RenderScriptObject.getOutputBitmap()); 
 						}
 						else
 						{
-							Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
-							intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
-							intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] {"mp4", "avi","3gp"});
-							intentLoad.putExtra("isRs", false);
-							startActivityForResult(intentLoad, REQUEST_PATH);
+							createToast("Select image!",false);					
 						}
-					} catch (IllegalArgumentException e) {
-						e.printStackTrace();
 					}
-					
-			}
-			else if(values[0]=="start")
-			{
-//				dialog = new ProgressDialog(MainActivity.this);
-//				dialog.setMessage("Processing. Please wait...");
-//				dialog.setIndeterminate(false);
-//				dialog.setCancelable(false);
-//				dialog.setCanceledOnTouchOutside(false);
-//				dialog.show();
+					else
+					{
+						Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
+						intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
+						intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] {"mp4", "avi","3gp","gif"});
+						intentLoad.putExtra("isRs", false);
+						startActivityForResult(intentLoad, REQUEST_PATH);
+					}
+				} catch (IllegalArgumentException e) {
+					e.printStackTrace();
+				}
+
 			}
 			else if(values[0]=="stop")
 			{
@@ -1028,15 +1015,13 @@ public class MainActivity extends Activity {
 		dialog.setCancelable(false);
 		dialog.setCanceledOnTouchOutside(false);
 		dialog.show();
-		
+
 		final Handler handlerUi = new Handler();
 
 		ConsoleView.setText("");
 
 		String message = CodeField.getText().toString();
-
 		String lines[] = message.split("\\r?\\n");
-
 		String strHash = createHash(passwd);
 
 		Log.i("send after conversion",strHash);
@@ -1048,7 +1033,6 @@ public class MainActivity extends Activity {
 		{
 			mTcpClient.sendMessage(lines[i]);
 			Log.i("koen", lines[i]);							
-
 		}
 		//separator zodat de code en het ENDPACKAGE bericht niet aan elkaar kunnen hangen
 		mTcpClient.sendMessage("\n");
@@ -1122,7 +1106,7 @@ public class MainActivity extends Activity {
 					{
 						OpenCLObject.setBitmap(MyBitmap);
 						OpenCLObject.codeFromFile(CodeField.getText().toString());	
-						MyBitmap = OpenCLObject.getBitmap();		            	
+						MyBitmap = OpenCLObject.getBitmap();							
 					}
 					MyBitmap.copyPixelsToBuffer(frame2.getByteBuffer());
 					opencv_imgproc.cvCvtColor(frame2, image, opencv_imgproc.CV_RGBA2BGR);		            
