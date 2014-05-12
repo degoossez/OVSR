@@ -416,7 +416,6 @@ public class RsScript extends Object {
 			e.printStackTrace();
 		}
 		
-		
 		return template;
 	}
 	public void codeFromFile(String code)
