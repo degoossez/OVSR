@@ -12,7 +12,9 @@ package com.denayer.ovsr;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,6 +52,38 @@ public class LogFile extends Object {
 	    catch (IOException e) {
 	        Log.e("Exception", "File write failed: " + e.toString());
 	    } 
+	}
+	public void writeToPublicFile(String data, String FileName) {				
+		FileOutputStream fop = null;
+		File file;
+		data = data + "\n";
+		try {
+ 
+			file = new File("/sdcard/DCIM/" + FileName);
+			fop = new FileOutputStream(file,true);
+			// if file doesnt exists, then create it
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+ 
+			// get the content in bytes
+			byte[] contentInBytes = data.getBytes();
+			
+			fop.write(contentInBytes);
+			fop.flush();
+			fop.close();
+ 
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (fop != null) {
+					fop.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	public String readFromFile(String path, String FileName) {
 		String ret = "";

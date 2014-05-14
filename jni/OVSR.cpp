@@ -705,7 +705,7 @@ void nativeBasicOpenCL
 	timeval start;
 	timeval end;
 
-	gettimeofday(&start, NULL);
+//	gettimeofday(&start, NULL);
 
 	AndroidBitmapInfo bitmapInfo;
 	AndroidBitmap_getInfo(env, inputBitmap, &bitmapInfo);
@@ -807,18 +807,18 @@ void nativeBasicOpenCL
 	// pixels in the output bitmap object.
 	AndroidBitmap_unlockPixels(env, outputBitmap);
 
-	gettimeofday(&end, NULL);
-
-	float ndrangeDuration =
-			(end.tv_sec + end.tv_usec * 1e-6) - (start.tv_sec + start.tv_usec * 1e-6);
+//	gettimeofday(&end, NULL);
+//
+//	float ndrangeDuration =
+//			(end.tv_sec + end.tv_usec * 1e-6) - (start.tv_sec + start.tv_usec * 1e-6);
 
 	//LOGD("nativeBasicOpenCL ends successfully");
 
-	jclass MyJavaClass = (*env).FindClass("com/denayer/ovsr/OpenCL");
-	if (!MyJavaClass){
-		return;} /* method not found */
-	jmethodID setTimeFromJNI = (*env).GetMethodID(MyJavaClass, "setTimeFromJNI", "(F)V");
-	(*env).CallVoidMethod(thisObject, setTimeFromJNI, ndrangeDuration);
+//	jclass MyJavaClass = (*env).FindClass("com/denayer/ovsr/OpenCL");
+//	if (!MyJavaClass){
+//		return;} /* method not found */
+//	jmethodID setTimeFromJNI = (*env).GetMethodID(MyJavaClass, "setTimeFromJNI", "(F)V");
+//	(*env).CallVoidMethod(thisObject, setTimeFromJNI, ndrangeDuration);
 	//LOGD("Done");
 }
 
@@ -854,7 +854,7 @@ void nativeImage2DOpenCL
 	timeval start;
 	timeval end;
 
-	gettimeofday(&start, NULL);
+//	gettimeofday(&start, NULL);
 
 
 	AndroidBitmapInfo bitmapInfo;
@@ -959,19 +959,19 @@ void nativeImage2DOpenCL
 	// pixels in the output bitmap object.
 	AndroidBitmap_unlockPixels(env, outputBitmap);
 
-	gettimeofday(&end, NULL);
+//	gettimeofday(&end, NULL);
 
-	float ndrangeDuration =
-			(end.tv_sec + end.tv_usec * 1e-6) - (start.tv_sec + start.tv_usec * 1e-6);
+//	float ndrangeDuration =
+//			(end.tv_sec + end.tv_usec * 1e-6) - (start.tv_sec + start.tv_usec * 1e-6);
 
 	//LOGD("nativeBasicOpenCL ends successfully");
 
-	jclass MyJavaClass = (*env).FindClass("com/denayer/ovsr/OpenCL");
-	if (!MyJavaClass){
-		LOGD("Method not found in OVSR.cpp on line 972");
-		return;} /* method not found */
-	jmethodID setTimeFromJNI = (*env).GetMethodID(MyJavaClass, "setTimeFromJNI", "(F)V"); //argument is float, return time is void
-	(*env).CallVoidMethod(thisObject, setTimeFromJNI, ndrangeDuration);
+//	jclass MyJavaClass = (*env).FindClass("com/denayer/ovsr/OpenCL");
+//	if (!MyJavaClass){
+//		LOGD("Method not found in OVSR.cpp on line 972");
+//		return;} /* method not found */
+//	jmethodID setTimeFromJNI = (*env).GetMethodID(MyJavaClass, "setTimeFromJNI", "(F)V"); //argument is float, return time is void
+//	(*env).CallVoidMethod(thisObject, setTimeFromJNI, ndrangeDuration);
 }
 
 extern "C" void Java_com_denayer_ovsr_OpenCL_nativeImage2DOpenCL
@@ -1006,7 +1006,7 @@ void nativeSaturatieImage2DOpenCL
 	timeval start;
 	timeval end;
 
-	gettimeofday(&start, NULL);
+//	gettimeofday(&start, NULL);
 
 
 	AndroidBitmapInfo bitmapInfo;
@@ -1115,19 +1115,19 @@ void nativeSaturatieImage2DOpenCL
 	// pixels in the output bitmap object.
 	AndroidBitmap_unlockPixels(env, outputBitmap);
 
-	gettimeofday(&end, NULL);
-
-	float ndrangeDuration =
-			(end.tv_sec + end.tv_usec * 1e-6) - (start.tv_sec + start.tv_usec * 1e-6);
+//	gettimeofday(&end, NULL);
+//
+//	float ndrangeDuration =
+//			(end.tv_sec + end.tv_usec * 1e-6) - (start.tv_sec + start.tv_usec * 1e-6);
 
 	//LOGD("nativeBasicOpenCL ends successfully");
 
-	jclass MyJavaClass = (*env).FindClass("com/denayer/ovsr/OpenCL");
-	if (!MyJavaClass){
-		LOGD("Aj :(");
-		return;} /* method not found */
-	jmethodID setTimeFromJNI = (*env).GetMethodID(MyJavaClass, "setTimeFromJNI", "(F)V"); //argument is float, return time is void
-	(*env).CallVoidMethod(thisObject, setTimeFromJNI, ndrangeDuration);
+//	jclass MyJavaClass = (*env).FindClass("com/denayer/ovsr/OpenCL");
+//	if (!MyJavaClass){
+//		LOGD("Aj :(");
+//		return;} /* method not found */
+//	jmethodID setTimeFromJNI = (*env).GetMethodID(MyJavaClass, "setTimeFromJNI", "(F)V"); //argument is float, return time is void
+//	(*env).CallVoidMethod(thisObject, setTimeFromJNI, ndrangeDuration);
 }
 
 extern "C" void Java_com_denayer_ovsr_OpenCL_nativeSaturatieImage2DOpenCL

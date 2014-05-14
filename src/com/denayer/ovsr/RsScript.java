@@ -44,7 +44,7 @@ public class RsScript extends Object {
 	public Bitmap inBitmap = null;
 	public Bitmap outBitmap = null;
 	public Context mContext;
-	public float saturationValue = 0;
+	public float saturationValue = -1;
 	public ImageView outputButton;
 	public TextView mElapsedTime;
 	public MainActivity MmainThread;
@@ -104,7 +104,8 @@ public class RsScript extends Object {
 	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
         Log.i("koen","via java meting: " + String.valueOf(estimatedTime));
         mElapsedTime.setText(String.valueOf(estimatedTime) + "ms");
-		
+	    LogFile MyFile = new LogFile(mContext);
+	    MyFile.writeToPublicFile(String.valueOf(estimatedTime), "TestResultsVideo.txt");		
         input.destroy();
         output.destroy();
         rs.destroy();
@@ -139,7 +140,8 @@ public class RsScript extends Object {
 	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
         Log.i("koen","via java meting: " + String.valueOf(estimatedTime));
         mElapsedTime.setText(String.valueOf(estimatedTime) + "ms");
-	    
+	    LogFile MyFile = new LogFile(mContext);
+	    MyFile.writeToPublicFile(String.valueOf(estimatedTime), "TestResultsVideo.txt");	    
         allocOut.destroy();
         allocIn.destroy();
         rs.destroy();
@@ -179,7 +181,8 @@ public class RsScript extends Object {
 	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
         Log.i("koen","via java meting: " + String.valueOf(estimatedTime));
         mElapsedTime.setText(String.valueOf(estimatedTime) + "ms");
-		
+	    LogFile MyFile = new LogFile(mContext);
+	    MyFile.writeToPublicFile(String.valueOf(estimatedTime), "TestResultsVideo.txt");		
         output.destroy();
         input.destroy();
         rs.destroy();
@@ -217,7 +220,8 @@ public class RsScript extends Object {
 	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
         Log.i("koen","via java meting: " + String.valueOf(estimatedTime));
         mElapsedTime.setText(String.valueOf(estimatedTime) + "ms");
-		
+	    LogFile MyFile = new LogFile(mContext);
+	    MyFile.writeToPublicFile(String.valueOf(estimatedTime), "TestResultsVideo.txt");		
         output.destroy();
         input.destroy();
         rs.destroy();
@@ -229,7 +233,7 @@ public class RsScript extends Object {
 	{		
 		if(inBitmap == null)
 			return;		      
-        
+        if(saturationValue==-1){
         final TextView progressView = new TextView(mContext);
 		final Resources res = mContext.getResources();
 		final SeekBar MySeekBar = new SeekBar(mContext);
@@ -258,6 +262,7 @@ public class RsScript extends Object {
                 	   saturationValue = MySeekBar.getProgress();  
                 	   outBitmap = saturate(inBitmap, saturationValue);
                 	   outputButton.setImageBitmap(outBitmap);
+                	   saturationValue=-1;
                    }
                });
         progressView.setGravity(1 | 0x10);
@@ -269,8 +274,9 @@ public class RsScript extends Object {
 	        ll.addView(progressView);
 	        dialog.setView(ll);
         dialog.show(); 
-
-        
+        } else {
+     	   outBitmap = saturate(inBitmap, saturationValue);
+        }
 	}
 	
 	public Bitmap saturate(Bitmap bmIn, float saturation)
@@ -308,7 +314,8 @@ public class RsScript extends Object {
 	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
         Log.i("koen","via java meting: " + String.valueOf(estimatedTime));
         mElapsedTime.setText(String.valueOf(estimatedTime) + "ms");	    
-	   
+	    LogFile MyFile = new LogFile(mContext);
+	    MyFile.writeToPublicFile(String.valueOf(estimatedTime), "TestResultsVideo.txt");	   
         allocIn.destroy();
         allocOut.destroy();
         rs.destroy();
@@ -348,7 +355,8 @@ public class RsScript extends Object {
 	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
         Log.i("koen","via java meting: " + String.valueOf(estimatedTime));
         mElapsedTime.setText(String.valueOf(estimatedTime) + "ms");
-		
+	    LogFile MyFile = new LogFile(mContext);
+	    MyFile.writeToPublicFile(String.valueOf(estimatedTime), "TestResultsVideo.txt");		
         input.destroy();
         output.destroy();
         rs.destroy();

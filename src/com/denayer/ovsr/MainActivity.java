@@ -28,6 +28,7 @@ import org.bytedeco.javacpp.*;
 import org.bytedeco.javacpp.opencv_core.IplImage;
 
 import static org.bytedeco.javacpp.opencv_core.*;
+
 import com.lamerman.FileDialog;
 
 import android.app.ActionBar;
@@ -39,6 +40,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -62,8 +64,10 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.MediaController;
 import android.widget.RadioButton;
+import android.widget.SeekBar;
 import android.widget.TabHost;
 import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TextView;
@@ -203,7 +207,7 @@ public class MainActivity extends Activity {
 		myTabHost.addTab(spec4);
 
 
-		OpenCLObject = new OpenCL(MainActivity.this,(ImageView)findViewById(R.id.ImageView1));
+		OpenCLObject = new OpenCL(MainActivity.this,(ImageView)findViewById(R.id.ImageView2));
 		RenderScriptObject = new RsScript(this,(ImageView)findViewById(R.id.ImageView2),TimeView);
 		LogFileObject = new LogFile(this);   
 
@@ -307,7 +311,7 @@ public class MainActivity extends Activity {
 								{
 									Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
 									intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
-									intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] {"mp4", "avi","3gp","gif"});
+									intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] {"mp4", "avi","3gp","gif","mkv"});
 									intentLoad.putExtra("isRs", false);
 									startActivityForResult(intentLoad, REQUEST_PATH);
 								}	
@@ -548,11 +552,55 @@ public class MainActivity extends Activity {
 								}
 							}
 							else
-							{
-								Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
-								intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
-								intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] {"mp4", "avi","3gp","gif"});
-								startActivityForResult(intentLoad, REQUEST_PATH);
+							{ 
+								if(itemsFilterBox[item]=="Saturatie")
+								{
+							        final TextView progressView = new TextView(MainActivity.this);
+									final Resources res = MainActivity.this.getResources();
+									final SeekBar MySeekBar = new SeekBar(MainActivity.this);
+									MySeekBar.setMax(200);
+
+									MySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){ 
+										   @Override 
+										   public void onProgressChanged(SeekBar seekBar, int progress, 
+										     boolean fromUser) { 
+											   progressView.setText(String.valueOf(progress)); 
+										   } 
+										   @Override 
+										   public void onStartTrackingTouch(SeekBar seekBar) { 
+										   } 
+										   @Override 
+										   public void onStopTrackingTouch(SeekBar seekBar) { 
+										   } 
+										       }); 
+									AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);        
+							        builder.setMessage("saturation value")
+							               .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+							                   public void onClick(DialogInterface dialog, int id) {      
+							                	   RenderScriptObject.saturationValue = MySeekBar.getProgress();
+													Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
+													intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
+													intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] {"mp4", "avi","3gp","gif","mkv"});
+													startActivityForResult(intentLoad, REQUEST_PATH);
+							                   }
+							               });
+							        progressView.setGravity(1 | 0x10);
+							        // Create the AlertDialog object and return it
+							        AlertDialog dialog = builder.create();
+								     LinearLayout ll=new LinearLayout(MainActivity.this);
+								        ll.setOrientation(LinearLayout.VERTICAL);
+								        ll.addView(MySeekBar);
+								        ll.addView(progressView);
+								        dialog.setView(ll);
+							        dialog.show(); 									
+								}
+								else
+								{
+									Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
+									intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
+									intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] {"mp4", "avi","3gp","gif","mkv"});
+									startActivityForResult(intentLoad, REQUEST_PATH);
+								}
 							}
 						} catch (IllegalAccessException e) {
 							e.printStackTrace();
@@ -590,10 +638,54 @@ public class MainActivity extends Activity {
 								}
 								else
 								{
-									Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
-									intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
-									intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] {"mp4", "avi","3gp","gif"});
-									startActivityForResult(intentLoad, REQUEST_PATH);
+									if(itemsFilterBox[item]=="Saturatie")
+									{
+								        final TextView progressView = new TextView(MainActivity.this);
+										final Resources res = MainActivity.this.getResources();
+										final SeekBar MySeekBar = new SeekBar(MainActivity.this);
+										MySeekBar.setMax(200);
+
+										MySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){ 
+											   @Override 
+											   public void onProgressChanged(SeekBar seekBar, int progress, 
+											     boolean fromUser) { 
+												   progressView.setText(String.valueOf(progress)); 
+											   } 
+											   @Override 
+											   public void onStartTrackingTouch(SeekBar seekBar) { 
+											   } 
+											   @Override 
+											   public void onStopTrackingTouch(SeekBar seekBar) { 
+											   } 
+											       }); 
+										AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);        
+								        builder.setMessage("saturation value")
+								               .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+								                   public void onClick(DialogInterface dialog, int id) {      
+								                	   OpenCLObject.saturatie = MySeekBar.getProgress();
+														Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
+														intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
+														intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] {"mp4", "avi","3gp","gif","mkv"});
+														startActivityForResult(intentLoad, REQUEST_PATH);
+								                   }
+								               });
+								        progressView.setGravity(1 | 0x10);
+								        // Create the AlertDialog object and return it
+								        AlertDialog dialog = builder.create();
+									     LinearLayout ll=new LinearLayout(MainActivity.this);
+									        ll.setOrientation(LinearLayout.VERTICAL);
+									        ll.addView(MySeekBar);
+									        ll.addView(progressView);
+									        dialog.setView(ll);
+								        dialog.show(); 									
+									}
+									else
+									{
+										Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
+										intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
+										intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] {"mp4", "avi","3gp","gif","mkv"});
+										startActivityForResult(intentLoad, REQUEST_PATH);
+									}
 								}
 							} catch (IllegalAccessException e) {
 								e.printStackTrace();
@@ -736,7 +828,7 @@ public class MainActivity extends Activity {
 			Output_Video.setVisibility(View.VISIBLE);
 			Intent intentVideo = new Intent(getBaseContext(), FileDialog.class);
 			intentVideo.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
-			intentVideo.putExtra(FileDialog.FORMAT_FILTER, new String[] { "mp4", "avi","3gp","gif" });
+			intentVideo.putExtra(FileDialog.FORMAT_FILTER, new String[] { "mp4", "avi","3gp","gif","mkv"});
 			createToast("Select a video", false);
 			startActivityForResult(intentVideo, PICK_VIDEO);
 			return true;
@@ -921,7 +1013,7 @@ public class MainActivity extends Activity {
 					{
 						Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
 						intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
-						intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] {"mp4", "avi","3gp","gif"});
+						intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] {"mp4", "avi","3gp","gif","mkv"});
 						intentLoad.putExtra("isRs", false);
 						startActivityForResult(intentLoad, REQUEST_PATH);
 					}
@@ -1082,6 +1174,11 @@ public class MainActivity extends Activity {
 					{
 						break;
 					}
+					if(grabber.getFrameNumber()>120)
+					{
+						Log.e("grabber","I breaked");
+						break;
+					}
 					opencv_imgproc.cvCvtColor(image, frame2, opencv_imgproc.CV_BGR2RGBA);
 					MyBitmap.copyPixelsFromBuffer(frame2.getByteBuffer());
 					if(isRenderScript && !isRuntime)
@@ -1116,6 +1213,8 @@ public class MainActivity extends Activity {
 				}
 				recorder.stop();
 				grabber.stop();	
+				RenderScriptObject.saturationValue=-1;
+				OpenCLObject.saturatie=-1;
 				publishProgress("Done");
 			}catch(Exception e){
 				e.printStackTrace();
