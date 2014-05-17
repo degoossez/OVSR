@@ -41,7 +41,9 @@ public class OpenCL extends Object {
 	final int info[] = new int[3]; // Width, Height, Execution time (ms)
 	static boolean sfoundLibrary = true;
 	String kernelName = "";
- 
+	boolean isVideo=false;
+	boolean isInitialized = false;	
+
 	public OpenCL(Context context, ImageView imageView) {
     	mContext = context; //<-- fill it with the Context you passed
     	outputButton = imageView;
@@ -97,6 +99,7 @@ public class OpenCL extends Object {
     {
     	return bmpOpenCL;
     }
+    private native void initOpenCLShort (String kernelName);
     private native void initOpenCL (String kernelName);
     private native void initOpenCLFromInput (String OpenCLCode, String kernelName);
     private native void nativeBasicOpenCL (
@@ -113,29 +116,39 @@ public class OpenCL extends Object {
             float saturatie
         );
     private native void shutdownOpenCL ();
-	
+	public void RemoveOpenCL ()
+	{
+		shutdownOpenCL();
+	}
 	public void OpenCLEdge ()
 	{
 		if(bmpOrig == null)
 			return;
-		Log.i("OpenCL","OpenCLEdge");
     	copyFile("edge.cl");
     	String kernelName="edge";
-    	Log.i("DEBUG","BEFORE runOpencl");
 	    long startTime = System.nanoTime(); 
-
-    	initOpenCL(kernelName);
+	    if(isVideo && !isInitialized){
+	    	initOpenCL(kernelName);
+	    	isInitialized=true;
+	    	Log.e("init","isVideo && !isInitialized");
+	    } else if(isVideo && isInitialized) {
+	    	Log.e("init","isVideo && isInitialized");
+	    	//Already initialized
+	    	initOpenCLShort(kernelName);
+	    } else if(!isVideo){ // It's an image
+	    	initOpenCL(kernelName); 
+	    	Log.e("init","It's an image");
+	    }
     	//nativeBasicOpenCL(
         nativeImage2DOpenCL(
                 bmpOrig,
                 bmpOpenCL
             );
-    	shutdownOpenCL();
+        if(!isVideo) shutdownOpenCL();
     	long estimatedTime = System.nanoTime() - startTime;
 	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
 	    LogFile MyFile = new LogFile(mContext);
 	    MyFile.writeToPublicFile(String.valueOf(estimatedTime), "TestResultsVideo.txt");
-    	Log.i("DEBUG","AFTER runOpencl");
 	}
 	public void OpenCLInverse ()
 	{
@@ -278,12 +291,11 @@ public class OpenCL extends Object {
                 bmpOpenCL,
                 saturatie
             );
+    	shutdownOpenCL();
     	long estimatedTime = System.nanoTime() - startTime;
 	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
 	    LogFile MyFile = new LogFile(mContext);
-	    MyFile.writeToFile(String.valueOf(estimatedTime), "TestResultsVideo.txt", false);
-    	shutdownOpenCL();
-    	
+	    MyFile.writeToPublicFile(String.valueOf(estimatedTime), "TestResultsVideo.txt");   	
     	Log.i("DEBUG","AFTER runOpencl Saturatie");		
 	}
 	private void copyFile(final String f) {

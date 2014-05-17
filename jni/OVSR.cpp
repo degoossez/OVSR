@@ -58,7 +58,13 @@ struct OpenCLObjects
 };
 
 // Hold all OpenCL objects.
-OpenCLObjects openCLObjects;
+static OpenCLObjects openCLObjects;
+
+//Video testing
+static size_t* Binary_Sizes = new size_t[1];
+//Binaries
+static unsigned char **programBinaries = new unsigned char*[1];
+
 
 /*
  * Load the program out of the file in to a string for opencl compiling.
@@ -204,11 +210,6 @@ void initOpenCL
 	// and means that you haven't yet initialized
 	// the inputBuffer object.
 	openCLObjects.isInputBufferInitialized = false;
-
-	// Search for the Intel OpenCL platform.
-	// Platform name includes "Intel" as a substring, consider this
-	// method to be a recommendation for Intel OpenCL platform search.
-	const char* required_platform_subname = DEVICE;
 	// The following variable stores return codes for all OpenCL calls.
 	// In the code it is used with the SAMPLE_CHECK_ERRORS macro defined
 	// before this function.
@@ -226,22 +227,14 @@ void initOpenCL
 	SAMPLE_CHECK_ERRORS(err);
 	//LOGD("Number of available platforms: %u", num_of_platforms);
 
-	vector<cl_platform_id> platforms(num_of_platforms);
-	// Get IDs for all platforms.
-	err = clGetPlatformIDs(num_of_platforms, &platforms[0], 0);
+	cl_platform_id platform;
+	err = clGetPlatformIDs(1, &platform, NULL);
 	SAMPLE_CHECK_ERRORS(err);
 
-	// Search for platform with required sub-string in the name.
-
-	cl_uint selected_platform_index = num_of_platforms;
-
-	//LOGD("Platform names:");
-
 	cl_uint i = 0;
-	// Get the length for the i-th platform name.
 	size_t platform_name_length = 0;
 	err = clGetPlatformInfo(
-			platforms[i],
+			platform,
 			CL_PLATFORM_NAME,
 			0,
 			0,
@@ -249,21 +242,7 @@ void initOpenCL
 	);
 	SAMPLE_CHECK_ERRORS(err);
 
-	// Get the name itself for the i-th platform.
-	vector<char> platform_name(platform_name_length);
-	err = clGetPlatformInfo(
-			platforms[i],
-			CL_PLATFORM_NAME,
-			platform_name_length,
-			&platform_name[0],
-			0
-	);
-	SAMPLE_CHECK_ERRORS(err);
-
-	selected_platform_index = 0;
-	openCLObjects.platform = platforms[selected_platform_index];
-
-
+	openCLObjects.platform = platform;
 	/* -----------------------------------------------------------------------
 	 * Step 2: Create context with a device of the specified type.
 	 * Required device type is passed as function argument required_device_type.
@@ -286,11 +265,9 @@ void initOpenCL
 					&err
 			);
 	SAMPLE_CHECK_ERRORS(err);
-
 	/* -----------------------------------------------------------------------
 	 * Step 3: Query for OpenCL device that was used for context creation.
 	 */
-
 	err = clGetContextInfo
 			(
 					openCLObjects.context,
@@ -460,6 +437,7 @@ void initOpenCLFromInput
 		OpenCLObjects& openCLObjects
 )
 {
+	LOGD("INIT");
 	using namespace std;
 
 	openCLObjects.isInputBufferInitialized = false;
@@ -654,7 +632,7 @@ void shutdownOpenCL (OpenCLObjects& openCLObjects)
 	 * an application, which is a common thing in the Android OS,
 	 * all OpenCL resources are deallocated automatically.
 	 */
-
+	LOGD("SHUTTING DOWN");
 	cl_int err = CL_SUCCESS;
 
 	if(openCLObjects.isInputBufferInitialized)
@@ -851,27 +829,14 @@ void nativeImage2DOpenCL
 {
 	using namespace std;
 
-	timeval start;
-	timeval end;
-
-//	gettimeofday(&start, NULL);
-
-
 	AndroidBitmapInfo bitmapInfo;
 	AndroidBitmap_getInfo(env, inputBitmap, &bitmapInfo);
 
 	size_t bufferSize = bitmapInfo.height * bitmapInfo.stride;
-
+	LOGD("height: %d",bitmapInfo.height);
 	cl_uint rowPitch = bitmapInfo.stride / 4;
 
 	cl_int err = CL_SUCCESS;
-
-	if(openCLObjects.isInputBufferInitialized)
-	{
-
-		err = clReleaseMemObject(openCLObjects.inputBuffer);
-		SAMPLE_CHECK_ERRORS(err);
-	}
 
 	void* inputPixels = 0;
 	AndroidBitmap_lockPixels(env, inputBitmap, &inputPixels);
@@ -1149,3 +1114,61 @@ extern "C" void Java_com_denayer_ovsr_OpenCL_nativeSaturatieImage2DOpenCL
 			saturatie
 	);
 }
+
+void initOpenCLShort
+(
+		JNIEnv* env,
+		jobject thisObject,
+		jstring kernelName,
+		cl_device_type required_device_type,
+		OpenCLObjects& openCLObjects
+)
+{
+	using namespace std;
+
+	openCLObjects.isInputBufferInitialized = false;
+
+	cl_int err = CL_SUCCESS;
+	/*
+	 * build the program
+	 */
+	err = clBuildProgram(openCLObjects.program, 0, 0, "-cl-fast-relaxed-math", 0, 0);
+	SAMPLE_CHECK_ERRORS(err);
+
+	/* -----------------------------------------------------------------------
+	 * Step 6: Extract kernel from the built program.
+	 */
+	fileName = env->GetStringUTFChars(kernelName, 0);
+	char result[100];   // array to hold the result.
+	std::strcpy(result,fileName); // copy string one into the result.
+	std::strcat(result,"Kernel"); // append string two to the result.
+	openCLObjects.kernel = clCreateKernel(openCLObjects.program, result, &err);
+	SAMPLE_CHECK_ERRORS(err);
+
+	openCLObjects.queue =
+			clCreateCommandQueue
+			(
+					openCLObjects.context,
+					openCLObjects.device,
+					0,    // Creating queue properties, refer to the OpenCL specification for details.
+					&err
+			);
+	SAMPLE_CHECK_ERRORS(err);
+}
+extern "C" void Java_com_denayer_ovsr_OpenCL_initOpenCLShort
+(
+		JNIEnv* env,
+		jobject thisObject,
+		jstring kernelName
+)
+{
+	initOpenCLShort
+	(
+			env,
+			thisObject,
+			kernelName,
+			CL_DEVICE_TYPE_GPU,
+			openCLObjects
+	);
+}
+

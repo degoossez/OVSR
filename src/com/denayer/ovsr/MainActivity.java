@@ -1167,6 +1167,7 @@ public class MainActivity extends Activity {
 				recorder.start();
 
 				grabber.setFrameNumber(0);
+				OpenCLObject.isVideo=true;
 				while(true)
 				{					
 					image = grabber.grab();
@@ -1210,6 +1211,12 @@ public class MainActivity extends Activity {
 					recorder.record(image);
 					counter++;
 					publishProgress(String.valueOf(counter));
+				}
+				if(!isRenderScript)
+				{
+				OpenCLObject.RemoveOpenCL();
+				OpenCLObject.isInitialized=false;
+				OpenCLObject.isVideo=false;
 				}
 				recorder.stop();
 				grabber.stop();	

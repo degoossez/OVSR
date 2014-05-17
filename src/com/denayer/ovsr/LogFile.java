@@ -53,7 +53,7 @@ public class LogFile extends Object {
 	        Log.e("Exception", "File write failed: " + e.toString());
 	    } 
 	}
-	public void writeToPublicFile(String data, String FileName) {				
+	public void writeToPublicFile(String data, String FileName) {	
 		FileOutputStream fop = null;
 		File file;
 		data = data + "\n";
