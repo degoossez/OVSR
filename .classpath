@@ -7,5 +7,9 @@
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK/aFileChooser"/>
 	<classpathentry kind="lib" path="/FileExplorer/bin/fileexplorer.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/armeabi-v7a/ffmpeg.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/armeabi-v7a/javacpp.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/armeabi-v7a/javacv.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/armeabi-v7a/opencv.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
