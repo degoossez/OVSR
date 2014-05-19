@@ -41,8 +41,6 @@ public class OpenCL extends Object {
 	final int info[] = new int[3]; // Width, Height, Execution time (ms)
 	static boolean sfoundLibrary = true;
 	String kernelName = "";
-	boolean isVideo=false;
-	boolean isInitialized = false;	
 
 	public OpenCL(Context context, ImageView imageView) {
     	mContext = context; //<-- fill it with the Context you passed
@@ -99,7 +97,6 @@ public class OpenCL extends Object {
     {
     	return bmpOpenCL;
     }
-    private native void initOpenCLShort (String kernelName);
     private native void initOpenCL (String kernelName);
     private native void initOpenCLFromInput (String OpenCLCode, String kernelName);
     private native void nativeBasicOpenCL (
@@ -127,24 +124,13 @@ public class OpenCL extends Object {
     	copyFile("edge.cl");
     	String kernelName="edge";
 	    long startTime = System.nanoTime(); 
-	    if(isVideo && !isInitialized){
-	    	initOpenCL(kernelName);
-	    	isInitialized=true;
-	    	Log.e("init","isVideo && !isInitialized");
-	    } else if(isVideo && isInitialized) {
-	    	Log.e("init","isVideo && isInitialized");
-	    	//Already initialized
-	    	initOpenCLShort(kernelName);
-	    } else if(!isVideo){ // It's an image
-	    	initOpenCL(kernelName); 
-	    	Log.e("init","It's an image");
-	    }
+	    initOpenCL(kernelName);
     	//nativeBasicOpenCL(
         nativeImage2DOpenCL(
                 bmpOrig,
                 bmpOpenCL
             );
-        if(!isVideo) shutdownOpenCL();
+        shutdownOpenCL();
     	long estimatedTime = System.nanoTime() - startTime;
 	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
 	    LogFile MyFile = new LogFile(mContext);
