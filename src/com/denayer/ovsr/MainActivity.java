@@ -376,11 +376,17 @@ public class MainActivity extends Activity {
 			FileContent = LogFileObject.readFromFile(PathLoadFile,"");
 			CodeField.setText(FileContent);
 		}
-		else if(requestCode== REQUEST_PATH)
+		else if(requestCode == REQUEST_PATH)
 		{
 			savePath = data.getStringExtra(FileDialog.RESULT_PATH);
 			Log.e("requestCode","REQUEST_PATH");
-			MyEditVideoATask = (EditVideoTask) new EditVideoTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+			Log.i("debug",savePath + " : " + videoPath);
+			if(savePath.equals(videoPath))
+			{
+				createToast("Invalid Video!", false);
+			}
+			else
+				MyEditVideoATask = (EditVideoTask) new EditVideoTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		}
 		else if (requestCode == REQUEST_SAVE) {
 			String filePath = data.getStringExtra(FileDialog.RESULT_PATH);            	
