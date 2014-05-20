@@ -165,8 +165,8 @@ public class MainActivity extends Activity {
 		TimeView=(TextView)findViewById(R.id.timeview);
 		NetworkView=(TextView)findViewById(R.id.networkview);
 		CodeField=(EditText)findViewById(R.id.editText1);
-		RenderScriptButton = (RadioButton) findViewById(R.id.radioButton1);
-		OpenCLButton = (RadioButton) findViewById(R.id.radioButton2);
+		RenderScriptButton = (RadioButton) findViewById(R.id.radioButton2);
+		OpenCLButton = (RadioButton) findViewById(R.id.radioButton1);
 		connectButton = (Button) findViewById(R.id.connect_button);
 		disconnectButton = (Button) findViewById(R.id.disconnect_button);
 
@@ -232,7 +232,7 @@ public class MainActivity extends Activity {
 			public void onClick(View v) {
 				isRuntime = true;
 				if(CodeField.getText().toString()!=""){
-					if(!RenderScriptButton.isChecked() ) 
+					if(RenderScriptButton.isChecked() ) 
 					{
 						isRenderScript=true;
 						if(TcpClient.isConnected)
@@ -531,7 +531,7 @@ public class MainActivity extends Activity {
 				SimpleDateFormat formatter = new SimpleDateFormat("yyMMddHHmmss");
 				Date now = new Date();
 				isRuntime=false;
-				if(!RenderScriptButton.isChecked())
+				if(RenderScriptButton.isChecked())
 				{		
 					isRenderScript = true;
 					fileName = "RenderScript/" + itemsFilterBox[item] + formatter.format(now);
@@ -706,7 +706,7 @@ public class MainActivity extends Activity {
 				if(TimeView.getText()!="0")
 				{
 					String Method="OpenCL";
-					if(!RenderScriptButton.isChecked()) Method="RenderScript";
+					if(RenderScriptButton.isChecked()) Method="RenderScript";
 					LogFileObject.writeToFile("\n" + Method + " : " + fileName + " : " + TimeView.getText(), "LogFile.txt",false);
 				}
 			}
@@ -779,7 +779,7 @@ public class MainActivity extends Activity {
 			startHistoryActivity();
 			return true;
 		case R.id.Template:
-			if(!RenderScriptButton.isChecked()) CodeField.setText(RenderScriptObject.getTemplate());
+			if(RenderScriptButton.isChecked()) CodeField.setText(RenderScriptObject.getTemplate());
 			else CodeField.setText(OpenCLObject.getTemplate());
 			return true;
 		case R.id.SaveF:
