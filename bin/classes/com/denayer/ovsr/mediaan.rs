@@ -28,14 +28,14 @@ void root(const uchar4* v_in, uchar4* v_out, const void* usrData, uint32_t x,
 	
 	float4 pixel = { 0, 0, 0, 0 };
 	int counter = 0;
-	float pixelListR[9];
-	float pixelListG[9];
-	float pixelListB[9];
+	float pixelListR[25];
+	float pixelListG[25];
+	float pixelListB[25];
 		
-	for(float i=-1;i<=1;i++)
+	for(float i=-2;i<=2;i++)
 	{		
 	
-		for(float j=-1;j<=1;j++)
+		for(float j=-2;j<=2;j++)
 		{
 			
 		
@@ -54,11 +54,11 @@ void root(const uchar4* v_in, uchar4* v_out, const void* usrData, uint32_t x,
 			
 	}	
 	
-	bubble_sort(pixelListR, 9);
-	bubble_sort(pixelListG, 9);
-	bubble_sort(pixelListB, 9);
+	bubble_sort(pixelListR, 25);
+	bubble_sort(pixelListG, 25);
+	bubble_sort(pixelListB, 25);
 
-    *v_out = rsPackColorTo8888(pixelListR[4]/255.0f,pixelListG[4]/255.0f,pixelListB[4]/255.0f);
+    *v_out = rsPackColorTo8888(pixelListR[12]/255.0f,pixelListG[12]/255.0f,pixelListB[12]/255.0f);
     
   
 }

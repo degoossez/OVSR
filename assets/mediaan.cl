@@ -28,9 +28,9 @@ __kernel void mediaanKernel(__read_only  image2d_t  srcImage,
      int2 coords = (int2) (x,y);       
 
 	int counter = 0;
-	float pixelListR[9];
-	float pixelListG[9];
-	float pixelListB[9];
+	float pixelListR[25];
+	float pixelListG[25];
+	float pixelListB[25];
 
 
 	int i = 0;
@@ -38,9 +38,9 @@ __kernel void mediaanKernel(__read_only  image2d_t  srcImage,
 	
 	float4 bufferPixel;
 	
-	for(i=-1;i<=1;i++)
+	for(i=-2;i<=2;i++)
 	{
-		for(j=-1;j<=1;j++)
+		for(j=-2;j<=2;j++)
 		{
 		coords = (int2)((x+i),(y+j));
 	    bufferPixel = read_imagef(srcImage,sampler,coords);
@@ -53,14 +53,14 @@ __kernel void mediaanKernel(__read_only  image2d_t  srcImage,
 		}
 	}
 	
-	bubble_sort(pixelListR, 9);
-	bubble_sort(pixelListG, 9);
-	bubble_sort(pixelListB, 9);
+	bubble_sort(pixelListR, 25);
+	bubble_sort(pixelListG, 25);
+	bubble_sort(pixelListB, 25);
 		
 	float4 result = { 0, 0, 0, 255 };
-	result.x = pixelListR[4] ;	
-	result.y = pixelListG[4] ;
-	result.z = pixelListB[4] ;
+	result.x = pixelListR[12] ;	
+	result.y = pixelListG[12] ;
+	result.z = pixelListB[12] ;
 	coords = (int2) (x,y);
 	write_imagef(dstImage,coords,result);	
 }
