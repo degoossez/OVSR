@@ -1030,7 +1030,7 @@ public class MainActivity extends Activity {
 			{
 				createToast("Login succesful", false);
 			}
-			else if(values[0] == "login_no	k")
+			else if(values[0] == "login_nok")
 			{
 				createToast("Wrong username or password", false);
 				username = "";

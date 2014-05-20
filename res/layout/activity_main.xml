@@ -76,7 +76,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
                     android:checked="true"
-                    android:text="Renderscript" />
+                    android:text="RenderScript" />
 
                 <RadioButton
                     android:id="@+id/radioButton1"
