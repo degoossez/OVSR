@@ -22,9 +22,11 @@ __kernel void sharpenKernel(__read_only  image2d_t  srcImage,
 		{
 		coords = (int2)((x+i),(y+j));
 	    bufferPixel = read_imagef(srcImage,sampler,coords);
-	   	sumr = sumr + (bufferPixel.x * sharpenKernel[counter]);
-	    sumg = sumg + (bufferPixel.y * sharpenKernel[counter]);
-	    sumb = sumb + (bufferPixel.z * sharpenKernel[counter]);
+	    
+	    sumr = mad(bufferPixel.x,sharpenKernel[counter],sumr);
+	    sumg = mad(bufferPixel.y,sharpenKernel[counter],sumg);
+	    sumb = mad(bufferPixel.z,sharpenKernel[counter],sumb);
+	    
 	    counter++;
 		}
 	}

@@ -25,9 +25,13 @@ __kernel void blurKernel(__read_only  image2d_t  srcImage,
 		{
 		coords = (int2)((x+i),(y+j));
 	    bufferPixel = read_imagef(srcImage,sampler,coords);
-	   	sumr = sumr + (bufferPixel.x * blurKernel[counter]);
-	    sumg = sumg + (bufferPixel.y * blurKernel[counter]);
-	    sumb = sumb + (bufferPixel.z * blurKernel[counter]);
+	    sumr = mad(bufferPixel.x,blurKernel[counter],sumr);
+	    sumg = mad(bufferPixel.y,blurKernel[counter],sumg);
+	    sumb = mad(bufferPixel.z,blurKernel[counter],sumb);
+	    
+//	   	sumr = sumr + (bufferPixel.x * blurKernel[counter]);
+//	    sumg = sumg + (bufferPixel.y * blurKernel[counter]);
+//	    sumb = sumb + (bufferPixel.z * blurKernel[counter]);
 	    counter++;
 		}
 	}

@@ -21,26 +21,12 @@
 
 #include <CL/opencl.h>
 
-
+#define BUILDOPT "-cl-single-precision-constant -cl-denorms-are-zero -cl-fast-relaxed-math"
 // Commonly-defined shortcuts for LogCat output from native C applications.
-#define  LOG_TAG    "AndroidBasic"
+#define  LOG_TAG    "OpenCLnative"
 #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 #define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
-//#define DEVICE "PowerVR" //Odroid
-#define DEVICE "Mali" //Nexus10
-/* Container for all OpenCL-specific objects used in the sample.
- *
- * The container consists of the following parts:
- *   - Regular OpenCL objects, used in almost each
- *     OpenCL application.
- *   - Specific OpenCL objects - buffers, used in this
- *     particular sample.
- *
- * For convenience, collect all objects in one structure.
- * Avoid global variables and make easier the process of passing
- * all arguments in functions.
- */
 struct OpenCLObjects
 {
 	// Regular OpenCL objects:
@@ -59,12 +45,6 @@ struct OpenCLObjects
 
 // Hold all OpenCL objects.
 static OpenCLObjects openCLObjects;
-
-//Video testing
-static size_t* Binary_Sizes = new size_t[1];
-//Binaries
-static unsigned char **programBinaries = new unsigned char*[1];
-
 
 /*
  * Load the program out of the file in to a string for opencl compiling.
@@ -315,7 +295,7 @@ void initOpenCL
 	 */
 	//err = clBuildProgram(openCLObjects.program, 0, 0, 0, 0, 0);
 	//http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clBuildProgram.html
-	err = clBuildProgram(openCLObjects.program, 0, 0, "-cl-fast-relaxed-math", 0, 0);
+	err = clBuildProgram(openCLObjects.program, 0, 0, BUILDOPT, 0, 0);
 	jstring JavaString = (*env).NewStringUTF("Code compiled succesful.");
 	if(err == CL_BUILD_PROGRAM_FAILURE)
 	{
@@ -441,24 +421,21 @@ void initOpenCLFromInput
 	using namespace std;
 
 	openCLObjects.isInputBufferInitialized = false;
-
-	const char* required_platform_subname = DEVICE;
-
 	cl_int err = CL_SUCCESS;
+
+
 	cl_uint num_of_platforms = 0;
 	err = clGetPlatformIDs(0, 0, &num_of_platforms);
 	SAMPLE_CHECK_ERRORS(err);
 
-	vector<cl_platform_id> platforms(num_of_platforms);
-	err = clGetPlatformIDs(num_of_platforms, &platforms[0], 0);
+	cl_platform_id platform;
+	err = clGetPlatformIDs(1, &platform, NULL);
 	SAMPLE_CHECK_ERRORS(err);
-
-	cl_uint selected_platform_index = num_of_platforms;
 
 	cl_uint i = 0;
 	size_t platform_name_length = 0;
 	err = clGetPlatformInfo(
-			platforms[i],
+			platform,
 			CL_PLATFORM_NAME,
 			0,
 			0,
@@ -466,18 +443,7 @@ void initOpenCLFromInput
 	);
 	SAMPLE_CHECK_ERRORS(err);
 
-	vector<char> platform_name(platform_name_length);
-	err = clGetPlatformInfo(
-			platforms[i],
-			CL_PLATFORM_NAME,
-			platform_name_length,
-			&platform_name[0],
-			0
-	);
-	SAMPLE_CHECK_ERRORS(err);
-
-	selected_platform_index = 0;
-	openCLObjects.platform = platforms[selected_platform_index];
+	openCLObjects.platform = platform;
 
 	cl_context_properties context_props[] = {
 			CL_CONTEXT_PLATFORM,
@@ -522,7 +488,7 @@ void initOpenCLFromInput
 
 	//err = clBuildProgram(openCLObjects.program, 0, 0, 0, 0, 0);
 	//http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clBuildProgram.html
-	err = clBuildProgram(openCLObjects.program, 0, 0, "-cl-fast-relaxed-math", 0, 0);
+	err = clBuildProgram(openCLObjects.program, 0, 0, BUILDOPT, 0, 0);
 	jstring JavaString = (*env).NewStringUTF("Code compiled succesful.");
 	if(err == CL_BUILD_PROGRAM_FAILURE)
 	{
@@ -829,6 +795,11 @@ void nativeImage2DOpenCL
 {
 	using namespace std;
 
+	timeval start;
+	timeval end;
+
+	gettimeofday(&start, NULL);
+
 	AndroidBitmapInfo bitmapInfo;
 	AndroidBitmap_getInfo(env, inputBitmap, &bitmapInfo);
 
@@ -924,19 +895,19 @@ void nativeImage2DOpenCL
 	// pixels in the output bitmap object.
 	AndroidBitmap_unlockPixels(env, outputBitmap);
 
-//	gettimeofday(&end, NULL);
+	gettimeofday(&end, NULL);
 
-//	float ndrangeDuration =
-//			(end.tv_sec + end.tv_usec * 1e-6) - (start.tv_sec + start.tv_usec * 1e-6);
+	float ndrangeDuration =
+			(end.tv_sec + end.tv_usec * 1e-6) - (start.tv_sec + start.tv_usec * 1e-6);
 
-	//LOGD("nativeBasicOpenCL ends successfully");
+	LOGD("nativeBasicOpenCL ends successfully");
 
-//	jclass MyJavaClass = (*env).FindClass("com/denayer/ovsr/OpenCL");
-//	if (!MyJavaClass){
-//		LOGD("Method not found in OVSR.cpp on line 972");
-//		return;} /* method not found */
-//	jmethodID setTimeFromJNI = (*env).GetMethodID(MyJavaClass, "setTimeFromJNI", "(F)V"); //argument is float, return time is void
-//	(*env).CallVoidMethod(thisObject, setTimeFromJNI, ndrangeDuration);
+	jclass MyJavaClass = (*env).FindClass("com/denayer/ovsr/OpenCL");
+	if (!MyJavaClass){
+		LOGD("Method not found in OVSR.cpp on line 972");
+		return;} /* method not found */
+	jmethodID setTimeFromJNI = (*env).GetMethodID(MyJavaClass, "setTimeFromJNI", "(F)V"); //argument is float, return time is void
+	(*env).CallVoidMethod(thisObject, setTimeFromJNI, ndrangeDuration);
 }
 
 extern "C" void Java_com_denayer_ovsr_OpenCL_nativeImage2DOpenCL
@@ -968,9 +939,9 @@ void nativeSaturatieImage2DOpenCL
 {
 	using namespace std;
 
-	timeval start;
-	timeval end;
-
+//	timeval start;
+//	timeval end;
+//
 //	gettimeofday(&start, NULL);
 
 
@@ -1084,9 +1055,9 @@ void nativeSaturatieImage2DOpenCL
 //
 //	float ndrangeDuration =
 //			(end.tv_sec + end.tv_usec * 1e-6) - (start.tv_sec + start.tv_usec * 1e-6);
-
-	//LOGD("nativeBasicOpenCL ends successfully");
-
+//
+//	LOGD("nativeBasicOpenCL ends successfully");
+//
 //	jclass MyJavaClass = (*env).FindClass("com/denayer/ovsr/OpenCL");
 //	if (!MyJavaClass){
 //		LOGD("Aj :(");
