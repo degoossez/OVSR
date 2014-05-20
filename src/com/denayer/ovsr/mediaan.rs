@@ -31,10 +31,7 @@ void root(const uchar4* v_in, uchar4* v_out, const void* usrData, uint32_t x,
 	float pixelListR[9];
 	float pixelListG[9];
 	float pixelListB[9];
-	
-	float4 current = rsUnpackColor8888(*v_in);
-			
-	
+		
 	for(float i=-1;i<=1;i++)
 	{		
 	
@@ -69,21 +66,17 @@ void root(const uchar4* v_in, uchar4* v_out, const void* usrData, uint32_t x,
 void bubble_sort(float list[], float n)
 {
   long c, d, t;
+    for (c = 1 ; c <= n - 1; c++) {
+    d = c;
+ 	
+    while ( d > 0 && list[d] < list[d-1]) {
+      t          = list[d];
+      list[d]   = list[d-1];
+      list[d-1] = t;
  
-  for (c = 0 ; c < ( n - 1 ); c++)
-  {
-    for (d = 0 ; d < n - c - 1; d++)
-    {
-      if (list[d] > list[d+1])
-      {
-        /* Swapping */
- 
-        t         = list[d];
-        list[d]   = list[d+1];
-        list[d+1] = t;
-      }
+      d--;
     }
-  }
+  }  
 }
 
 void filter()

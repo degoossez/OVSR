@@ -186,7 +186,8 @@ public class OpenCL extends Object {
 	    long startTime = System.nanoTime(); 
 
     	initOpenCL(kernelName);
-    	nativeBasicOpenCL(
+    	//nativeBasicOpenCL(
+    	nativeImage2DOpenCL(
                 bmpOrig,
                 bmpOpenCL
             );
