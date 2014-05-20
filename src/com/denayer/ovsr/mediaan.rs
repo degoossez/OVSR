@@ -27,11 +27,10 @@ void root(const uchar4* v_in, uchar4* v_out, const void* usrData, uint32_t x,
 		
 	
 	float4 pixel = { 0, 0, 0, 0 };
+	int counter = 0;
 	float pixelListR[9];
 	float pixelListG[9];
 	float pixelListB[9];
-	int counter = 0;
-	
 	
 	float4 current = rsUnpackColor8888(*v_in);
 			
@@ -43,29 +42,26 @@ void root(const uchar4* v_in, uchar4* v_out, const void* usrData, uint32_t x,
 		{
 			
 		
-			pixel = rsUnpackColor8888(*(uchar*) rsGetElementAt(in, x+j, y+i));
+			pixel = rsUnpackColor8888(*(uchar4*) rsGetElementAt(in, x+j, y+i));
+			pixel.r *= 255.0f;		
+			pixel.g *= 255.0f;
+			pixel.b *= 255.0f;	
 			
+			pixelListR[counter] = pixel.r;
+			pixelListG[counter] = pixel.g;
+			pixelListB[counter] = pixel.b;				
 			
-			pixelListR[counter] = pixel.r * 255;	//collect surrounding pixels
-			pixelListG[counter] = pixel.g * 255;
-			pixelListB[counter] = pixel.b * 255;
-			
-			
-			counter++;	
+			counter++;		
 		
 		}		
 			
-	}
+	}	
 	
 	bubble_sort(pixelListR, 9);
 	bubble_sort(pixelListG, 9);
 	bubble_sort(pixelListB, 9);
-	
-	
 
-	   
-
-    *v_out = rsPackColorTo8888(pixelListR[4] / 255, pixelListG[4] / 255, pixelListB[4] / 255, current.a);
+    *v_out = rsPackColorTo8888(pixelListR[4]/255.0f,pixelListG[4]/255.0f,pixelListB[4]/255.0f);
     
   
 }
@@ -100,4 +96,3 @@ void filter()
     #endif
     
 }
-   
