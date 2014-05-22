@@ -762,6 +762,11 @@ public class MainActivity extends Activity {
 		});
 		//einde radio buttons
 	}
+	/*! \brief Brief description.
+	 *         Brief description continued.
+	 *
+	 *  Detailed description starts here.
+	 */
 	public void createToast(String Message,boolean isLong)
 	{
 		Context context = getApplicationContext();
