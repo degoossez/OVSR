@@ -91,6 +91,10 @@ public class OpenCL extends Object {
     		Log.e("Debug", "Error log", e);
     	} 	
     }
+       /*! \brief Returns a boolean to be able to check OpenCL support in the main code
+      *
+      * @return sFoundLibrary is a boolean
+      */  
 	public boolean getOpenCLSupport(){
 		return sfoundLibrary;
 	}
@@ -410,7 +414,7 @@ public class OpenCL extends Object {
 	}
 	/*! \brief The setConsoleOutput function allows the native code to set a value to the GUI in the console window.
 	*
-	*@param Errlog is a String
+	*@param Errorlog is a String
 	*@return void
 	*/
 	public void setConsoleOutput(String ErrorLog)
