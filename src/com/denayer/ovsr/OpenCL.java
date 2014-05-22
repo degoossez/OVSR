@@ -47,8 +47,8 @@ public class OpenCL extends Object {
       * and the self generated libOVSR where all the native functions are defined.
       * It takes two arguments. The context is needed to make the mainwindow accessable from this class.
       * The imageView is the output imageview on the mainwindow.
-      * @param context is a Context.
-      * @param imageView is an ImageView.
+      * @param context is the context of MainActivity
+      * @param imageView is the ImageView to put the result in
       */
 	public OpenCL(Context context, ImageView imageView) {
     	mContext = context; //<-- fill it with the Context you passed
@@ -93,7 +93,7 @@ public class OpenCL extends Object {
     }
        /*! \brief Returns a boolean to be able to check OpenCL support in the main code
       *
-      * @return sFoundLibrary is a boolean
+      * @return sFoundLibrary is true if OpenCL is supported
       */  
 	public boolean getOpenCLSupport(){
 		return sfoundLibrary;
@@ -101,7 +101,7 @@ public class OpenCL extends Object {
      /*! \brief Setter function for the input bitmap.
       *
       * The setBitmap function creates a copy of the argument (bmpOrigJava) and creates a 2th bitmap.
-      * @param bmpOrigJava is an android Bitmap
+      * @param bmpOrigJava is the bitmap that has to be copied and processed.
       */
     public void setBitmap(Bitmap bmpOrigJava)
     {
@@ -122,22 +122,22 @@ public class OpenCL extends Object {
     /*! \brief Connection between Java and Native code.
       *
       * The initOpenCL function needs a kernel name and initialises the OpenCL environment.
-      * @param kernelName is a String
+      * @param kernelName is the kernel name of the kernel that has to be excecuted later
       */
     private native void initOpenCL (String kernelName);
      /*! \brief Connection between Java and Native code.
       *
       * The initOpenCLFromInput function needs a kernel name and the OpenCL code.
       * This function initialises the OpenCL environment for the code from the input field in mainwindow.
-      * @param OpenCLCode is a String
-      * @param kernelName is a String
+      * @param OpenCLCode is a String that contains the OpenCL code
+      * @param kernelName is a String that contains the kernel name from the OpenCLCode
       */
     private native void initOpenCLFromInput (String OpenCLCode, String kernelName);
      /*! \brief Connection between Java and Native code.
       *
       * The nativeBasicOpenCL function needs an input and output bitmap and executes the kernel initialized in initOpenCL.
-      * @param inputBitmap is a bitmap
-      * @param outputBitmap is a bitmap
+      * @param inputBitmap is the bitmap to be processed
+      * @param outputBitmap is the resulting bitmap
       */
     private native void nativeBasicOpenCL (
             Bitmap inputBitmap,
@@ -147,8 +147,8 @@ public class OpenCL extends Object {
       *
       * The nativeImage2DOpenCL function needs an input and output bitmap and executes the kernel initialized in initOpenCL.
       * The difference with nativeBasicOpenCL is that this function uses image2d_t in it's kernels.
-      * @param inputBitmap is a bitmap
-      * @param outputBitmap is a bitmap
+      * @param inputBitmap is the bitmap to be processed
+      * @param outputBitmap is the resulting bitmap
       */
     private native void nativeImage2DOpenCL(
             Bitmap inputBitmap,
@@ -159,9 +159,9 @@ public class OpenCL extends Object {
       * The nativeSaturatieImage2DOpenCL function needs an input and output bitmap and executes the kernel initialized in initOpenCL.
       * This function als needs a saturation value (saturatie). This value will be between 0 (under saturation) and 200 (over saturation).
       * The difference with nativeImage2DOpenCL is that this function is ONLY able to do the saturation filter.
-      * @param inputBitmap is a bitmap
-      * @param outputBitmap is a bitmap
-      * @param saturatie is a float
+      * @param inputBitmap is the bitmap to be processed
+      * @param outputBitmap is the resulting bitmap
+      * @param saturatie is a float between 0 and 200
       */
     private native void nativeSaturatieImage2DOpenCL(
             Bitmap inputBitmap,
@@ -361,7 +361,7 @@ public class OpenCL extends Object {
      /*! \brief This function will copy a file from the assets folder specified by the argument to the execdir of the application.
       *
       * The argument is the file name and must be located inside the assets folder. It copy's the file to make sure the OpenCL code can acces it.
-      * @param f is a String
+      * @param f is the name of the file that has to be copied
       */
 	private void copyFile(final String f) {
 		InputStream in;
@@ -384,7 +384,7 @@ public class OpenCL extends Object {
 	}
 	/*! \brief The setTimeFromJNI function allows the native code to set a value to the GUI in the log window.
 	*
-	*@param time is a float
+	*@param time is the time that has to be placed in the log field
 	*/
 	public void setTimeFromJNI(float time)
 	{
@@ -398,7 +398,7 @@ public class OpenCL extends Object {
 	}
 	/*! \brief The setConsoleOutput function allows the native code to set a value to the GUI in the console window.
 	*
-	*@param ErrorLog is a String
+	*@param ErrorLog is the error log that has to be placed in the console view.
 	*/
 	public void setConsoleOutput(String ErrorLog)
 	{
@@ -408,7 +408,7 @@ public class OpenCL extends Object {
 	}
 	/*! \brief Gets the template from the assets file and returns it.
 	*
-	*@return template is a string.
+	*@return template is a string that contains the standard template for OpenCL
 	*/
 	public String getTemplate()
 	{
@@ -435,14 +435,14 @@ public class OpenCL extends Object {
 	}
 	/*! \brief This function gives the kernelName a value.
 	*
-	*@param name is a String
+	*@param name contains the kernel name to be set
 	*/
 	public void setKernelName(String name) {
 		kernelName = name;
 	}
        /*! \brief This function calls all the need OpenCL function to compile OpenCL code from text input.
 	*
-	*@param code is a String
+	*@param code is the OpenCL code that needs to be compiled
 	*/
 	public void codeFromFile(final String code)
 	{
