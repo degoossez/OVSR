@@ -23,6 +23,12 @@ import android.widget.TextView;
 public class DisplayMessageActivty extends Activity {
 	private LogFile LogFileObject;
 	private TextView HistoryField;
+	/*! \brief The onCreate function will be called when this Acvity is called.
+	*
+	* It creates a LogFile object and sets the text from LogFile.txt (from the private directory) 
+	* in the historyfield to be displayed on screen.
+	* @param savedInstanceState are is a value that remembers what the last instance on screen was.
+	*/
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -31,13 +37,24 @@ public class DisplayMessageActivty extends Activity {
 		HistoryField = (TextView)findViewById(R.id.LogField);
 		HistoryField.setText(LogFileObject.readFromFile("","LogFile.txt"));
 	}
-
+	/*! \brief The onCreate function will be called when the optionsmenu is created.
+	*
+	* It inflates the values into the menu.
+	* @param menu is the menu that has to be displayed
+	* @return It will always return true.
+	*/
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.display_message_activty, menu);
 		return true;
 	}
+       /*! \brief The onOptionsItemSelected will be called when an item from the menu is clicked.
+	*
+	* Depending on the item that is clicked, a specific action will be excecuted.
+	* @param item is the id of the item that is selected.
+	* @return It will always return true or itself (recursive)
+	*/
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    // Handle item selection
@@ -56,6 +73,10 @@ public class DisplayMessageActivty extends Activity {
 	            return super.onOptionsItemSelected(item);
 	    }
 	}
+       /*! \brief The DeleteFile will delete the history file.
+	*
+	* When the DeleteFile function is called, it will show a pop up to make sure you want to delete the history file.
+	*/
 	public void DeleteFile()
 	{
 		DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
