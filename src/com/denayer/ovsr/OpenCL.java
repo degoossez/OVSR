@@ -49,7 +49,6 @@ public class OpenCL extends Object {
       * The imageView is the output imageview on the mainwindow.
       * @param context is a Context.
       * @param imageView is an ImageView.
-      * @return The test results
       */
 	public OpenCL(Context context, ImageView imageView) {
     	mContext = context; //<-- fill it with the Context you passed
@@ -98,7 +97,7 @@ public class OpenCL extends Object {
      /*! \brief Setter function for the input bitmap.
       *
       * The setBitmap function creates a copy of the argument (bmpOrigJava) and creates a 2th bitmap.
-      * @param bmpOrigJava is an android Bitmap.
+      * @param bmpOrigJava is an android Bitmap
       * @return void
       */
     public void setBitmap(Bitmap bmpOrigJava)
@@ -110,33 +109,78 @@ public class OpenCL extends Object {
     }
      /*! \brief Getter function to get the resulting bitmap from one of the OpenCL functions.
       *
-      * It has no arguments and returns a bitmap.
-      * @return bmpOpenCL The resulting bitmap.
+      * It has no arguments and returns a bitmap
+      * @return bmpOpenCL The resulting bitmap
       */
     public Bitmap getBitmap()
     {
     	return bmpOpenCL;
     }
+    /*! \brief Connection between Java and Native code.
+      *
+      * The initOpenCL function needs a kernel name and initialises the OpenCL environment.
+      * @param kernelName is a String
+      * @return void
+      */
     private native void initOpenCL (String kernelName);
+     /*! \brief Connection between Java and Native code.
+      *
+      * The initOpenCLFromInput function needs a kernel name and the OpenCL code.
+      * This function initialises the OpenCL environment for the code from the input field in mainwindow.
+      * @param OpenCLCode is a String
+      * @param kernelName is a String
+      * @return void
+      */
     private native void initOpenCLFromInput (String OpenCLCode, String kernelName);
+     /*! \brief Connection between Java and Native code.
+      *
+      * The nativeBasicOpenCL function needs an input and output bitmap and executes the kernel initialized in initOpenCL.
+      * @param inputBitmap is a bitmap
+      * @param outputBitmap is a bitmap
+      * @return void
+      */
     private native void nativeBasicOpenCL (
             Bitmap inputBitmap,
             Bitmap outputBitmap
         );
+     /*! \brief Connection between Java and Native code.
+      *
+      * The nativeImage2DOpenCL function needs an input and output bitmap and executes the kernel initialized in initOpenCL.
+      * The difference with nativeBasicOpenCL is that this function uses image2d_t in it's kernels.
+      * @param inputBitmap is a bitmap
+      * @param outputBitmap is a bitmap
+      * @return void
+      */
     private native void nativeImage2DOpenCL(
             Bitmap inputBitmap,
             Bitmap outputBitmap
         );
+     /*! \brief Connection between Java and Native code.
+      *
+      * The nativeSaturatieImage2DOpenCL function needs an input and output bitmap and executes the kernel initialized in initOpenCL.
+      * This function als needs a saturation value (saturatie). This value will be between 0 (under saturation) and 200 (over saturation).
+      * The difference with nativeImage2DOpenCL is that this function is ONLY able to do the saturation filter.
+      * @param inputBitmap is a bitmap
+      * @param outputBitmap is a bitmap
+      * @param saturatie is a float
+      * @return void
+      */
     private native void nativeSaturatieImage2DOpenCL(
             Bitmap inputBitmap,
             Bitmap outputBitmap,
             float saturatie
         );
+     /*! \brief Connection between Java and Native code.
+      *
+      * The shutdownOpenCL function removes all OpenCL allocations.
+      * @return void
+      */
     private native void shutdownOpenCL ();
-	public void RemoveOpenCL ()
-	{
-		shutdownOpenCL();
-	}
+     /*! \brief This function will be called when the Edge button is clicked.
+      *
+      * It will execute all steps to apply the OpenCL edge filter onto the image, gets the execution time and has a check to make sure the bitmap is valid.
+      * @return void
+      */
 	public void OpenCLEdge ()
 	{
 		if(bmpOrig == null)
@@ -145,7 +189,6 @@ public class OpenCL extends Object {
     	String kernelName="edge";
 	    long startTime = System.nanoTime(); 
 	    initOpenCL(kernelName);
-    	//nativeBasicOpenCL(
         nativeImage2DOpenCL(
                 bmpOrig,
                 bmpOpenCL
@@ -156,6 +199,11 @@ public class OpenCL extends Object {
 	    LogFile MyFile = new LogFile(mContext);
 	    MyFile.writeToPublicFile(String.valueOf(estimatedTime), "TestResultsVideo.txt");
 	}
+     /*! \brief This function will be called when the Inverse button is clicked.
+      *
+      * It will execute all steps to apply the OpenCL inverse filter onto the image, gets the execution time and has a check to make sure the bitmap is valid.
+      * @return void
+      */
 	public void OpenCLInverse ()
 	{
 		if(bmpOrig == null)
@@ -164,7 +212,6 @@ public class OpenCL extends Object {
     	String kernelName="inverse";
 	    long startTime = System.nanoTime(); 
     	initOpenCL(kernelName);
-    	//nativeBasicOpenCL(
     	nativeImage2DOpenCL(
                 bmpOrig,
                 bmpOpenCL
@@ -175,17 +222,19 @@ public class OpenCL extends Object {
 	    LogFile MyFile = new LogFile(mContext);
 	    MyFile.writeToPublicFile(String.valueOf(estimatedTime), "TestResultsVideo.txt");
 	}
+     /*! \brief This function will be called when the Sharpen button is clicked.
+      *
+      * It will execute all steps to apply the OpenCL sharpen filter onto the image, gets the execution time and has a check to make sure the bitmap is valid.
+      * @return void
+      */
 	public void OpenCLSharpen ()
 	{
 		if(bmpOrig == null)
 			return;
-		Log.i("OpenCL","OpenCLSharpen");
     	copyFile("sharpen.cl");
     	String kernelName="sharpen";
-    	Log.i("DEBUG","BEFORE runOpencl sharpen");
 	    long startTime = System.nanoTime(); 
     	initOpenCL(kernelName);
-  //  	nativeBasicOpenCL(
     	nativeImage2DOpenCL(
                 bmpOrig,
                 bmpOpenCL
@@ -195,8 +244,12 @@ public class OpenCL extends Object {
 	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
 	    LogFile MyFile = new LogFile(mContext);
 	    MyFile.writeToPublicFile(String.valueOf(estimatedTime), "TestResultsVideo.txt");
-    	Log.i("DEBUG","AFTER runOpencl sharpen");
 	}
+     /*! \brief This function will be called when the mediaan button is clicked.
+      *
+      * It will execute all steps to apply the OpenCL mediaan filter onto the image, gets the execution time and has a check to make sure the bitmap is valid.
+      * @return void
+      */
 	public void OpenCLMediaan ()
 	{
 		if(bmpOrig == null)
@@ -206,7 +259,6 @@ public class OpenCL extends Object {
 	    long startTime = System.nanoTime(); 
 
     	initOpenCL(kernelName);
-    	//nativeBasicOpenCL(
     	nativeImage2DOpenCL(
                 bmpOrig,
                 bmpOpenCL
@@ -217,6 +269,11 @@ public class OpenCL extends Object {
 	    LogFile MyFile = new LogFile(mContext);
 	    MyFile.writeToPublicFile(String.valueOf(estimatedTime), "TestResultsVideo.txt");
 	}
+     /*! \brief This function will be called when the Blur button is clicked.
+      *
+      * It will execute all steps to apply the OpenCL blur filter onto the image, gets the execution time and has a check to make sure the bitmap is valid.
+      * @return void
+      */
 	public void OpenCLBlur ()
 	{
 		if(bmpOrig == null)
@@ -225,7 +282,6 @@ public class OpenCL extends Object {
     	String kernelName="blur";
 	    long startTime = System.nanoTime(); 
     	initOpenCL(kernelName);
-    	//nativeBasicOpenCL(
     	nativeImage2DOpenCL(
                 bmpOrig,
                 bmpOpenCL
@@ -235,7 +291,13 @@ public class OpenCL extends Object {
 	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
 	    LogFile MyFile = new LogFile(mContext);
 	    MyFile.writeToPublicFile(String.valueOf(estimatedTime), "TestResultsVideo.txt");
-	}	
+	}
+     /*! \brief This function will be called when the saturatie button is clicked.
+      *
+      * It will execute all steps to apply the OpenCL saturation filter onto the image, gets the execution time and has a check to make sure the bitmap is valid.
+      * This function will also show a pop up window with a slider bar to select the saturation value between 0 and 200.
+      * @return void
+      */
 	public void OpenCLSaturatie ()
 	{	
 		if(bmpOrig == null)
@@ -284,15 +346,17 @@ public class OpenCL extends Object {
      	   saturate();		
 		}
 	}	
+     /*! \brief This function will be called when OpenCLsaturatie's pop up windows is closed.
+      *
+      * It will execute all steps to apply the OpenCL saturation filter onto the image, gets the execution time and has a check to make sure the bitmap is valid.
+      * @return void
+      */
 	private void saturate()
 	{
-		Log.i("OpenCL","OpenCLSaturatie");
     	copyFile("saturatie.cl");
     	String kernelName="saturatie";
-    	Log.i("DEBUG","BEFORE runOpencl Saturatie");
 	    long startTime = System.nanoTime(); 
     	initOpenCL(kernelName);
-    	//nativeSaturatieOpenCL(
     	nativeSaturatieImage2DOpenCL(
                 bmpOrig,
                 bmpOpenCL,
@@ -303,8 +367,13 @@ public class OpenCL extends Object {
 	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
 	    LogFile MyFile = new LogFile(mContext);
 	    MyFile.writeToPublicFile(String.valueOf(estimatedTime), "TestResultsVideo.txt");   	
-    	Log.i("DEBUG","AFTER runOpencl Saturatie");		
 	}
+     /*! \brief This function will copy a file from the assets folder specified by the argument to the execdir of the application.
+      *
+      * The argument is the file name and must be located inside the assets folder. It copy's the file to make sure the OpenCL code can acces it.
+      * @param f is a String
+      * @return void
+      */
 	private void copyFile(final String f) {
 		InputStream in;
 		try {
@@ -324,6 +393,11 @@ public class OpenCL extends Object {
 			e.printStackTrace();
 		}
 	}
+	/*! \brief The setTimeFromJNI function allows the native code to set a value to the GUI in the log window.
+	*
+	*@param time is a float
+	*@return void
+	*/
 	public void setTimeFromJNI(float time)
 	{
 		Log.i("setTimeFromJNI","Time set on " + String.valueOf(time));
@@ -334,12 +408,21 @@ public class OpenCL extends Object {
 		v.setText(String.valueOf(time) + " ms");
 		
 	}
+	/*! \brief The setConsoleOutput function allows the native code to set a value to the GUI in the console window.
+	*
+	*@param Errlog is a String
+	*@return void
+	*/
 	public void setConsoleOutput(String ErrorLog)
 	{
 		View rootView = ((Activity)mContext).getWindow().getDecorView().findViewById(android.R.id.content);
 		TextView v = (TextView) rootView.findViewById(R.id.ConsoleView);
 		v.setText(ErrorLog);
 	}
+	/*! \brief Gets the template from the assets file and returns it.
+	*
+	*@return template is a string.
+	*/
 	public String getTemplate()
 	{
 		String template = null;
@@ -363,9 +446,19 @@ public class OpenCL extends Object {
 		
 		return template;
 	}
+	/*! \brief This function gives the kernelName a value.
+	*
+	*@param name is a String
+	*@return void
+	*/
 	public void setKernelName(String name) {
 		kernelName = name;
 	}
+       /*! \brief This function calls all the need OpenCL function to compile OpenCL code from text input.
+	*
+	*@param code is a String
+	*@return void
+	*/
 	public void codeFromFile(final String code)
 	{
 		Log.i("Debug","OpenCL: " + code);
