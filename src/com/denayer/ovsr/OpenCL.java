@@ -41,7 +41,16 @@ public class OpenCL extends Object {
 	final int info[] = new int[3]; // Width, Height, Execution time (ms)
 	static boolean sfoundLibrary = true;
 	String kernelName = "";
-
+     /*! \brief The OpenCL constructor.
+      *
+      * The constructor takes two arguments. Loads the available OpenCL library 
+      * and the self generated libOVSR where all the native functions are defined.
+      * It takes two arguments. The context is needed to make the mainwindow accessable from this class.
+      * The imageView is the output imageview on the mainwindow.
+      * @param context is a Context.
+      * @param imageView is an ImageView.
+      * @return The test results
+      */
 	public OpenCL(Context context, ImageView imageView) {
     	mContext = context; //<-- fill it with the Context you passed
     	outputButton = imageView;
@@ -86,6 +95,12 @@ public class OpenCL extends Object {
 	public boolean getOpenCLSupport(){
 		return sfoundLibrary;
 	}
+     /*! \brief Setter function for the input bitmap.
+      *
+      * The setBitmap function creates a copy of the argument (bmpOrigJava) and creates a 2th bitmap.
+      * @param bmpOrigJava is an android Bitmap.
+      * @return void
+      */
     public void setBitmap(Bitmap bmpOrigJava)
     {
     	bmpOrig = bmpOrigJava;
@@ -93,6 +108,11 @@ public class OpenCL extends Object {
         info[1] = bmpOrig.getHeight();
         bmpOpenCL = Bitmap.createBitmap(info[0], info[1], Bitmap.Config.ARGB_8888);
     }
+     /*! \brief Getter function to get the resulting bitmap from one of the OpenCL functions.
+      *
+      * It has no arguments and returns a bitmap.
+      * @return bmpOpenCL The resulting bitmap.
+      */
     public Bitmap getBitmap()
     {
     	return bmpOpenCL;
