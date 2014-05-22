@@ -102,7 +102,6 @@ public class OpenCL extends Object {
       *
       * The setBitmap function creates a copy of the argument (bmpOrigJava) and creates a 2th bitmap.
       * @param bmpOrigJava is an android Bitmap
-      * @return void
       */
     public void setBitmap(Bitmap bmpOrigJava)
     {
@@ -124,7 +123,6 @@ public class OpenCL extends Object {
       *
       * The initOpenCL function needs a kernel name and initialises the OpenCL environment.
       * @param kernelName is a String
-      * @return void
       */
     private native void initOpenCL (String kernelName);
      /*! \brief Connection between Java and Native code.
@@ -133,7 +131,6 @@ public class OpenCL extends Object {
       * This function initialises the OpenCL environment for the code from the input field in mainwindow.
       * @param OpenCLCode is a String
       * @param kernelName is a String
-      * @return void
       */
     private native void initOpenCLFromInput (String OpenCLCode, String kernelName);
      /*! \brief Connection between Java and Native code.
@@ -141,7 +138,6 @@ public class OpenCL extends Object {
       * The nativeBasicOpenCL function needs an input and output bitmap and executes the kernel initialized in initOpenCL.
       * @param inputBitmap is a bitmap
       * @param outputBitmap is a bitmap
-      * @return void
       */
     private native void nativeBasicOpenCL (
             Bitmap inputBitmap,
@@ -153,7 +149,6 @@ public class OpenCL extends Object {
       * The difference with nativeBasicOpenCL is that this function uses image2d_t in it's kernels.
       * @param inputBitmap is a bitmap
       * @param outputBitmap is a bitmap
-      * @return void
       */
     private native void nativeImage2DOpenCL(
             Bitmap inputBitmap,
@@ -167,7 +162,6 @@ public class OpenCL extends Object {
       * @param inputBitmap is a bitmap
       * @param outputBitmap is a bitmap
       * @param saturatie is a float
-      * @return void
       */
     private native void nativeSaturatieImage2DOpenCL(
             Bitmap inputBitmap,
@@ -177,13 +171,11 @@ public class OpenCL extends Object {
      /*! \brief Connection between Java and Native code.
       *
       * The shutdownOpenCL function removes all OpenCL allocations.
-      * @return void
       */
     private native void shutdownOpenCL ();
      /*! \brief This function will be called when the Edge button is clicked.
       *
       * It will execute all steps to apply the OpenCL edge filter onto the image, gets the execution time and has a check to make sure the bitmap is valid.
-      * @return void
       */
 	public void OpenCLEdge ()
 	{
@@ -206,7 +198,6 @@ public class OpenCL extends Object {
      /*! \brief This function will be called when the Inverse button is clicked.
       *
       * It will execute all steps to apply the OpenCL inverse filter onto the image, gets the execution time and has a check to make sure the bitmap is valid.
-      * @return void
       */
 	public void OpenCLInverse ()
 	{
@@ -229,7 +220,6 @@ public class OpenCL extends Object {
      /*! \brief This function will be called when the Sharpen button is clicked.
       *
       * It will execute all steps to apply the OpenCL sharpen filter onto the image, gets the execution time and has a check to make sure the bitmap is valid.
-      * @return void
       */
 	public void OpenCLSharpen ()
 	{
@@ -252,7 +242,6 @@ public class OpenCL extends Object {
      /*! \brief This function will be called when the mediaan button is clicked.
       *
       * It will execute all steps to apply the OpenCL mediaan filter onto the image, gets the execution time and has a check to make sure the bitmap is valid.
-      * @return void
       */
 	public void OpenCLMediaan ()
 	{
@@ -276,7 +265,6 @@ public class OpenCL extends Object {
      /*! \brief This function will be called when the Blur button is clicked.
       *
       * It will execute all steps to apply the OpenCL blur filter onto the image, gets the execution time and has a check to make sure the bitmap is valid.
-      * @return void
       */
 	public void OpenCLBlur ()
 	{
@@ -300,7 +288,6 @@ public class OpenCL extends Object {
       *
       * It will execute all steps to apply the OpenCL saturation filter onto the image, gets the execution time and has a check to make sure the bitmap is valid.
       * This function will also show a pop up window with a slider bar to select the saturation value between 0 and 200.
-      * @return void
       */
 	public void OpenCLSaturatie ()
 	{	
@@ -353,7 +340,6 @@ public class OpenCL extends Object {
      /*! \brief This function will be called when OpenCLsaturatie's pop up windows is closed.
       *
       * It will execute all steps to apply the OpenCL saturation filter onto the image, gets the execution time and has a check to make sure the bitmap is valid.
-      * @return void
       */
 	private void saturate()
 	{
@@ -376,7 +362,6 @@ public class OpenCL extends Object {
       *
       * The argument is the file name and must be located inside the assets folder. It copy's the file to make sure the OpenCL code can acces it.
       * @param f is a String
-      * @return void
       */
 	private void copyFile(final String f) {
 		InputStream in;
@@ -400,7 +385,6 @@ public class OpenCL extends Object {
 	/*! \brief The setTimeFromJNI function allows the native code to set a value to the GUI in the log window.
 	*
 	*@param time is a float
-	*@return void
 	*/
 	public void setTimeFromJNI(float time)
 	{
@@ -414,8 +398,7 @@ public class OpenCL extends Object {
 	}
 	/*! \brief The setConsoleOutput function allows the native code to set a value to the GUI in the console window.
 	*
-	*@param Errorlog is a String
-	*@return void
+	*@param ErrorLog is a String
 	*/
 	public void setConsoleOutput(String ErrorLog)
 	{
@@ -453,7 +436,6 @@ public class OpenCL extends Object {
 	/*! \brief This function gives the kernelName a value.
 	*
 	*@param name is a String
-	*@return void
 	*/
 	public void setKernelName(String name) {
 		kernelName = name;
@@ -461,7 +443,6 @@ public class OpenCL extends Object {
        /*! \brief This function calls all the need OpenCL function to compile OpenCL code from text input.
 	*
 	*@param code is a String
-	*@return void
 	*/
 	public void codeFromFile(final String code)
 	{

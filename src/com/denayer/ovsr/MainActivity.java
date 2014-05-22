@@ -762,11 +762,13 @@ public class MainActivity extends Activity {
 		});
 		//einde radio buttons
 	}
-	/*! \brief Brief description.
-	 *         Brief description continued.
-	 *
-	 *  Detailed description starts here.
-	 */
+		/*! \brief Brief description.
+		 *         Brief description continued.
+		 *
+		 *  Detailed description starts here.
+		 *  @see onCreateOptionsMenu
+		 *  @param Message This is the message.
+		 */
 	public void createToast(String Message,boolean isLong)
 	{
 		Context context = getApplicationContext();
