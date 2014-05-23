@@ -27,11 +27,19 @@ import android.util.Log;
 public class LogFile extends Object {
 	private Context mContext; //<-- declare a Context reference
 	private String FileName;
-	
+	/*! \brief Constructor.
+	 * @pararm context is the callers context
+	 */
 	public LogFile(Context context){
-		mContext = context;
-		
+		mContext = context;		
 	}		
+	/*! \brief Writes data to a specific file.
+	 * 
+	 * This function takes three arguments. The data to be written, the filename and a bool to set overwrite existing file or not.
+	 * @param data is the string that contains the text to be written
+	 * @param FileName may ONLY be the file name, it will be stored in the apps private directory
+	 * @param overwrite If the boolean is true, a file with the same name will be overwritten, else the text will be appended
+	 */
 	public void writeToFile(String data, String FileName, boolean overwrite) {				
 	    try {
 	    	OutputStreamWriter MyOutputStreamWriter;
@@ -53,6 +61,11 @@ public class LogFile extends Object {
 	        Log.e("Exception", "File write failed: " + e.toString());
 	    } 
 	}
+	/*! \brief This function writes data to a file in the "/sdcard/DCIM/" folder.
+	 * 
+	 * @param data is the data to be written
+	 * @param is that file name of the file to be written. It may only be the NAME, no directory.
+	 */
 	public void writeToPublicFile(String data, String FileName) {	
 		FileOutputStream fop = null;
 		File file;
@@ -61,7 +74,6 @@ public class LogFile extends Object {
  
 			file = new File("/sdcard/DCIM/" + FileName);
 			fop = new FileOutputStream(file,true);
-			// if file doesnt exists, then create it
 			if (!file.exists()) {
 				file.createNewFile();
 			}
@@ -85,6 +97,12 @@ public class LogFile extends Object {
 			}
 		}
 	}
+	/*! \brief This function can read from the apps private files or from a file in a directory specified by the user.
+	 * 
+	 * @param path is the directory that contains the file to be read. If this is an empty string, the file will be searched in the private directory
+	 * @param FileName is the name of the file to be read
+	 * @return This function will return the data from the file. If the file is not found, the string will be empty
+	 */
 	public String readFromFile(String path, String FileName) {
 		String ret = "";
 		if(path==""){
@@ -131,6 +149,10 @@ public class LogFile extends Object {
 		}
 		return ret;
 	}
+	/*! \brief Deletes the file specified by the FileName string.
+	 * 
+	 *  This function an only delete from the private directory
+	 */
 	void deleteExternalStoragePrivateFile() {
 	    // Get path for the file on external storage.  If external
 	    // storage is not currently mounted this will fail.
@@ -140,6 +162,10 @@ public class LogFile extends Object {
 	        Log.i("Debug","File deleted!");
 	    }
 	}
+	/*! \brief A function to check the existence of the external storage.
+	 * 
+	 * @return If the function fails, it will return false if the external storage is not mounted, else it will return true.
+	 */
 	boolean hasExternalStoragePrivateFile() {
 	    // Get path for the file on external storage.  If external
 	    // storage is not currently mounted this will fail.
