@@ -551,6 +551,11 @@ public class MainActivity extends Activity {
 		OpenCLObject.setBitmap(bitmap);
 		RenderScriptObject.setInputBitmap(bitmap);
 	}
+	/*! \brief converts URI to a real file path
+	*
+	* @param contentUri the URI to be converted
+	* @return returns the file path resulting from the URI
+	*/
 	public String getRealPathFromURI(Uri contentUri) {
 		String [] proj      = {MediaStore.Images.Media.DATA};
 		Cursor cursor       = getContentResolver().query( contentUri, proj, null, null,null);
@@ -563,6 +568,12 @@ public class MainActivity extends Activity {
 
 		return cursor.getString(column_index);
 	}
+	/*! \brief Creates choose boxes to chose a filter
+	*
+	* This function creates all the filter chose boxes specified in the itemsFilterBox string list.
+	* It also dynamicly adds onclick functions to each box and calls the correct filter for each box.
+	*
+	*/
 	public void createBoxes()
 	{
 		//choose box voor opencl of renderscript te selecteren
@@ -936,11 +947,22 @@ public class MainActivity extends Activity {
 			return super.onOptionsItemSelected(item);
 		}
 	}
+	/*! \brief Starts the history activity.
+	*
+	*/
 	public void startHistoryActivity()
 	{
 		Intent intent = new Intent(this,DisplayMessageActivty.class);
 		startActivity(intent);
 	}
+	/*! \brief Decodes and resizes a file to the largest possible bitmap.
+	*
+	* This function resizes the bitmap from a file to a specified size and uses as less memory as possible.
+	* @param f is the directory to the image file to be converted
+	* @param Req_Height is the required hight
+	* @param Req_Width is the required width
+	* @return The bitmap from the file
+	*/
 	public static Bitmap decodeAndResizeFile(File f,int Req_Height, int Req_Width) {
 		try {
 			// Decode image size
