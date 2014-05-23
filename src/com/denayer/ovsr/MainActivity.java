@@ -525,6 +525,16 @@ public class MainActivity extends Activity {
 		}
 		System.gc();
 	}
+	/*! \brief sets the input and output bitmap
+	 *
+  *  this function will set the input bitmap to the image view. The bitmap is scaled depending on the device's
+  *  screen resolution. A copy is also provided to the RenderScript and OpenCL objects. The output image view is set with a
+  *  bitmap of the same dimensions as the input bitmap.
+  * 
+  * @param requestCode
+  * @param resultCode integer to indicate the activity who's responsible for calling this function
+  * @param data the data from the stopped activity
+  */
 	public void setBitmaps()
 	{
 		Display display = getWindowManager().getDefaultDisplay();
