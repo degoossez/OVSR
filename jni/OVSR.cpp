@@ -41,8 +41,9 @@ struct OpenCLObjects
 
 static OpenCLObjects openCLObjects;
 
-/*
- * Load the program out of the file in to a string for opencl compiling.
+/*! /brief Reads the text from a file and returns it in a string.
+ * @param input is the name and full path of the file that has to be read
+ * @return It returns the text from a file in a string.
  */
 inline std::string loadProgram(std::string input)
 {
@@ -144,9 +145,10 @@ const char* opencl_error_to_str (cl_int error)
 			return;                                                                       \
 		}
 
-	/*
-	 * This function picks and creates all necessary OpenCL objects
-	 * to be used at each filter iteration. The objects are:
+	/*! \brief This function picks and creates all necessary OpenCL objects
+	 * to be used at each filter iteration. 
+	 *
+	 * The objects are:
 	 * OpenCL platform, device, context, command queue, program,
 	 * and kernel.
 	 *
@@ -168,27 +170,14 @@ void initOpenCL
 
 	using namespace std;
 
-	// Will be used at each effect iteration,
-	// and means that you haven't yet initialized
-	// the inputBuffer object.
+
 	openCLObjects.isInputBufferInitialized = false;
-	// The following variable stores return codes for all OpenCL calls.
-	// In the code it is used with the SAMPLE_CHECK_ERRORS macro defined
-	// before this function.
+
 	cl_int err = CL_SUCCESS;
 
-	/* -----------------------------------------------------------------------
-	 * Step 1: Query for all available OpenCL platforms on the system.
-	 * Enumerate all platforms and pick one which name has
-	 * required_platform_subname as a sub-string.
+	/* 
+	 * Step 1: Get the first platform
 	 */
-
-	cl_uint num_of_platforms = 0;
-	// Get total number of the available platforms.
-	err = clGetPlatformIDs(0, 0, &num_of_platforms);
-	SAMPLE_CHECK_ERRORS(err);
-	//LOGD("Number of available platforms: %u", num_of_platforms);
-
 	cl_platform_id platform;
 	err = clGetPlatformIDs(1, &platform, NULL);
 	SAMPLE_CHECK_ERRORS(err);
@@ -205,10 +194,8 @@ void initOpenCL
 	SAMPLE_CHECK_ERRORS(err);
 
 	openCLObjects.platform = platform;
-	/* -----------------------------------------------------------------------
-	 * Step 2: Create context with a device of the specified type.
-	 * Required device type is passed as function argument required_device_type.
-	 * Use this function to create context for any CPU or GPU OpenCL device.
+	/* 
+	 * Step 2: Create context with a device of the specified type (required_device_type).
 	 */
 
 	cl_context_properties context_props[] = {
@@ -227,7 +214,7 @@ void initOpenCL
 					&err
 			);
 	SAMPLE_CHECK_ERRORS(err);
-	/* -----------------------------------------------------------------------
+	/* 
 	 * Step 3: Query for OpenCL device that was used for context creation.
 	 */
 	err = clGetContextInfo
@@ -251,7 +238,6 @@ void initOpenCL
 	fileDir.append(fileName);
 	fileDir.append(".cl");
 	std::string kernelSource = loadProgram(fileDir);
-	//std::string to const char* needed for the clCreateProgramWithSource function
 	const char* kernelSourceChar = kernelSource.c_str();
 
 	openCLObjects.program =
@@ -267,10 +253,8 @@ void initOpenCL
 	SAMPLE_CHECK_ERRORS(err);
 
 	/*
-	 * Build the program.
+	 * Build the program with defined BUILDOPT (build optimalisations).
 	 */
-	//err = clBuildProgram(openCLObjects.program, 0, 0, 0, 0, 0);
-	//http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clBuildProgram.html
 	err = clBuildProgram(openCLObjects.program, 0, 0, BUILDOPT, 0, 0);
 	jstring JavaString = (*env).NewStringUTF("Code compiled succesful.");
 	if(err == CL_BUILD_PROGRAM_FAILURE)
@@ -352,7 +336,12 @@ void initOpenCL
 
 }
 
-
+	/*! \brief This function enables the connection between initOpenCL and Java. 
+	 * 
+	 * @param env is a pointer to the java environment where this function is called.
+	 * @param thisObject is a java object to be able to access java data from the native code
+	 * @param kernelName is a java string that contains the kernel for which the OpenCL code must be initialised
+	 */
 extern "C" void Java_com_denayer_ovsr_OpenCL_initOpenCL
 (
 		JNIEnv* env,
@@ -369,7 +358,20 @@ extern "C" void Java_com_denayer_ovsr_OpenCL_initOpenCL
 			openCLObjects
 	);
 }
-
+	/*! \brief This function prepares OpenCL to compile code from a Java string.
+	 *
+	 * It picks and creates all necessary OpenCL objects
+	 * to be used at each filter iteration. The objects are:
+	 * OpenCL platform, device, context, command queue, program,
+	 * and kernel.
+	 * 
+	 * @param env is a pointer to the java environment where this function is called.
+	 * @param thisObject is a java object to be able to access java data from the native code
+	 * @param kernelCode is the OpenCL code to be compiled
+	 * @param kernelName is a java string that contains the kernel for which the OpenCL code must be initialised
+	 * @param required_device_type is a OpenCL datatype that holds the type of device the context has to be build for.
+	 * @param openCLObjects is the adres of the openCLObjects struct
+	 */
 void initOpenCLFromInput
 (
 		JNIEnv* env,
@@ -385,11 +387,6 @@ void initOpenCLFromInput
 
 	openCLObjects.isInputBufferInitialized = false;
 	cl_int err = CL_SUCCESS;
-
-
-	cl_uint num_of_platforms = 0;
-	err = clGetPlatformIDs(0, 0, &num_of_platforms);
-	SAMPLE_CHECK_ERRORS(err);
 
 	cl_platform_id platform;
 	err = clGetPlatformIDs(1, &platform, NULL);
@@ -449,8 +446,6 @@ void initOpenCLFromInput
 
 	SAMPLE_CHECK_ERRORS(err);
 
-	//err = clBuildProgram(openCLObjects.program, 0, 0, 0, 0, 0);
-	//http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clBuildProgram.html
 	err = clBuildProgram(openCLObjects.program, 0, 0, BUILDOPT, 0, 0);
 	jstring JavaString = (*env).NewStringUTF("Code compiled succesful.");
 	if(err == CL_BUILD_PROGRAM_FAILURE)
@@ -524,7 +519,13 @@ void initOpenCLFromInput
 	SAMPLE_CHECK_ERRORS(err);
 }
 
-
+	/*! \brief This function enables the connection between initOpenCLFromInput and Java. 
+	 * 
+	 * @param env is a pointer to the java environment where this function is called.
+	 * @param thisObject is a java object to be able to access java data from the native code
+	 * @param OpenCLCode is a java string that contains the OpenCL code to be excecuted
+	 * @param kernelName is a java string that contains the kernel for which the OpenCL code must be initialised
+	 */
 extern "C" void Java_com_denayer_ovsr_OpenCL_initOpenCLFromInput
 (
 		JNIEnv* env,
@@ -543,10 +544,8 @@ extern "C" void Java_com_denayer_ovsr_OpenCL_initOpenCLFromInput
 			openCLObjects
 	);
 }
-
-void shutdownOpenCL (OpenCLObjects& openCLObjects)
-{
-	/* Release all OpenCL objects.
+	/*! \brief This function prepares OpenCL to compile code from a Java string.
+	 *
 	 * This is a regular sequence of calls to deallocate
 	 * all created OpenCL resources in bootstrapOpenCL.
 	 *
@@ -560,7 +559,11 @@ void shutdownOpenCL (OpenCLObjects& openCLObjects)
 	 * execution might be not so useful, as upon killing
 	 * an application, which is a common thing in the Android OS,
 	 * all OpenCL resources are deallocated automatically.
+	 * 
+	 * @param openCLObjects is the adres of the openCLObjects struct
 	 */
+void shutdownOpenCL (OpenCLObjects& openCLObjects)
+{
 	LOGD("SHUTTING DOWN");
 	cl_int err = CL_SUCCESS;
 
@@ -588,7 +591,11 @@ void shutdownOpenCL (OpenCLObjects& openCLObjects)
 	 */
 }
 
-
+	/*! \brief This function enables the connection between shutdownOpenCL and Java. 
+	 * 
+	 * @param env is a pointer to the java environment where this function is called.
+	 * @param thisObject is a java object to be able to access java data from the native code
+	 */
 extern "C" void Java_com_denayer_ovsr_OpenCL_shutdownOpenCL
 (
 		JNIEnv* env,
@@ -597,7 +604,14 @@ extern "C" void Java_com_denayer_ovsr_OpenCL_shutdownOpenCL
 {
 	shutdownOpenCL(openCLObjects);
 }
-
+	/*! \brief Excecutes an OpenCL kernel. Makes no use of image2d
+	 *  
+	 * @param env is a pointer to the java environment where this function is called.
+	 * @param thisObject is a java object to be able to access java data from the native code
+	 * @param openCLObjects is the adres of the openCLObjects struct
+	 * @param inputBitmap is the Android bitmap that has to be processed
+	 * @param outputBitmap is the result of the OpenCL kernel
+	*/
 void nativeBasicOpenCL
 (
 		JNIEnv* env,
@@ -728,7 +742,13 @@ void nativeBasicOpenCL
 //	(*env).CallVoidMethod(thisObject, setTimeFromJNI, ndrangeDuration);
 	//LOGD("Done");
 }
-
+	/*! \brief This function enables the connection between nativeBasicOpenCL and Java. 
+	 * 
+	 * @param env is a pointer to the java environment where this function is called.
+	 * @param thisObject is a java object to be able to access java data from the native code
+	 * @param inputBitmap is the Android bitmap that has to be processed
+	 * @param outputBitmap is the result of the OpenCL kernel
+	 */
 extern "C" void Java_com_denayer_ovsr_OpenCL_nativeBasicOpenCL
 (
 		JNIEnv* env,
@@ -746,7 +766,14 @@ extern "C" void Java_com_denayer_ovsr_OpenCL_nativeBasicOpenCL
 			outputBitmap
 	);
 }
-
+	/*! \brief Excecutes an OpenCL kernel. Makes use of the image2d_t data type.
+	 *  
+	 * @param env is a pointer to the java environment where this function is called.
+	 * @param thisObject is a java object to be able to access java data from the native code
+	 * @param openCLObjects is the adres of the openCLObjects struct
+	 * @param inputBitmap is the Android bitmap that has to be processed
+	 * @param outputBitmap is the result of the OpenCL kernel
+	*/
 void nativeImage2DOpenCL
 (
 		JNIEnv* env,
@@ -872,7 +899,13 @@ void nativeImage2DOpenCL
 	jmethodID setTimeFromJNI = (*env).GetMethodID(MyJavaClass, "setTimeFromJNI", "(F)V"); //argument is float, return time is void
 	(*env).CallVoidMethod(thisObject, setTimeFromJNI, ndrangeDuration);
 }
-
+	/*! \brief This function enables the connection between nativeImage2DOpenCL and Java. 
+	 * 
+	 * @param env is a pointer to the java environment where this function is called.
+	 * @param thisObject is a java object to be able to access java data from the native code
+	 * @param inputBitmap is the Android bitmap that has to be processed
+	 * @param outputBitmap is the result of the OpenCL kernel
+	 */
 extern "C" void Java_com_denayer_ovsr_OpenCL_nativeImage2DOpenCL
 (
 		JNIEnv* env,
@@ -890,6 +923,17 @@ extern "C" void Java_com_denayer_ovsr_OpenCL_nativeImage2DOpenCL
 			outputBitmap
 	);
 }
+	/*! \brief Excecutes a saturation OpenCL kernel. Makes use of the image2d_t data type.
+	 *  
+	 * This function is specially made for saturation kernels to be excecuted. It has an extra argument "saturatie" that is a value between 0 and 200.
+	 *
+	 * @param env is a pointer to the java environment where this function is called.
+	 * @param thisObject is a java object to be able to access java data from the native code
+	 * @param openCLObjects is the adres of the openCLObjects struct
+	 * @param inputBitmap is the Android bitmap that has to be processed
+	 * @param outputBitmap is the result of the OpenCL kernel
+	 * @param saturatie is the saturation value needed to process the kernel
+	*/
 void nativeSaturatieImage2DOpenCL
 (
 		JNIEnv* env,
@@ -1028,7 +1072,13 @@ void nativeSaturatieImage2DOpenCL
 //	jmethodID setTimeFromJNI = (*env).GetMethodID(MyJavaClass, "setTimeFromJNI", "(F)V"); //argument is float, return time is void
 //	(*env).CallVoidMethod(thisObject, setTimeFromJNI, ndrangeDuration);
 }
-
+	/*! \brief This function enables the connection between nativeSaturatieImage2DOpenCL and Java. 
+	 * 
+	 * @param env is a pointer to the java environment where this function is called.
+	 * @param thisObject is a java object to be able to access java data from the native code
+	 * @param inputBitmap is the Android bitmap that has to be processed
+	 * @param outputBitmap is the result of the OpenCL kernel
+	 */
 extern "C" void Java_com_denayer_ovsr_OpenCL_nativeSaturatieImage2DOpenCL
 (
 		JNIEnv* env,
