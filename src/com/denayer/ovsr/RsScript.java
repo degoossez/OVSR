@@ -49,7 +49,13 @@ public class RsScript extends Object {
 	public TextView mElapsedTime;
 	public MainActivity MmainThread;
 	
-	
+	 /*! \brief Constructor
+	 *
+     * 
+     * @param mActiv handle to the MainActivity necessary for the creation of RenderScript objects. 
+     * @param imageView The image view from the MainActivity where the resulting image is displayed
+     * 
+     */
 	public RsScript(MainActivity mActiv, ImageView imageView, TextView view) {
 		
 	   mContext = mActiv;	//needed by renderscript
@@ -60,18 +66,36 @@ public class RsScript extends Object {
 	   
 	}
 	
-	
+	/*! \brief funtion to set the input bitmap 
+	*
+    * This funcion sets the input bitmap that is used in this class for the image processing.
+    * The output bitmap used for storing the result after filter execution, is also created
+    * with the same dimensions as the input bitmap.
+    * @param in The bitmap data
+    *  
+    */
 	public void setInputBitmap(Bitmap in)
 	{
 		inBitmap = in;
 		outBitmap = Bitmap.createBitmap(inBitmap.getWidth(), inBitmap.getHeight(), Bitmap.Config.ARGB_8888);
 	}
-	
+	/*! \brief returns the output bitmap	
+    * 
+    * @return outBitmap the output bitmap
+    */
 	public Bitmap getOutputBitmap()
 	{
 		return outBitmap;
 	}
 	
+	/*! \brief executes an Edge Filter on the input image
+	*
+    * A Renderscript context object is created to handle the lifetime of all other RenderScript objects.
+    * The necessary memory is allocated for the computations, and to write back the result.
+    * Global script variables are set and the script starts execution.
+    * When complete, all objects are destroyed to free the memory.
+    *  
+    */
 	public void RenderScriptEdge()
 	{
 		if(inBitmap == null)
@@ -112,6 +136,14 @@ public class RsScript extends Object {
         script.destroy();
 	}
 	
+	/*! \brief executes an inverse Filter on the input image
+	*
+    * A Renderscript context object is created to handle the lifetime of all other RenderScript objects.
+    * The necessary memory is allocated for the computations, and to write back the result.
+    * Global script variables are set and the script starts execution.
+    * When complete, all objects are destroyed to free the memory.
+    *  
+    */
 	public void RenderScriptInverse()
 	{
 		if(inBitmap == null)
@@ -148,6 +180,14 @@ public class RsScript extends Object {
         script.destroy();
 	}	
 	
+	/*! \brief executes a sharpen Filter on the input image
+	*
+    * A Renderscript context object is created to handle the lifetime of all other RenderScript objects.
+    * The necessary memory is allocated for the computations, and to write back the result.
+    * Global script variables are set and the script starts execution.
+    * When complete, all objects are destroyed to free the memory.
+    *  
+    */
 	public void RenderScriptSharpen()
 	{
 		if(inBitmap == null)
@@ -189,6 +229,14 @@ public class RsScript extends Object {
         script.destroy();
 	}
 	
+	/*! \brief executes a blur Filter on the input image
+	*
+    * A Renderscript context object is created to handle the lifetime of all other RenderScript objects.
+    * The necessary memory is allocated for the computations, and to write back the result.
+    * Global script variables are set and the script starts execution.
+    * When complete, all objects are destroyed to free the memory.
+    *  
+    */	
 	public void RenderScriptBlur()
 	{
 		if(inBitmap == null)
@@ -229,6 +277,9 @@ public class RsScript extends Object {
 	
 	}
 	
+	/*! \brief creates the seekbar for choosing a saturation value
+    *  
+    */
 	public void RenderScriptSaturatie()
 	{		
 		if(inBitmap == null)
@@ -279,6 +330,14 @@ public class RsScript extends Object {
         }
 	}
 	
+	/*! \brief executes a saturation Filter on the input image
+	*
+    * A Renderscript context object is created to handle the lifetime of all other RenderScript objects.
+    * The necessary memory is allocated for the computations, and to write back the result.
+    * Global script variables are set and the script starts execution.
+    * When complete, all objects are destroyed to free the memory.
+    *  
+    */
 	public Bitmap saturate(Bitmap bmIn, float saturation)
 	{
 		
@@ -324,6 +383,14 @@ public class RsScript extends Object {
 	    return bmOut;
 	}
 	
+	/*! \brief executes a mediaan Filter on the input image
+	*
+    * A Renderscript context object is created to handle the lifetime of all other RenderScript objects.
+    * The necessary memory is allocated for the computations, and to write back the result.
+    * Global script variables are set and the script starts execution.
+    * When complete, all objects are destroyed to free the memory.
+    *  
+    */
 	public void RenderScriptMediaan()
 	{
 		
@@ -363,6 +430,18 @@ public class RsScript extends Object {
         script.destroy();
 	}
 	
+	/*! \brief executes a user defined filter on the input image
+	*
+    * A Renderscript context object is created to handle the lifetime of all other RenderScript objects.
+    * The necessary memory is allocated for the computations, and to write back the result.
+    * Global script variables are set and the script starts execution.
+    * When complete, all objects are destroyed to free the memory.
+    * 
+    * Because the filter bytecode can change during app execution, the location of the bytecode is not from inside the 
+    * APK but from a controlled location in the apps private memory. To inform the Renderscript API about this new
+    * location, our own Resource object is passed to the script at script creation.
+    *  
+    */
 	public void RenderScriptTemplate()
 	{
 		
@@ -404,6 +483,12 @@ public class RsScript extends Object {
         script.destroy();
 	}
 	
+	/*! \brief returns the RenderScript Template
+	*
+    * returns the RenderScript template used as a starting point for user defined scripts.
+    * 
+    *  @return template the template in String format
+    */
 	public String getTemplate()
 	{
 		String template = null;
@@ -426,18 +511,6 @@ public class RsScript extends Object {
 		
 		return template;
 	}
-	public void codeFromFile(String code)
-	{
-		//code contains the .bc file send from the server
-		//write the contents to template.bc in the apps private directory
-		//invoke template function to execute new code
-		
-		
-			
-	}	
-	
-	
-	
 	
 }
 
