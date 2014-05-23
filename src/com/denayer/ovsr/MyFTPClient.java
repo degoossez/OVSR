@@ -26,7 +26,15 @@ public class MyFTPClient {
 	private static final String TAG = "MyFTPClient";
 	public FTPClient mFTPClient = null; 
 
-	//Method to connect to FTP server:
+	/*! \brief Method to connect to FTP server
+	 * 
+	 * 	This function connects to a FTP server and creates a client object to be used in other functions
+	 * @param host is the IP of the host server
+	 * @param username is the user name to login with
+	 * @param password is the password that matches with the username
+	 * @param port is the FTP port of the server
+	 * @return This function returns true of the connection is made
+	 */
 	public boolean ftpConnect(String host, String username,
 	                          String password, int port)
 	{
@@ -60,7 +68,9 @@ public class MyFTPClient {
 	} 
 
 	//Method to disconnect from FTP server:
-
+	/*! \brief This function disconnects the client that is made in the ftpconnect function.
+	 * @return Returns true if disconnection is successful.
+	 */
 	public boolean ftpDisconnect()
 	{
 	    try {
@@ -74,8 +84,10 @@ public class MyFTPClient {
 	    return false;
 	} 
 
-	//Method to get current working directory:
-
+	/*! \brief Method to get current working directory
+	 * 	
+	 * @return This function returns the current working directory. If the function returns null, you have a connection error.
+	 */
 	public String ftpGetCurrentWorkingDirectory()
 	{
 	    try {
@@ -88,12 +100,16 @@ public class MyFTPClient {
 	    return null;
 	} 
 
-	//Method to change working directory:
-
+	/*! \brief Method to change working directory
+	 * 	
+	 * @param directory_path is the path to change the working directory to. 
+	 * @return This function returns true if the path is changed
+	 */
 	public boolean ftpChangeDirectory(String directory_path)
 	{
 	    try {
 	        mFTPClient.changeWorkingDirectory(directory_path);
+	        return true;
 	    } catch(Exception e) {
 	        Log.d(TAG, "Error: could not change directory to " + directory_path);
 	    }
@@ -101,8 +117,11 @@ public class MyFTPClient {
 	    return false;
 	} 
 
-	//Method to list all files in a directory:
-
+	
+	/*! \brief Method to list all files in a directory
+	 * 	
+	 * @param dir_path is the path to list all files from
+	 */
 	public void ftpPrintFilesList(String dir_path)
 	{
 	    try {
@@ -124,9 +143,11 @@ public class MyFTPClient {
 	        e.printStackTrace();
 	    }
 	} 
-
-	//Method to create new directory:
-
+	/*! \brief Method to create new directory
+	 * 	
+	 * @param new_dir_path is the name of the new directory to be created
+	 * @return Returns true if a new directory is been made
+	 */
 	public boolean ftpMakeDirectory(String new_dir_path)
 	{
 	    try {
@@ -138,9 +159,11 @@ public class MyFTPClient {
 
 	 return false;
 	} 
-
-	//Method to delete/remove a directory:
-
+	/*! \brief Method to delete/remove a directory
+	 * 	
+	 * @param dir_path is the name of the directory to be deleted
+	 * @return Returns true if the directory is deleted
+	 */
 	public boolean ftpRemoveDirectory(String dir_path)
 	{
 	    try {
@@ -153,8 +176,11 @@ public class MyFTPClient {
 	    return false;
 	} 
 
-	//Method to delete a file:
-
+	/*! \brief Method to delete a file
+	 * 	
+	 * @param filePath is the name of the file to be deleted
+	 * @return Returns true if the file is deleted
+	 */
 	public boolean ftpRemoveFile(String filePath)
 	{
 	    try {
@@ -166,9 +192,12 @@ public class MyFTPClient {
 
 	    return false;
 	} 
-
-	//Method to rename a file:
-
+	/*! \brief Method to rename a file
+	 * 	
+	 * @param from is the name of the file to be renamed
+	 * @param to is the new name of the file
+	 * @return Returns true if the file is renamed
+	 */
 	public boolean ftpRenameFile(String from, String to)
 	{
 	    try {
@@ -180,13 +209,11 @@ public class MyFTPClient {
 
 	    return false;
 	} 
-
-	//Method to download a file from FTP server:
-
-	/**
-	 * mFTPClient: FTP client connection object (see FTP connection example)
-	 * srcFilePath: path to the source file in FTP server
-	 * desFilePath: path to the destination file to be saved in sdcard
+	/*! \brief Method to download a file from FTP server
+	 * 	
+	 * @param srcFilePath path to the source file in FTP server
+	 * @param desFilePath path to the destination file to be saved in sdcard
+	 * @return Returns true if the file is downloaded
 	 */
 	public boolean ftpDownload(String srcFilePath, String desFilePath)
 	{
@@ -204,13 +231,12 @@ public class MyFTPClient {
 	    return status;
 	} 
 
-	//Method to upload a file to FTP server:
-
-	/**
-	 * mFTPClient: FTP client connection object (see FTP connection example)
-	 * srcFilePath: source file path in sdcard
-	 * desFileName: file name to be stored in FTP server
-	 * desDirectory: directory path where the file should be upload to
+	/*! \brief Method to upload a file to FTP server
+	 * @param srcFilePath source file path in sdcard
+	 * @param desFileName file name to be stored in FTP server
+	 * @param desDirectory directory path where the file should be upload to
+	 * @param context is the connect of the calling class
+	 * @return Returns true if the file is uploaded
 	 */
 	public boolean ftpUpload(String srcFilePath, String desFileName,
 	                         String desDirectory, Context context)
