@@ -30,18 +30,41 @@ public class MyResources extends Resources{
 	TypedValue mTmpValue = new TypedValue();
 	Context mContext;
 	
+	/*! \brief constructor 	
+    * 
+    * passes arguments to super class
+    * @param assets
+    * @param metrics
+    * @param config
+    *  
+    */
 	public MyResources(AssetManager assets, DisplayMetrics metrics,
 			Configuration config) {
 		super(assets, metrics, config);
 		
 		
 	}
-	
+	/*! \brief sets context object 
+	*
+    * context is used as a link to MainActivity
+    * @param x the context
+    *  
+    */
 	public void setMyContext(Context x)
 	{
 		mContext = x;
 	}
 	
+	/*! \brief reads the RenderScript Bytecode from own location
+	*
+	* This function reimplements the openRawResource function from the super class.
+	* Because we want to change bytecode at runtime, the location of the byte code needs to be read and writeable.
+	* Instead of reading from the resource folder inside the apk, this function will now read the bytecode from the apps private directory.
+	* 
+    * @param id id of the resource. This needs to be passed in order for this function to match the signature of the super
+    * classe's function. This value will be ignored because we no longer use the resource system due to it's read-only nature. 
+    *  
+    */
 	@Override
 	public InputStream openRawResource(int id) throws NotFoundException {       
         
