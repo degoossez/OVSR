@@ -136,6 +136,24 @@ public class MainActivity extends Activity {
 	//item in de lijst toevoegen voor nieuwe filters toe te voegen.
 	private String [] itemsFilterBox = new String [] {"Edge", "Inverse","Sharpen","Mediaan","Saturatie","Blur"};
 
+	/*! \brief major initialization for app behavior.
+	*
+	* In this function the initialization of the most important app components is done: class 
+	* variables are assigned, the layout with the widgets is set and various listeners are implemented.<br>
+    * 
+    * Submit button listener: when this button is clicked, the listener behaves differently depending on which radiobutton is selected
+    *  When the RenderScript radiobutton is checked, the written code inside the app will be send to the 
+    * server for compilation. When not yet logged in, a login dialog will be shown. If the Radiobutten for OpenCL is checked
+    * the function will check the device for OpenCL support. If supported, a kernel name is asked and the code is executed.
+    * If a video is selected as input, the location to save the result can be specified with a file browser.<br>
+    * 
+    * Connect button listener: setup a connection to the server.<br>
+    * 
+    * Disconnect button listener: disconnect from server.<br>
+    * @param savedInstanceState
+    * 
+    * 
+    */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -364,6 +382,16 @@ public class MainActivity extends Activity {
 
 	}
 
+	/*! \brief receives data from other activities via intents
+	 *
+   * This function receives data from other activities via intents. From the resultCode variable the origin of the
+   * Invocation can be derived. The Data variable contains the data send by the intent. Depending on the resultCode
+   * the function will act differently.
+   * 
+   * @param requestCode
+   * @param resultCode integer to indicate the activity who's responsible for calling this function
+   * @param data the data from the stopped activity
+   */
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (resultCode != RESULT_OK) return;
