@@ -40,15 +40,14 @@ public class TcpClient {
 	public static boolean isByte = false;
 	private byte[] mByteServerMessage = new byte[64000];
 
-	/**
-	 * Constructor of the class. OnMessagedReceived listens for the messages received from server
+	/*! \brief Constructor of the class. OnMessagedReceived listens for the messages received from server
+	 * @param listener is a listener for the OnMessageReceived. The listener is created in Java and is passed to be able to call the listener from the TcpClient functions.
 	 */
 	public TcpClient(OnMessageReceived listener) {
 		mMessageListener = listener;
 	}
 
-	/**
-	 * Sends the message entered by client to the server
+	/*! \brief Sends the message entered by client to the server
 	 *
 	 * @param message text entered by client
 	 */
@@ -59,13 +58,9 @@ public class TcpClient {
 		}
 	}
 
-	/**
-	 * Close the connection and release the members
+	/*! \brief Close the connection and release the members
 	 */
 	public void stopClient() {
-		Log.i("Debug", "stopClient");
-
-		// send mesage that we are closing the connection
 		mRun = false;
 
 		if (mBufferOut != null) {
@@ -81,7 +76,12 @@ public class TcpClient {
 		isConnected = false;
 
 	}
-
+	/*! \brief Thread that listens for incomming data.
+	 * 
+	 * In this thread the socket will be created and connection will be made. 
+	 * The while loop listens for messages sent by the server.
+	 * When a message is received, the messageReceived function will be called.
+	 */
 	public void run() {
 
 		mRun = true;
@@ -132,8 +132,10 @@ public class TcpClient {
 
 	}
 
-	//Declare the interface. The method messageReceived(String message) will must be implemented in the MyActivity
-	//class at on asynckTask doInBackground
+	/*! /brief Declare the interface. 
+	 *The method messageReceived(String message) will must be implemented in the MyActivity
+	 *class at on asynckTask doInBackground
+	 */
 	public interface OnMessageReceived {
 		public void messageReceived(String message);
 	}
