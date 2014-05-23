@@ -54,7 +54,7 @@ public class RsScript extends Object {
      * 
      * @param mActiv handle to the MainActivity necessary for the creation of RenderScript objects. 
      * @param imageView The image view from the MainActivity where the resulting image is displayed
-     * 
+     * @param view here execution times are displayed
      */
 	public RsScript(MainActivity mActiv, ImageView imageView, TextView view) {
 		
