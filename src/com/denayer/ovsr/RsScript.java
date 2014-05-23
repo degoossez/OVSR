@@ -63,7 +63,6 @@ public class RsScript extends Object {
 	   outputButton = imageView;
 	   mElapsedTime = view;
 	   
-	   
 	}
 	
 	/*! \brief funtion to set the input bitmap 

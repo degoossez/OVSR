@@ -1078,6 +1078,7 @@ void nativeSaturatieImage2DOpenCL
 	 * @param thisObject is a java object to be able to access java data from the native code
 	 * @param inputBitmap is the Android bitmap that has to be processed
 	 * @param outputBitmap is the result of the OpenCL kernel
+	 * @param saturatie is the value to saturate with
 	 */
 extern "C" void Java_com_denayer_ovsr_OpenCL_nativeSaturatieImage2DOpenCL
 (

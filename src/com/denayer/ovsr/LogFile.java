@@ -28,7 +28,7 @@ public class LogFile extends Object {
 	private Context mContext; //<-- declare a Context reference
 	private String FileName;
 	/*! \brief Constructor.
-	 * @pararm context is the callers context
+	 * @param context is the callers context
 	 */
 	public LogFile(Context context){
 		mContext = context;		
@@ -64,7 +64,7 @@ public class LogFile extends Object {
 	/*! \brief This function writes data to a file in the "/sdcard/DCIM/" folder.
 	 * 
 	 * @param data is the data to be written
-	 * @param is that file name of the file to be written. It may only be the NAME, no directory.
+	 * @param FileName is that file name of the file to be written. It may only be the NAME, no directory.
 	 */
 	public void writeToPublicFile(String data, String FileName) {	
 		FileOutputStream fop = null;
