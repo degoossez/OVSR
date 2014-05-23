@@ -50,7 +50,12 @@ public class SettingsActivity extends Activity {
 	public static Context con;
 	public static SettingsActivity act;
 	
-	
+	/*! \brief Constructor
+	 *
+    * sets the layout of the settings activity 
+    * @param savedInstanceState
+    * 
+    */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -66,11 +71,22 @@ public class SettingsActivity extends Activity {
 		act = this;
 				
 	}
+
+	/*! \brief creates the options menu
+	 *
+    * 
+    * @param menu    
+    */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.settings, menu);
 		return true;
 	}
+   /*! \brief react on user menu selection
+   *
+   * 
+   * @param item item from menu that is selected  
+   */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
@@ -80,6 +96,14 @@ public class SettingsActivity extends Activity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
+	  /*! \brief initialization when creating the view
+	   * 
+	   * initializes the settings window. Read the previous state from the shared preferences and update
+	   * the settings accordingly.
+	   * Listeners for the widgets are defined here. Login information is send back to the main activity for 
+	   * further processing.
+	   * 
+	   */
 	public static class PlaceholderFragment extends Fragment {
 
 		public PlaceholderFragment() {
