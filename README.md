@@ -62,6 +62,6 @@ To setup the OVSR server, the following steps need to be followed:
 * open de OVSRServer.pro file located in the OVSR directory with Qt Creator
 * inside Qt Creator locate the settings.h file under the Headers directory
 * adjust these settings to match your own configuration
- * s
+ * **port** port the server listens on 
  * s
 
