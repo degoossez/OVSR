@@ -63,5 +63,7 @@ To setup the OVSR server, the following steps need to be followed:
 * inside Qt Creator locate the settings.h file under the Headers directory
 * adjust these settings to match your own configuration
  * **port** port the server listens on 
- * s
+ * **ADT_PATH** path where your ADT bundle is installed
+ * **BUILD_TOOLS_VERSION** version of the build tools that is installed on your system
+ * 
 
