@@ -1074,7 +1074,14 @@ public class MainActivity extends Activity {
 
 			return null;
 		}
-		//wanneer publishProgress opgeroepen wordt, word deze functie gecalled, 
+	/*! \brief update parts of the app
+		 * When the function publisProgress is called, this funtion gets executed. 
+		 * By checking the value variable, we know from where the publisProgress function was called, and can 
+		 * update the state of the app accordingly. This can be as simple as showing a Toast letting the user know
+		 * his login was successful.
+	   * @param value used to determine which part to update
+	   * 
+	   */	
 		@Override
 		protected void onProgressUpdate(String... values) {
 			super.onProgressUpdate(values);
