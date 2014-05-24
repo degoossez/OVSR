@@ -57,15 +57,15 @@ The server is only necessary if you want to compile RenderScript code at runtime
 You also need to install this [FTP server](https://help.ubuntu.com/community/PureFTP) (very easy) which the application uses to download de bytecode from. It's highly recommended to use the same paths as in the tutorial.
 To setup the OVSR server, the following steps need to be followed:
 * Open a terminal window
-* copy / paste " git clone https://github.com/degoossez/OVSRServer"
-* copy the folder to a location of your preference
-* open de OVSRServer.pro file located in the OVSR directory with Qt Creator
-* inside Qt Creator locate the settings.h file under the Headers directory
-* adjust these settings to match your own configuration
+* Copy / paste " git clone https://github.com/degoossez/OVSRServer"
+* Copy the folder to a location of your preference
+* Open de OVSRServer.pro file located in the OVSR directory with Qt Creator
+* Inside Qt Creator locate the settings.h file under the Headers directory
+* Adjust these settings to match your own configuration
  * **PORT** port the server listens on 
  * **SDK_PATH** path where your SDK is installed
- * **BUILD_TOOLS_VERSION** version of the build tools that is installed on your system
- * **FTP_USERS_DIR** directory where all ftp users are stored
- * **FTP_GROUP** group of the ftp users
-* if you followed the FTP tutorial exactely, the last two settings don't have to be changed 
+ * **BUILD_TOOLS_VERSION** version of the build tools that's installed on your system
+ * **FTP_USERS_DIR** directory where all FTP users are stored
+ * **FTP_GROUP** group of the FTP users
+* If you followed the FTP tutorial exactely, the last two settings don't have to be changed 
 
