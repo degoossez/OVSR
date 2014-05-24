@@ -49,7 +49,7 @@ To compile the OVSR source code you will need the [Android Developer Tools (ADT)
 
 ####RenderScript
 
-The RenderScript code should work without any additional changes. The project does not make use of the support library, so if you want to
+The RenderScript code should work without any additional changes. The project does *not* make use of the support library, so if you want to
 run the application on an older device, take a look at the following link. http://www.doubleencore.com/2013/10/renderscript-for-all/
 ####OVSR server
 
