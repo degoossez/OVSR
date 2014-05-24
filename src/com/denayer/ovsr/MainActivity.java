@@ -1185,7 +1185,16 @@ public class MainActivity extends Activity {
 		return strHash;
 
 	}
-
+	/*! \brief message for the server used for the runtime compilation of RenderScript
+	 *
+  * This function will be called when the user clicks on the submitbutton with the RenderScript Radiobutton selected.<br>
+  * The message, beginning with the STARTPACKAGE tag, will contain the username and the hashed password. This is send
+  * over TCP to the server, followed by the code from the code field in the app, which is send line per line. The end
+  * of the message is indicated with the ENDPACKAGE tag.
+  *  
+  * @param username name of the user
+  * @param passwd the password of the user
+  */
 	public void sendRenderscriptMessage(String username, String passwd)
 	{
 		dialog = new ProgressDialog(MainActivity.this);
