@@ -62,7 +62,7 @@ To setup the OVSR server, the following steps need to be followed:
 * open de OVSRServer.pro file located in the OVSR directory with Qt Creator
 * inside Qt Creator locate the settings.h file under the Headers directory
 * adjust these settings to match your own configuration
- * **port** port the server listens on 
+ * **PORT** port the server listens on 
  * **SDK_PATH** path where your SDK is installed
  * **BUILD_TOOLS_VERSION** version of the build tools that is installed on your system
  * **FTP_USERS_DIR** directory where all ftp users are stored
