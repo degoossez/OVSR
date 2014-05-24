@@ -59,6 +59,9 @@ To setup the OVSR server, the following steps need to be followed:
 * Open a terminal window
 * copy / paste " git clone https://github.com/degoossez/OVSRServer"
 * copy the folder to a location of your preference
-* open de OVSRServer.pro file located in the OVSR directory with QtCreater
-
+* open de OVSRServer.pro file located in the OVSR directory with Qt Creator
+* inside Qt Creator locate the settings.h file under the Headers directory
+* adjust these settings to match your own configuration
+ * s
+ * s
 
