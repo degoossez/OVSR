@@ -69,3 +69,11 @@ To setup the OVSR server, the following steps need to be followed:
  * **FTP_GROUP** group of the FTP users
 * If you followed the FTP tutorial exactely, the last two settings don't have to be changed 
 
+####Troubleshooting
+* When calling the RenderScript compiler in the server I get the following error message: **./llvm-rs-cc: error while loading shared libraries: libclang.so: cannot open shared object file: No such file or directory**
+ * cd /etc/ld.so.conf.d
+ * create a new file : sudo nano renderscript.conf
+ * write the path to your build tools inside the file, for example : [HOME]/android-sdk-linux/build-tools/19.0.0/
+ * save the file 
+ * execute ldconfig to reload the shared libraries : sudo ldconfig
+
