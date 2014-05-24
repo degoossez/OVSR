@@ -811,12 +811,10 @@ public class MainActivity extends Activity {
 		});
 		//einde radio buttons
 	}
-		/*! \brief Brief description.
-		 *         Brief description continued.
+		/*! \brief displays a small message on the screen
 		 *
-		 *  Detailed description starts here.
-		 *  @see onCreateOptionsMenu
 		 *  @param Message This is the message.
+		 *  @param isLong controls the duration the message is shown
 		 */
 	public void createToast(String Message,boolean isLong)
 	{
