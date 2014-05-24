@@ -52,7 +52,7 @@ To compile the OVSR source code you will need the [Android Developer Tools (ADT)
 ####OVSR server
 
 The server is only necessary if you want to compile RenderScript code at runtime.
-You also need to install this [FTP server](https://help.ubuntu.com/community/PureFTP) (very easy) which the application uses to download de bytecode from. It's highly recommanded to use the same paths as in the tutorial.
+You also need to install this [FTP server](https://help.ubuntu.com/community/PureFTP) (very easy) which the application uses to download de bytecode from. It's highly recommended to use the same paths as in the tutorial.
 To setup the OVSR server, the following steps need to be followed:
 * Open a terminal window
 * copy / paste " git clone https://github.com/degoossez/OVSRServer"
