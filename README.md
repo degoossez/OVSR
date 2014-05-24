@@ -65,6 +65,6 @@ To setup the OVSR server, the following steps need to be followed:
  * **port** port the server listens on 
  * **SDK_PATH** path where your SDK is installed
  * **BUILD_TOOLS_VERSION** version of the build tools that is installed on your system
- * **FTP_USERS_DIR ** directory where all ftp users are stored
+ * **FTP_USERS_DIR** directory where all ftp users are stored
  * 
 
