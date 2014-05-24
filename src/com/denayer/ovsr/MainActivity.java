@@ -1126,7 +1126,11 @@ public class MainActivity extends Activity {
 			}
 		}
 	}
-
+	/* \brief Converts bytes to their hex value
+	*
+	* @param a is the array of bytes to be converted
+	* @return Returns the String form of the bytes
+	*/
 	String byteArrayToHex(byte[] a) {
 		StringBuilder sb = new StringBuilder();
 		for(byte b: a)
@@ -1135,7 +1139,11 @@ public class MainActivity extends Activity {
 	}
 
 	final protected static char[] hexArray = "0123456789abcdef".toCharArray();
-
+	/* \brief Converts byte to its hex value
+	*
+	* @param bytes are the bytes to be converted
+	* @return Returns the String form of the byte
+	*/
 	public static String bytesToHex(byte[] bytes) {
 		char[] hexChars = new char[bytes.length * 2];
 		for ( int j = 0; j < bytes.length; j++ ) {
