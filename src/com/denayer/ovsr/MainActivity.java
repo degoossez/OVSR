@@ -1212,9 +1212,20 @@ public class MainActivity extends Activity {
 		},1000);
 	}
 	public class EditVideoTask	 extends AsyncTask<String, String, Long> {
+		/*! \brief Opens the video file and calls the right RenderScript or OpenCL filter.
+		*
+		* This is the doInBackground function of an AsyncTask. It's build this way to show the user the app did not crash but it is procssing a video.
+		* If this would be a normal function, the screen will go black and the user would get no feedback.
+		* The function will first call the publishProgress to show the user the app is bussy and not crashing. 
+		* Then it will open the video from the videoPath, check the frame length and create a FFmpegFrameRecorder to be able to save the image.
+		* The grabbers frame will be converted into a Java bitmap and a RenderScript or OpenCL filter will be called. The filter to use will be specified by the createBoxes function.
+		* Each frame will be saved in the recorder and saved to a file when all frames have been edited.
+		*
+		* @param message is not used
+		* @return It will always return 0
+		*/
 		@Override
 		protected Long doInBackground(String... message) {
-			Log.e("EditVideoTask","First line");
 			try {
 				publishProgress("Load");
 				FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(videoPath); 
@@ -1245,11 +1256,6 @@ public class MainActivity extends Activity {
 					image = grabber.grab();
 					if(image==null)
 					{
-						break;
-					}
-					if(grabber.getFrameNumber()>120)
-					{
-						Log.e("grabber","I breaked");
 						break;
 					}
 					opencv_imgproc.cvCvtColor(image, frame2, opencv_imgproc.CV_BGR2RGBA);
@@ -1294,6 +1300,12 @@ public class MainActivity extends Activity {
 			}
 			return null;	
 		}
+		/*! \brief This onProgressUpdate function is linked to the doInBackground function of the EditVideoTask task.
+		* 	It is the link between the asynctask and the GUI
+		* 
+		* When publishProgress is called, this function will be called. It will update the GUI specified by the values argument.
+		* @param values is a string list and is a way to controle the output of this function
+		*/
 		@Override
 		protected void onProgressUpdate(String... values) {
 			super.onProgressUpdate(values);
