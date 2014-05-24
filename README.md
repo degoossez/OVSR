@@ -49,7 +49,7 @@ To compile the OVSR source code you will need the [Android Developer Tools (ADT)
 
 ####RenderScript
 
-The RenderScript code should work without any additional changes. The project does *not* make use of the support library, so if you want to
+The RenderScript code should work without any additional changes. The project does **not** make use of the support library, so if you want to
 run the application on an older device, take a look at the following link. http://www.doubleencore.com/2013/10/renderscript-for-all/
 ####OVSR server
 
@@ -58,5 +58,7 @@ You also need to install this [FTP server](https://help.ubuntu.com/community/Pur
 To setup the OVSR server, the following steps need to be followed:
 * Open a terminal window
 * copy / paste " git clone https://github.com/degoossez/OVSRServer"
+* copy the folder to a location of your preference
+* open de OVSRServer.pro file located in the OVSR directory with QtCreater
 
 
