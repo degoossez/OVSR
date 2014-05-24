@@ -993,9 +993,9 @@ public class MainActivity extends Activity {
 	   * are received and can be processed. The communication with the server is always initiated by the client, which means
 	   * when we receive a message we know a request has been send by the user. 
 	   * If the response is "Successful" the RenderScript code is successfully compiled by the server and we
-	   * ask the server if the bytecode is present in the FTP server. If the server sends "UPLOADED" communication 
+	   * ask the server if the bytecode is present on the FTP server. If the server sends "UPLOADED" communication 
 	   * is made with the FTP server and the bytecode is downloaded to the application.<br>
-	   * Beside the runtime compilation, we also receive feedback from the server concerning login requests and account creation.
+	   * Besides the runtime compilation, we also receive feedback from the server concerning login requests and account creation.
 	   * @param message the message received from the server
 	   * 
 	   */
