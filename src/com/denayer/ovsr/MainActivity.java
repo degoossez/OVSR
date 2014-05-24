@@ -1152,6 +1152,14 @@ public class MainActivity extends Activity {
 		return new String(hexChars);
 	}
 
+	/*! \brief creates a MD5 hash of the password
+	 *
+   * converts the password to a MD5 hash, used for security reasons. Because the Hash consists of hex values 
+   * who need to be send over TCP, it's necessary to convert the byte array to a String. The resulting string
+   * will be two times as long because each byte in hex is represented as two characters e.g. 01, 0A etc.
+   * @param passwd The password used to create the hash value
+   * @return strHash The resulting hash as a hex presented string
+   */
 	public String createHash(String passwd)
 	{
 		//create hash
