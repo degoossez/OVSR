@@ -66,5 +66,6 @@ To setup the OVSR server, the following steps need to be followed:
  * **SDK_PATH** path where your SDK is installed
  * **BUILD_TOOLS_VERSION** version of the build tools that is installed on your system
  * **FTP_USERS_DIR** directory where all ftp users are stored
- * 
+ * **FTP_GROUP** group of the ftp users
+* if you followed the FTP tutorial exactely, the last two settings don't have to be changed 
 
