@@ -67,7 +67,7 @@ To setup the OVSR server, the following steps need to be followed:
  * **BUILD_TOOLS_VERSION** version of the build tools that's installed on your system
  * **FTP_USERS_DIR** directory where all FTP users are stored
  * **FTP_GROUP** group of the FTP users
-* If you followed the FTP tutorial exactely, the last two settings don't have to be changed 
+* If you followed the FTP tutorial exactly, the last two settings don't have to be changed 
 
 ####Troubleshooting
 * When calling the RenderScript compiler in the server I get the following error message: **./llvm-rs-cc: error while loading shared libraries: libclang.so: cannot open shared object file: No such file or directory**
