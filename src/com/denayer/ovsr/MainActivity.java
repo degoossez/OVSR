@@ -136,10 +136,9 @@ public class MainActivity extends Activity {
 	//item in de lijst toevoegen voor nieuwe filters toe te voegen.
 	private String [] itemsFilterBox = new String [] {"Edge", "Inverse","Sharpen","Mediaan","Saturatie","Blur"};
 
-	/*! \brief major initialization for app behavior.
-	*
+	/*! \brief Major initialization for app behavior.
 	* In this function the initialization of the most important app components is done: class 
-	* variables are assigned, the layout with the widgets is set and various listeners are implemented.<br>
+	* variables are assigned, the layout with the widgets is set and various listeners are implemented.
     * 
     * Submit button listener: when this button is clicked, the listener behaves differently depending on which radiobutton is selected
     *  When the RenderScript radiobutton is checked, the written code inside the app will be send to the 
@@ -382,7 +381,7 @@ public class MainActivity extends Activity {
 
 	}
 
-	/*! \brief receives data from other activities via intents
+	/*! \brief Receives data from other activities via intents
 	 *
    * This function receives data from other activities via intents. From the resultCode variable the origin of the
    * Invocation can be derived. The Data variable contains the data send by the intent. Depending on the resultCode
@@ -525,9 +524,9 @@ public class MainActivity extends Activity {
 		}
 		System.gc();
 	}
-	/*! \brief sets the input and output bitmap
+	/*! \brief Sets the input and output bitmap
 	 *
-  *  this function will set the input bitmap to the image view. The bitmap is scaled depending on the device's
+  *  This function will set the input bitmap to the image view. The bitmap is scaled depending on the device's
   *  screen resolution. A copy is also provided to the RenderScript and OpenCL objects. The output image view is set with a
   *  bitmap of the same dimensions as the input bitmap.
   * 
@@ -551,7 +550,7 @@ public class MainActivity extends Activity {
 		OpenCLObject.setBitmap(bitmap);
 		RenderScriptObject.setInputBitmap(bitmap);
 	}
-	/*! \brief converts URI to a real file path
+	/*! \brief Converts URI to a real file path
 	*
 	* @param contentUri the URI to be converted
 	* @return returns the file path resulting from the URI
@@ -811,7 +810,7 @@ public class MainActivity extends Activity {
 		});
 		//einde radio buttons
 	}
-		/*! \brief displays a small message on the screen
+		/*! \brief Displays a small message on the screen
 		 *
 		 *  @param Message This is the message.
 		 *  @param isLong controls the duration the message is shown
@@ -987,7 +986,7 @@ public class MainActivity extends Activity {
 		return null;
 	}
 	public class ConnectTask extends AsyncTask<String, String, TcpClient> {
-		/*! \brief processing of incoming TCP messages
+		/*! \brief Processing of incoming TCP messages
 		 *
 	   * A new TCPClient object is created, and the interface onMessageReceived is implemented. Here incoming TCP messages
 	   * are received and can be processed. The communication with the server is always initiated by the client, which means
@@ -1074,7 +1073,7 @@ public class MainActivity extends Activity {
 
 			return null;
 		}
-	/*! \brief update parts of the app
+	/*! \brief Update parts of the app
 		 * When the function publisProgress is called, this funtion gets executed. 
 		 * By checking the value variable, we know from where the publisProgress function was called, and can 
 		 * update the state of the app accordingly. This can be as simple as showing a Toast letting the user know
@@ -1171,9 +1170,9 @@ public class MainActivity extends Activity {
 		return new String(hexChars);
 	}
 
-	/*! \brief creates a MD5 hash of the password
+	/*! \brief Creates a MD5 hash of the password
 	 *
-   * converts the password to a MD5 hash, used for security reasons. Because the Hash consists of hex values 
+   * Converts the password to a MD5 hash, used for security reasons. Because the Hash consists of hex values 
    * who need to be send over TCP, it's necessary to convert the byte array to a String. The resulting string
    * will be two times as long because each byte in hex is represented as two characters e.g. 01, 0A etc.
    * @param passwd The password used to create the hash value
@@ -1204,7 +1203,7 @@ public class MainActivity extends Activity {
 		return strHash;
 
 	}
-	/*! \brief message for the server used for the runtime compilation of RenderScript
+	/*! \brief Message for the server used for the runtime compilation of RenderScript
 	 *
   * This function will be called when the user clicks on the submitbutton with the RenderScript Radiobutton selected.<br>
   * The message, beginning with the STARTPACKAGE tag, will contain the username and the hashed password. This is send
