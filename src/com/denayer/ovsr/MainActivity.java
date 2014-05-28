@@ -846,7 +846,7 @@ public class MainActivity extends Activity {
 		case R.id.LoadF:
 			Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
 			intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
-			intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] { "txt" });
+			intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] { "txt","cl","rs" });
 			startActivityForResult(intentLoad, REQUEST_LOAD);
 			return true;   
 		case R.id.Settings:

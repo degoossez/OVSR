@@ -975,7 +975,11 @@ EXCLUDE                = /home/dries/git/OVSR/include/CL/cl.h \
                          libs/JavaCV_Copy_Script.sh \
                          libs/JavaCVLibs.zip \
                          libs/libOVSR.so \
-                         libs/org.apache.commons.net_2.0.0.v200905272248.jar
+                         libs/org.apache.commons.net_2.0.0.v200905272248.jar \
+                         obj/local/armeabi-v7a/objs-debug/OVSR/OVSR.o \
+                         obj/local/armeabi-v7a/objs-debug/OVSR/OVSR.o.d \
+                         obj/local/armeabi-v7a/libavcodec.so \
+                         obj/local/armeabi-v7a/libOVSR.so
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
