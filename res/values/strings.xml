@@ -10,10 +10,10 @@
     <string name="title_activity_display_message_activty">History</string>
     <string name="Home">Home</string>
     <string name="Delete">Delete File</string>
-    <string name="SaveF">Save File</string>
+    <string name="SaveF">Save To File</string>
     <string name="Template">Template</string>
     <string name="File">File</string>
-    <string name="LoadF">Load File</string>
+    <string name="LoadF">Load From File</string>
     <string name="title_activity_activity_test">ActivityTestActivity</string>
     <string name="title_activity_settings">Settings</string>
     <string name="Select_Camera">Select Camera</string>

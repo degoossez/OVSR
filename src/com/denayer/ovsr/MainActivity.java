@@ -840,7 +840,7 @@ public class MainActivity extends Activity {
 		case R.id.SaveF:
 			Intent intentSave = new Intent(getBaseContext(), FileDialog.class);
 			intentSave.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
-			intentSave.putExtra(FileDialog.FORMAT_FILTER, new String[] { "txt" });
+			intentSave.putExtra(FileDialog.FORMAT_FILTER, new String[] { "txt","cl","rs" });
 			startActivityForResult(intentSave, REQUEST_SAVE);
 			return true;
 		case R.id.LoadF:
