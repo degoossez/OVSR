@@ -33,11 +33,6 @@
 
 <p>This project is made by Dries Goossens <a href="https://github.com/degoossez" class="user-mention">@degoossez</a> and Koen Daelman <a href="https://github.com/KoenDaelman" class="user-mention">@KoenDaelman</a>.</p>
 
-<pre><code>To download the repository: 
-$ git clone https://github.com/degoossez/OVSR
-
-</code></pre>
-
 <h3>
 <a name="information" class="anchor" href="#information"><span class="octicon octicon-link"></span></a>Information</h3>
 
@@ -49,6 +44,124 @@ $ git clone https://github.com/degoossez/OVSR
 <a name="support-or-contact" class="anchor" href="#support-or-contact"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
 
 <p>Having trouble with the project? Feel free to contact us at <a href="mailto:driesgoossens93@gmail.com">driesgoossens93@gmail.com</a> .</p>
+
+<h1>
+<a name="readme" class="anchor" href="#readme"><span class="octicon octicon-link"></span></a>README</h1>
+
+<p>This README will be a step by step tutorial on how to set up the OVSR application and server needed to cross-compile RenderScript.
+To compile the OVSR source code you will need the <a href="https://developer.android.com/sdk/installing/bundle.html">Android Developer Tools (ADT) </a> and <a href="https://developer.android.com/tools/sdk/ndk/index.html#Installing">Android NDK</a>.</p>
+
+<h2>
+<a name="ovsr" class="anchor" href="#ovsr"><span class="octicon octicon-link"></span></a>OVSR</h2>
+
+<h4>
+<a name="getting-the-source-code" class="anchor" href="#getting-the-source-code"><span class="octicon octicon-link"></span></a>Getting the source code</h4>
+
+<ul>
+<li>Open a terminal window</li>
+<li>copy / paste " git clone <a href="https://github.com/degoossez/OVSR">https://github.com/degoossez/OVSR</a> "</li>
+</ul><h4>
+<a name="import-into-eclipse" class="anchor" href="#import-into-eclipse"><span class="octicon octicon-link"></span></a>Import into eclipse</h4>
+
+<ul>
+<li>File </li>
+<li>Import</li>
+<li>Android &gt; Existing Android Code Into Workspace</li>
+<li>Browse to the OVSR directory you cloned in step 1</li>
+<li>Finish</li>
+</ul><h4>
+<a name="setup-the-ndk" class="anchor" href="#setup-the-ndk"><span class="octicon octicon-link"></span></a>Setup the NDK</h4>
+
+<ul>
+<li>Window &gt; Preferences &gt; Android &gt; NDK</li>
+<li>Browser to the NDK directory, example: /home/user/android-ndk-r9d</li>
+<li>Apply and Ok</li>
+</ul><h4>
+<a name="add-ndk-to-ovsr-project" class="anchor" href="#add-ndk-to-ovsr-project"><span class="octicon octicon-link"></span></a>Add NDK to OVSR project</h4>
+
+<ul>
+<li>Right click on the OVSR project</li>
+<li>Android Tools &gt; add native support </li>
+<li>The name must be "libOVSR.so" so type OVSR in the input box!</li>
+<li>Click finish</li>
+</ul><h4>
+<a name="add-file-browser-library" class="anchor" href="#add-file-browser-library"><span class="octicon octicon-link"></span></a>Add file browser library</h4>
+
+<ul>
+<li>svn checkout <a href="http://android-file-dialog.googlecode.com/svn/trunk/">http://android-file-dialog.googlecode.com/svn/trunk/</a> android-file-dialog-read-only</li>
+<li>Import the project into eclipse</li>
+<li>Build the project (don't run!) , use the build button or Ctrl + b</li>
+<li>There is a fileexplorer.jar in the bin directory of the fileexplorer project</li>
+<li>Right click on the OVSR project &gt; Properties &gt; Android &gt; Add &gt; FileExplorer</li>
+<li>When the jar is not created, follow this tutorial: <a href="http://aplacetogeek.wordpress.com/android-embedded-file-browser/">http://aplacetogeek.wordpress.com/android-embedded-file-browser/</a>
+</li>
+</ul><h4>
+<a name="add-video-support" class="anchor" href="#add-video-support"><span class="octicon octicon-link"></span></a>Add video support</h4>
+
+<ul>
+<li>Download the library's from (Ctrl + S to download them all at once!) <a href="https://drive.google.com/file/d/0B2MNqrU4BEonek5ldENzMlNSV2M/edit?usp=sharing">https://drive.google.com/file/d/0B2MNqrU4BEonek5ldENzMlNSV2M/edit?usp=sharing</a><br>
+</li>
+<li>Unzip it into a folder you can remember</li>
+<li>In OVSR's libs folder you can find "JavaCV_Copy_Script.sh" </li>
+<li>Open it and edit the second line to cp -r /the/path/where/you/extracted/the/library/* .</li>
+<li>Example: cp -r ~/AndroidJavaCVLibs/* .</li>
+<li>Save and close it</li>
+<li>Right click on the project &gt; properties &gt; Builders &gt; New &gt; Program &gt; Ok</li>
+<li>Name: JavaCV_Copy_Script</li>
+<li>Location: ${workspace_loc:/OVSR/libs/JavaCV_Copy_Script.sh}</li>
+<li>Working directory: ${workspace_loc:/OVSR/libs}</li>
+<li>Ok</li>
+<li>Check it</li>
+</ul><h4>
+<a name="renderscript" class="anchor" href="#renderscript"><span class="octicon octicon-link"></span></a>RenderScript</h4>
+
+<p>The RenderScript code should work without any additional changes. The project does <strong>not</strong> make use of the support library, so if you want to
+run the application on an older device, take a look at the following link. <a href="http://www.doubleencore.com/2013/10/renderscript-for-all/">http://www.doubleencore.com/2013/10/renderscript-for-all/</a></p>
+
+<h4>
+<a name="ovsr-server" class="anchor" href="#ovsr-server"><span class="octicon octicon-link"></span></a>OVSR server</h4>
+
+<p>The server is only necessary if you want to compile RenderScript code at runtime.
+You also need to install this <a href="https://help.ubuntu.com/community/PureFTP">FTP server</a> (very easy) which the application uses to download de bytecode from. It's highly recommended to use the same paths as in the tutorial.
+To setup the OVSR server, the following steps need to be followed:</p>
+
+<ul>
+<li>Open a terminal window</li>
+<li>Copy / paste " git clone <a href="https://github.com/degoossez/OVSRServer">https://github.com/degoossez/OVSRServer</a>"</li>
+<li>Copy the folder to a location of your preference</li>
+<li>Open de OVSRServer.pro file located in the OVSR directory with Qt Creator</li>
+<li>Inside Qt Creator locate the settings.h file under the Headers directory</li>
+<li>Adjust these settings to match your own configuration
+
+<ul>
+<li>
+<strong>PORT</strong> port the server listens on </li>
+<li>
+<strong>SDK_PATH</strong> path where your SDK is installed</li>
+<li>
+<strong>BUILD_TOOLS_VERSION</strong> version of the build tools that's installed on your system</li>
+<li>
+<strong>FTP_USERS_DIR</strong> directory where all FTP users are stored</li>
+<li>
+<strong>FTP_GROUP</strong> group of the FTP users</li>
+</ul>
+</li>
+<li>If you followed the FTP tutorial exactly, the last two settings don't have to be changed </li>
+</ul><h4>
+<a name="troubleshooting" class="anchor" href="#troubleshooting"><span class="octicon octicon-link"></span></a>Troubleshooting</h4>
+
+<ul>
+<li>When calling the RenderScript compiler in the server I get the following error message: <strong>./llvm-rs-cc: error while loading shared libraries: libclang.so: cannot open shared object file: No such file or directory</strong>
+
+<ul>
+<li>cd /etc/ld.so.conf.d</li>
+<li>create a new file : sudo nano renderscript.conf</li>
+<li>write the path to your build tools inside the file, for example : [HOME]/android-sdk-linux/build-tools/19.0.0/</li>
+<li>save the file </li>
+<li>execute ldconfig to reload the shared libraries : sudo ldconfig</li>
+</ul>
+</li>
+</ul>
         </section>
 
         <aside id="sidebar">
