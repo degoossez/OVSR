@@ -1,18 +1,21 @@
 __kernel void sharpenKernel(__read_only  image2d_t  srcImage,
                           __write_only image2d_t  dstImage)
-{    
-    const sampler_t sampler = CLK_NORMALIZED_COORDS_TRUE |
-                               CLK_ADDRESS_REPEAT         |
-                               CLK_FILTER_NEAREST;
-     int x = get_global_id(0);
-     int y = get_global_id(1);		
-        int2 coords = (int2) (x,y);       
-		float4 curPix;
-		float4 bufferPixel;
-		int i,j;
-		float sumr,sumg,sumb;
-		sumr = sumg = sumb = 0;
-		int counter = 0;		
+{ 
+    const sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE |
+                               CLK_ADDRESS_CLAMP_TO_EDGE  |
+                               CLK_FILTER_NEAREST;   
+    int x = get_global_id(0);
+    int y = get_global_id(1);
+	int2 coords = (int2) (x,y);
+	int2 curCoords = (int2) (x,y);
+	int i = 0;
+	int j = 0;          
+	float4 bufferPixel,curPix;
+	float sumr,sumg,sumb;
+	sumr = 0.0f;
+	sumg = 0.0f;
+	sumb = 0.0f;
+	int counter = 0;		
         const float sharpenKernel[9] = {0.0f,-1.0f,0.0f,-1.0f,5.0f,-1.0f,0.0f,-1.0f,0.0f};
 		curPix = read_imagef(srcImage,sampler,coords);
 
@@ -30,18 +33,18 @@ __kernel void sharpenKernel(__read_only  image2d_t  srcImage,
 	    counter++;
 		}
 	}
-	if(sumr>1) sumr=1;
-	if(sumr<0) sumr=0;
-	if(sumg>1) sumg=1;
-	if(sumg<0) sumg=0;
-	if(sumb>1) sumb=1;
-	if(sumb<0) sumb=0;	
+	if(sumr>1) sumr=1.0f;
+	if(sumr<0) sumr=0.0f;
+	if(sumg>1) sumg=1.0f;
+	if(sumg<0) sumg=0.0f;
+	if(sumb>1) sumb=1.0f;
+	if(sumb<0) sumb=0.0f;	
 		
 	curPix.x = sumr;
 	curPix.y = sumg;
 	curPix.z = sumb;
 			
-	write_imagef(dstImage,coords,curPix);
+	write_imagef(dstImage,curCoords,curPix);
 
 }
 /* kernel void sharpenKernel

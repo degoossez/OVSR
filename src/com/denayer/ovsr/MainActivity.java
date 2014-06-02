@@ -133,6 +133,7 @@ public class MainActivity extends Activity {
 	ProgressDialog videoProcessDialog = null;
 	
 	private EditVideoTask MyEditVideoATask;
+	private static String[] OpenCLVideoArguments = {null,null};
 	//item in de lijst toevoegen voor nieuwe filters toe te voegen.
 	private String [] itemsFilterBox = new String [] {"Edge", "Inverse","Sharpen","Mediaan","Saturatie","Blur"};
 
@@ -688,8 +689,10 @@ public class MainActivity extends Activity {
 								}
 								else
 								{
+									m = OpenCL.class.getDeclaredMethod("OpenCLVideo",new Class[]{String[].class});
 									if(itemsFilterBox[item]=="Saturatie")
 									{
+										OpenCLVideoArguments[0]= itemsFilterBox[item];
 								        final TextView progressView = new TextView(MainActivity.this);
 										final Resources res = MainActivity.this.getResources();
 										final SeekBar MySeekBar = new SeekBar(MainActivity.this);
@@ -731,6 +734,7 @@ public class MainActivity extends Activity {
 									}
 									else
 									{
+										OpenCLVideoArguments[0]= itemsFilterBox[item];
 										Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
 										intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
 										intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] {"mp4", "avi","3gp","gif","mkv"});
@@ -1251,9 +1255,9 @@ public class MainActivity extends Activity {
 	public class EditVideoTask	 extends AsyncTask<String, String, Long> {
 		/*! \brief Opens the video file and calls the right RenderScript or OpenCL filter.
 		*
-		* This is the doInBackground function of an AsyncTask. It's build this way to show the user the app did not crash but it is procssing a video.
+		* This is the doInBackground function of an AsyncTask. It's build this way to show the user the app did not crash but it is processing a video.
 		* If this would be a normal function, the screen will go black and the user would get no feedback.
-		* The function will first call the publishProgress to show the user the app is bussy and not crashing. 
+		* The function will first call the publishProgress to show the user the app is busy and not crashing. 
 		* Then it will open the video from the videoPath, check the frame length and create a FFmpegFrameRecorder to be able to save the image.
 		* The grabbers frame will be converted into a Java bitmap and a RenderScript or OpenCL filter will be called. The filter to use will be specified by the createBoxes function.
 		* Each frame will be saved in the recorder and saved to a file when all frames have been edited.
@@ -1264,78 +1268,87 @@ public class MainActivity extends Activity {
 		@Override
 		protected Long doInBackground(String... message) {
 			try {
-				publishProgress("Load");
-				FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(videoPath); 
-				grabber.start();
-				int LengthInFrames = 0;
-				int counter = 0;
-				while(true)
-				{
-					if(grabber.grab()==null) break;
-					LengthInFrames++;
-				}
-				publishProgress("Start",String.valueOf(LengthInFrames));
-				FFmpegFrameRecorder recorder = new FFmpegFrameRecorder(savePath, grabber.getImageWidth(), grabber.getImageHeight());
+			if(isRenderScript)
+			{
+					publishProgress("Load");
+					FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(videoPath); 
+					grabber.start();
+					int LengthInFrames = 0;
+					int counter = 0;
+					while(true)
+					{
+						if(grabber.grab()==null) break;
+						LengthInFrames++;
+					}
+					publishProgress("Start",String.valueOf(LengthInFrames));
+					FFmpegFrameRecorder recorder = new FFmpegFrameRecorder(savePath, grabber.getImageWidth(), grabber.getImageHeight());
 
-				recorder.setFormat("mp4");
-				recorder.setVideoCodec(avcodec.AV_CODEC_ID_MPEG4);
-				recorder.setVideoBitrate(33000);
-				recorder.setFrameRate(grabber.getFrameRate());				
+					recorder.setFormat("mp4");
+					recorder.setVideoCodec(avcodec.AV_CODEC_ID_MPEG4);
+					recorder.setVideoBitrate(33000);
+					recorder.setFrameRate(grabber.getFrameRate());				
 
-				IplImage image = IplImage.create(grabber.getImageWidth(), grabber.getImageHeight(), IPL_DEPTH_8U, 4);
-				IplImage frame2 = IplImage.create(image.width(), image.height(), IPL_DEPTH_8U, 4);
-				Bitmap MyBitmap = Bitmap.createBitmap(frame2.width(), frame2.height(), Bitmap.Config.ARGB_8888);   
-				recorder.start();
+					IplImage image = IplImage.create(grabber.getImageWidth(), grabber.getImageHeight(), IPL_DEPTH_8U, 4);
+					IplImage frame2 = IplImage.create(image.width(), image.height(), IPL_DEPTH_8U, 4);
+					Bitmap MyBitmap = Bitmap.createBitmap(frame2.width(), frame2.height(), Bitmap.Config.ARGB_8888);   
+					recorder.start();
 
-				grabber.setFrameNumber(0);
-				while(true)
-				{					
-					image = grabber.grab();
-					if(image==null)
-					{
-						break;
+					grabber.setFrameNumber(0);
+					while(true)
+					{					
+						image = grabber.grab();
+						if(image==null)
+						{
+							break;
+						}
+						opencv_imgproc.cvCvtColor(image, frame2, opencv_imgproc.CV_BGR2RGBA);
+						MyBitmap.copyPixelsFromBuffer(frame2.getByteBuffer());
+						if(!isRuntime)
+						{
+							RenderScriptObject.setInputBitmap(MyBitmap);
+							m.invoke(RenderScriptObject, null);
+							MyBitmap = RenderScriptObject.getOutputBitmap();		            	
+						}
+						else if(isRuntime)
+						{
+							RenderScriptObject.setInputBitmap(MyBitmap);
+							RenderScriptObject.RenderScriptTemplate();
+							MyBitmap = RenderScriptObject.getOutputBitmap();							
+						}
+						MyBitmap.copyPixelsToBuffer(frame2.getByteBuffer());
+						opencv_imgproc.cvCvtColor(frame2, image, opencv_imgproc.CV_RGBA2BGR);		            
+						recorder.record(image);
+						counter++;
+						publishProgress(String.valueOf(counter));
 					}
-					opencv_imgproc.cvCvtColor(image, frame2, opencv_imgproc.CV_BGR2RGBA);
-					MyBitmap.copyPixelsFromBuffer(frame2.getByteBuffer());
-					if(isRenderScript && !isRuntime)
-					{
-						RenderScriptObject.setInputBitmap(MyBitmap);
-						m.invoke(RenderScriptObject, null);
-						MyBitmap = RenderScriptObject.getOutputBitmap();		            	
-					}
-					else if(isRenderScript && isRuntime)
-					{
-						RenderScriptObject.setInputBitmap(MyBitmap);
-						RenderScriptObject.RenderScriptTemplate();
-						MyBitmap = RenderScriptObject.getOutputBitmap();							
-					}
-					else if(!isRenderScript && !isRuntime)
-					{
-						OpenCLObject.setBitmap(MyBitmap);
-						m.invoke(OpenCLObject, null);
-						MyBitmap = OpenCLObject.getBitmap();		            	
-					}
-					else if(!isRenderScript && isRuntime)
-					{
-						OpenCLObject.setBitmap(MyBitmap);
-						OpenCLObject.codeFromFile(CodeField.getText().toString());	
-						MyBitmap = OpenCLObject.getBitmap();							
-					}
-					MyBitmap.copyPixelsToBuffer(frame2.getByteBuffer());
-					opencv_imgproc.cvCvtColor(frame2, image, opencv_imgproc.CV_RGBA2BGR);		            
-					recorder.record(image);
-					counter++;
-					publishProgress(String.valueOf(counter));
-				}
-				recorder.stop();
-				grabber.stop();	
-				RenderScriptObject.saturationValue=-1;
-				OpenCLObject.saturatie=-1;
-				publishProgress("Done");
+					recorder.stop();
+					grabber.stop();	
+					RenderScriptObject.saturationValue=-1;
+					publishProgress("Done");		
+			}
+			else
+			{
+				OpenCLObject = new OpenCL(MainActivity.this,(ImageView)findViewById(R.id.ImageView2),new OpenCL.OnUpdateProcessBar() {
+					@Override
+					public void updateProcessBar(String message) {
+							if(message.contains("Load")){
+								publishProgress("Load");
+							} else if(message.contains("Start")) {
+								String[] frameCount = message.split("\\s+");
+								publishProgress("Start",frameCount[1]);
+							} else if(message.contains("Done")) {
+								publishProgress("Done");
+							} else publishProgress(message);
+						}
+				}); 
+				//m.invoke(OpenCLObject,new Object[]{OpenCLVideoArguments});
+				String[] bla = {"sharpen",null};
+				OpenCLObject.OpenCLVideo(bla);
+			}
 			}catch(Exception e){
 				e.printStackTrace();
 			}
-			return null;	
+			return null;
 		}
 		/*! \brief This onProgressUpdate function is linked to the doInBackground function of the EditVideoTask task.
 		* 	It is the link between the asynctask and the GUI

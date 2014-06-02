@@ -16,7 +16,7 @@ void bubble_sort(float list[], float n)
   }  
 }
 
-__kernel void mediaanKernel(__read_only  image2d_t  srcImage,
+__kernel void MediaanKernel(__read_only  image2d_t  srcImage,
                           __write_only image2d_t  dstImage)
 {    
     const sampler_t sampler = CLK_NORMALIZED_COORDS_TRUE |

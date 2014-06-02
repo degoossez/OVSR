@@ -1,4 +1,4 @@
-/*kernel void saturatieKernel(__global uchar4 *srcBuffer,
+/*kernel void SaturatieKernel(__global uchar4 *srcBuffer,
                                     __global uchar4 *dstBuffer, 
                                     const uint rowPitch,
                                     const int width, 

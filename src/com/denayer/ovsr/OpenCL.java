@@ -10,6 +10,8 @@
 */
 package com.denayer.ovsr;
 
+import static org.bytedeco.javacpp.opencv_core.IPL_DEPTH_8U;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -19,17 +21,26 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.concurrent.TimeUnit;
 
+import org.bytedeco.javacpp.avcodec;
+import org.bytedeco.javacpp.opencv_imgproc;
+import org.bytedeco.javacpp.opencv_core.IplImage;
+import org.bytedeco.javacv.FFmpegFrameGrabber;
+import org.bytedeco.javacv.FFmpegFrameRecorder;
+
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.MediaController;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -41,6 +52,8 @@ public class OpenCL extends Object {
 	final int info[] = new int[3]; // Width, Height, Execution time (ms)
 	static boolean sfoundLibrary = true;
 	String kernelName = "";
+	private OnUpdateProcessBar mGUIUpdater = null;
+
      /*! \brief The OpenCL constructor.
       *
       * The constructor takes two arguments. Loads the available OpenCL library 
@@ -91,6 +104,11 @@ public class OpenCL extends Object {
     		Log.e("Debug", "Error log", e);
     	} 	
     }
+	public OpenCL (Context context, ImageView imageView, OnUpdateProcessBar listener) {
+    	mContext = context; //<-- fill it with the Context you passed
+    	outputButton = imageView;
+		mGUIUpdater = listener;
+	}
        /*! \brief Returns a boolean to be able to check OpenCL support in the main code
       *
       * @return sFoundLibrary is true if OpenCL is supported
@@ -454,5 +472,72 @@ public class OpenCL extends Object {
 	                bmpOpenCL
 	            );
 	    	shutdownOpenCL();		
+	}
+	public void OpenCLVideo(String[] arg)
+	{
+		int LengthInFrames = 0;
+		int counter = 0;
+	    long startTime = System.nanoTime(); 
+    	try{
+			mGUIUpdater.updateProcessBar("Load");
+
+    		FFmpegFrameGrabber grabber = new FFmpegFrameGrabber("/sdcard/DCIM/small.mp4"); 
+    		grabber.start();
+    		
+    		while(true)
+    		{
+    			if(grabber.grab()==null) break;
+    			LengthInFrames++;
+    		}
+    		mGUIUpdater.updateProcessBar("Start" + " " + String.valueOf(LengthInFrames));
+    		FFmpegFrameRecorder recorder = new FFmpegFrameRecorder("/sdcard/DCIM/saved_images/smallTesting.mp4", grabber.getImageWidth(), grabber.getImageHeight());
+
+    		recorder.setFormat("mp4");
+    		recorder.setVideoCodec(avcodec.AV_CODEC_ID_MPEG4);
+    		recorder.setVideoBitrate(33000);
+    		recorder.setFrameRate(grabber.getFrameRate());				
+
+    		IplImage image = IplImage.create(grabber.getImageWidth(), grabber.getImageHeight(), IPL_DEPTH_8U, 4);
+    		IplImage frame2 = IplImage.create(image.width(), image.height(), IPL_DEPTH_8U, 4);
+    		Bitmap MyBitmap = Bitmap.createBitmap(frame2.width(), frame2.height(), Bitmap.Config.ARGB_8888);   
+    		Bitmap MyBitmap2 = Bitmap.createBitmap(frame2.width(), frame2.height(), Bitmap.Config.ARGB_8888);   
+    		recorder.start();
+
+        	copyFile( arg[0] +".cl");
+        	String kernelName=arg[0];
+	    	initOpenCL(kernelName);	    	
+    		grabber.setFrameNumber(0);
+    		while(true)
+    		{					
+    			image = grabber.grab();
+    			if(image==null)
+    			{
+    				break;
+    			}
+    			opencv_imgproc.cvCvtColor(image, frame2, opencv_imgproc.CV_BGR2RGBA);
+    			MyBitmap.copyPixelsFromBuffer(frame2.getByteBuffer());
+    	    	nativeImage2DOpenCL(
+    	    			MyBitmap,
+    	    			MyBitmap2
+    	            );    	
+    	    	MyBitmap2.copyPixelsToBuffer(frame2.getByteBuffer());
+    			opencv_imgproc.cvCvtColor(frame2, image, opencv_imgproc.CV_RGBA2BGR);		            
+    			recorder.record(image);
+    			counter++;
+    			mGUIUpdater.updateProcessBar(String.valueOf(counter));
+			}
+    		shutdownOpenCL();
+    		recorder.stop();
+    		grabber.stop();	
+    		mGUIUpdater.updateProcessBar("Done");
+    	}catch(Exception e){
+    		e.printStackTrace();
+    	}   	
+    	long estimatedTime = System.nanoTime() - startTime;
+	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
+	    Log.d("Time:",Long.toString(estimatedTime));
+	}
+	public interface OnUpdateProcessBar {
+		public void updateProcessBar(String message);
 	}
 }

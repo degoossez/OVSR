@@ -133,7 +133,7 @@ public class TcpClient {
 	}
 
 	/*! /brief Declare the interface. 
-	 *The method messageReceived(String message) will must be implemented in the MyActivity
+	 *The method messageReceived(String message) must be implemented in the MyActivity
 	 *class at on asynckTask doInBackground
 	 */
 	public interface OnMessageReceived {

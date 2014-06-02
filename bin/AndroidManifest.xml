@@ -30,7 +30,7 @@
             android:name="com.denayer.ovsr.DisplayMessageActivty"
             android:label="@string/title_activity_display_message_activty" >
         </activity>
-        <activity
+                <activity
             android:name="com.lamerman.FileDialog"
             android:label="File browser" >
         </activity>

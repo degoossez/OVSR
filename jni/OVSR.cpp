@@ -880,7 +880,8 @@ void nativeImage2DOpenCL
 
 	err = clReleaseMemObject(outputBuffer);
 	SAMPLE_CHECK_ERRORS(err);
-
+	err = clReleaseMemObject(openCLObjects.inputBuffer);
+	SAMPLE_CHECK_ERRORS(err);
 	// Make the output content be visible at the Java side by unlocking
 	// pixels in the output bitmap object.
 	AndroidBitmap_unlockPixels(env, outputBitmap);
