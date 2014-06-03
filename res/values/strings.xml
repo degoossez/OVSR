@@ -20,5 +20,7 @@
     <string name="Select_Video">Select Video</string>
     <string name="Select_Picture">Select Image</string>
     <string name="Save_Picture">Save Image</string>
+    <string name="OVSR_Server">OVSR server location</string>
+    <string name="OVSR_Server_Port">OVSR server port number</string>
     
 </resources>

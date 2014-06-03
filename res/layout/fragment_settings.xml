@@ -8,118 +8,175 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.denayer.ovsr.SettingsActivity$PlaceholderFragment" >
 
-            <ScrollView
-            android:id="@+id/scrollView1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-    <LinearLayout
-        android:id="@+id/linearLayout1"
-        style="@style/AppBaseTheme"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:orientation="vertical" >
+    <ScrollView
+        android:id="@+id/scrollView1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:id="@+id/linearLayout1"
+            style="@style/AppBaseTheme"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
             android:orientation="vertical" >
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="0dip"
-                android:layout_weight="2"
-                android:orientation="horizontal"
-                android:weightSum="10" >
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dip"
+                    android:layout_weight="2"
+                    android:orientation="horizontal"
+                    android:weightSum="10" >
+
+                    <LinearLayout
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
+                        android:orientation="vertical" >
+
+                        <TextView
+                            android:id="@+id/textView1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Auto name"
+                            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                        <TextView
+                            android:id="@+id/textView3"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Save image to default location."
+                            android:textAppearance="?android:attr/textAppearanceSmall" />
+                    </LinearLayout>
+
+                    <CheckBox
+                        android:id="@+id/AutoName"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="9" />
+                </LinearLayout>
+
+                <View
+                    style="@style/AppBaseTheme"
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dip"
+                    android:layout_marginTop="5dp"
+                    android:background="#505050" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dip"
+                    android:layout_marginTop="10dp"
+                    android:layout_weight="2"
+                    android:orientation="horizontal"
+                    android:weightSum="10" >
+
+                    <LinearLayout
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
+                        android:orientation="vertical" >
+
+                        <TextView
+                            android:id="@+id/RememberUserText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Remember User"
+                            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                        <TextView
+                            android:id="@+id/SmallTextRememberUser"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Remember account name and password."
+                            android:textAppearance="?android:attr/textAppearanceSmall" />
+                    </LinearLayout>
+
+                    <CheckBox
+                        android:id="@+id/rememberUser"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="9" />
+                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:layout_marginTop="10dp"
                     android:gravity="center_vertical"
-                    android:orientation="vertical"
-                    android:layout_weight="1">
+                    android:orientation="horizontal"
+                    android:weightSum="2" >
 
-                    <TextView
-                        android:id="@+id/textView1"
-                        android:layout_width="wrap_content"
+                    <Button
+                        android:id="@+id/buttonSignIN2"
+                        android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
-                        android:text="Auto name"
-                        android:textAppearance="?android:attr/textAppearanceMedium" />
+                        android:layout_weight="1"
+                        android:onClick="signIn"
+                        android:text="Sign In"
+                        android:textAppearance="?android:attr/textAppearanceSmall" />
 
-                    <TextView
-                        android:id="@+id/textView3"
-                        android:layout_width="wrap_content"
+                    <Button
+                        android:id="@+id/buttonSignUP2"
+                        android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
-                        android:text="Save image to default location."
+                        android:layout_weight="1"
+                        android:text="Sign Up"
                         android:textAppearance="?android:attr/textAppearanceSmall" />
                 </LinearLayout>
-
-                <CheckBox
-                    android:id="@+id/AutoName"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="9"/>
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dip"
-                android:layout_weight="2"
-                android:orientation="horizontal"
-                android:weightSum="10" >
-
-                <LinearLayout
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="vertical"
-                    android:layout_weight="1">
-
-                    <TextView
-                        android:id="@+id/RememberUserText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Remember User"
-                        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                    <TextView
-                        android:id="@+id/SmallTextRememberUser"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Remember account name and password."
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
-                </LinearLayout>
-
-                <CheckBox
-                    android:id="@+id/rememberUser"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="9"/>
-            </LinearLayout>
-
-            <LinearLayout
+            <View
+                style="@style/AppBaseTheme"
                 android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:weightSum="2" >
+                android:layout_height="1dip"
+                android:layout_marginTop="5dp"
+                android:background="#505050" />
 
-                <Button
-                    android:id="@+id/buttonSignIN2"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="signIn"
-                    android:text="Sign In" />
+            <TextView
+                android:id="@+id/OVSRName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/OVSR_Server"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
 
-                <Button
-                    android:id="@+id/buttonSignUP2"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Sign Up" />
-            </LinearLayout>
+            <EditText
+                android:id="@+id/OVSRServerName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10" />
+
+            <TextView
+                android:id="@+id/OVSRPort"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/OVSR_Server_Port"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <EditText
+                android:id="@+id/OVSRServerPort"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10" >
+
+                <requestFocus />
+            </EditText>
+
+            <View
+                style="@style/AppBaseTheme"
+                android:layout_width="fill_parent"
+                android:layout_height="1dip"
+                android:layout_marginTop="5dp"
+                android:background="#505050" />
         </LinearLayout>
-</LinearLayout>
-        </ScrollView>
+    </ScrollView>
 
 </RelativeLayout>
