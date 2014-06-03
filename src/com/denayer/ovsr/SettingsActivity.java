@@ -10,20 +10,11 @@
 */
 package com.denayer.ovsr;
 
-import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
-import com.denayer.ovsr.MainActivity.ConnectTask;
-
 import android.app.Activity;
-import android.app.ActionBar;
 import android.app.Dialog;
 import android.app.Fragment;
-import android.content.ClipData.Item;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -35,10 +26,6 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.MediaController;
-import android.widget.Toast;
-import android.widget.VideoView;
-import android.os.Build;
 import android.content.Context;
 
 

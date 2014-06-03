@@ -24,10 +24,7 @@ __kernel void edgeKernel(__read_only  image2d_t  srcImage,
 	    sum = mad(bufferPixel.y,edgeKernel[counter],sum);
 	    counter++;
 		}
-	}
-	if(sum>1) sum=1.0f;
-	if(sum<0) sum=0.0f;
-	
+	}	
 	currentPixel.x=sum;
 	currentPixel.y=sum;
 	currentPixel.z=sum;

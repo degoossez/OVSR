@@ -97,9 +97,6 @@ public class MyResources extends Resources{
 	    			// TODO Auto-generated catch block
 	    			Log.i("koen","can't find .bc found");
 	    			e.printStackTrace();
-	    		} catch (IOException e) {
-	    			// TODO Auto-generated catch block
-	    			e.printStackTrace();
 	    		}
 	        }
 	        else

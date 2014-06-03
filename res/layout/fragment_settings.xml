@@ -8,6 +8,10 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.denayer.ovsr.SettingsActivity$PlaceholderFragment" >
 
+            <ScrollView
+            android:id="@+id/scrollView1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
     <LinearLayout
         android:id="@+id/linearLayout1"
         style="@style/AppBaseTheme"
@@ -115,6 +119,7 @@
                     android:text="Sign Up" />
             </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
+</LinearLayout>
+        </ScrollView>
 
 </RelativeLayout>

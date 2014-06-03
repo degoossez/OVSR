@@ -78,7 +78,7 @@ import android.widget.VideoView;
 import java.security.*;
 
 public class MainActivity extends Activity {
-	public static String IP_ADDR="10.123.101.153";
+	public static String IP_ADDR="192.168.0.198";
 	private Uri mImageCaptureUri;
 	private ImageView Input_Image;
 	private ImageView Output_Image;
@@ -132,7 +132,7 @@ public class MainActivity extends Activity {
 	ProgressDialog dialog = null;
 	ProgressDialog videoProcessDialog = null;
 	
-	private EditVideoTask MyEditVideoATask;
+	private EditVideoTask MyEditVideoATask = null;
 	private static String[] OpenCLVideoArguments = {null,null};
 	//item in de lijst toevoegen voor nieuwe filters toe te voegen.
 	private String [] itemsFilterBox = new String [] {"Edge", "Inverse","Sharpen","Mediaan","Saturatie","Blur"};
