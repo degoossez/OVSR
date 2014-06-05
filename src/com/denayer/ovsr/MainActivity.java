@@ -78,7 +78,9 @@ import android.widget.VideoView;
 import java.security.*;
 
 public class MainActivity extends Activity {
-	public static String IP_ADDR="192.168.0.198";
+	public static String DEFAULT_IP_ADDR="192.168.0.198";
+	public static String IP_ADDR=DEFAULT_IP_ADDR;
+	SharedPreferences settings;
 	private Uri mImageCaptureUri;
 	private ImageView Input_Image;
 	private ImageView Output_Image;
@@ -164,14 +166,37 @@ public class MainActivity extends Activity {
 
 		ftpclient = new MyFTPClient();
 
-		SharedPreferences settings = getSharedPreferences("Preferences", 0);
+		settings = getSharedPreferences("Preferences", 0);
 		SharedPreferences.Editor editor = settings.edit();
 		if(!settings.getBoolean("AutoName", false))
 		{
 			editor.putBoolean("AutoName", false);
 			editor.commit();
 		}		
-
+		if(!settings.getBoolean("UseDefault", false))
+		{
+			editor.putBoolean("UseDefault", false);
+			editor.commit();
+		}	
+		/*
+		 * If the saved IP is equal to the default IP or the ServerIP is not yet created
+		 * create a ServerIP sharedpref with default_ip_addr as value.
+		 */
+		if(settings.getString("ServerIP", DEFAULT_IP_ADDR)==DEFAULT_IP_ADDR)
+		{
+			editor.putString("ServerIP", DEFAULT_IP_ADDR);
+		}
+		else
+		{
+			IP_ADDR = settings.getString("ServerIP", DEFAULT_IP_ADDR);
+		}
+		/*
+		 * If ServerPort is not 64000, it already exists. 
+		 */
+		if(settings.getInt("ServerPort", 64000)==64000)
+		{
+			editor.putInt("ServerPort", 64000);
+		}
 		Input_Image = (ImageView)findViewById(R.id.ImageView1);
 		Output_Image = (ImageView)findViewById(R.id.ImageView2);
 		Input_Video = (VideoView)findViewById(R.id.VideoView1);
@@ -1001,7 +1026,7 @@ public class MainActivity extends Activity {
 		@Override
 		protected TcpClient doInBackground(String... message) {
 			//we create a TCPClient object
-			mTcpClient = new TcpClient(new TcpClient.OnMessageReceived() {
+			mTcpClient = new TcpClient(MainActivity.this, new TcpClient.OnMessageReceived() {
 				@Override
 				public void messageReceived(String message) {				
 					Log.i("message","messageReceived: " + message);
@@ -1022,6 +1047,11 @@ public class MainActivity extends Activity {
 								Log.i("MainAct","FtpThread");
 								// Replace your UID & PW here
 								Log.i("ftp","ftp connect with " + username + " " + passwd);
+								if(settings.getBoolean("UseDefault", true)) {
+									IP_ADDR=DEFAULT_IP_ADDR;
+								} else {
+									IP_ADDR = settings.getString("ServerIP", DEFAULT_IP_ADDR);
+								}
 								status = ftpclient.ftpConnect(IP_ADDR, username, passwd, 21);
 								if (status == true) {
 									Log.d("FTP", "Connection Success");

@@ -10,6 +10,8 @@
 */
 package com.denayer.ovsr;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -22,9 +24,13 @@ import java.net.InetAddress;
 import java.net.Socket;
 
 public class TcpClient {
-
-	public static final String SERVER_IP = "192.168.0.198"; //your computer IP address
-	public static final int SERVER_PORT = 64000;
+	public static String DEFAULT_IP_ADDR="192.168.0.198";
+	public static int DEFAULT_PORT= 64000;
+	public static String SERVER_IP = DEFAULT_IP_ADDR; //your computer IP address
+	public static int SERVER_PORT = DEFAULT_PORT;
+	
+	static SharedPreferences settings;
+	
 	// message to send to the server
 	private String mServerMessage;
 	// sends message received notifications
@@ -43,8 +49,19 @@ public class TcpClient {
 	/*! \brief Constructor of the class. OnMessagedReceived listens for the messages received from server
 	 * @param listener is a listener for the OnMessageReceived. The listener is created in Java and is passed to be able to call the listener from the TcpClient functions.
 	 */
-	public TcpClient(OnMessageReceived listener) {
+	public TcpClient(Context mainContext,OnMessageReceived listener) {
 		mMessageListener = listener;
+		settings = mainContext.getSharedPreferences("Preferences", 0);
+		if(settings.getBoolean("UseDefault", true))
+		{
+			SERVER_IP = DEFAULT_IP_ADDR;
+			SERVER_PORT = DEFAULT_PORT;
+		}
+		else
+		{
+			SERVER_IP = settings.getString("ServerIP", DEFAULT_IP_ADDR);
+			SERVER_PORT = settings.getInt("ServerPort", DEFAULT_PORT);
+		}
 	}
 
 	/*! \brief Sends the message entered by client to the server

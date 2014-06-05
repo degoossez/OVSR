@@ -118,17 +118,18 @@
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        style="?android:attr/buttonStyleSmall"
                         android:onClick="signIn"
-                        android:text="Sign In"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
+                        android:text="Sign In"/>
 
                     <Button
                         android:id="@+id/buttonSignUP2"
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Sign Up"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
+                        style="?android:attr/buttonStyleSmall"
+                        android:text="Sign Up"/>
+                    
                 </LinearLayout>
             </LinearLayout>
 
@@ -165,10 +166,47 @@
                 android:id="@+id/OVSRServerPort"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ems="10" >
+                android:ems="10"
+                android:inputType="numberDecimal" >
 
                 <requestFocus />
             </EditText>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dip"
+                    android:layout_weight="2"
+                    android:orientation="horizontal"
+                    android:weightSum="10" >
+
+                    <LinearLayout
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
+                        android:orientation="vertical" >
+
+                        <TextView
+                            android:id="@+id/DefaultTV"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Default"
+                            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                        <TextView
+                            android:id="@+id/DefaultSmallTV"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Use the default server."
+                            android:textAppearance="?android:attr/textAppearanceSmall" />
+                    </LinearLayout>
+
+                    <CheckBox
+                        android:id="@+id/UseDefaultServer"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="9" />
+                </LinearLayout>
 
             <View
                 style="@style/AppBaseTheme"

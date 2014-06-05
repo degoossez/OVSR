@@ -31,7 +31,8 @@ import android.content.Context;
 
 public class SettingsActivity extends Activity {
 	static SharedPreferences settings;
-	static CheckBox checkBox, checkBox2;
+	static CheckBox checkBox, checkBox2, checkBox3;
+	static EditText ServerIP,ServerPort;
 	static public Button signIn;
 	static public Button signUp;
 	public static Context con;
@@ -56,9 +57,20 @@ public class SettingsActivity extends Activity {
 		
 		con = this;
 		act = this;
-				
+		
 	}
-
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+		SharedPreferences.Editor editor = settings.edit();
+		if(!settings.getBoolean("UseDefault", false))
+		{
+        	editor.putString("ServerIP", ServerIP.getText().toString());
+        	editor.putInt("ServerPort", Integer.valueOf(ServerPort.getText().toString()));
+		}
+		editor.commit();
+	}
 	/*! \brief creates the options menu
 	 *
     * 
@@ -102,30 +114,39 @@ public class SettingsActivity extends Activity {
 			//checkBox = (CheckBox) inflater.inflate(R.id.AutoName, container, false);
 			checkBox = (CheckBox) rootView.findViewById(R.id.AutoName);	
 			checkBox2 = (CheckBox) rootView.findViewById(R.id.rememberUser);
+			checkBox3 = (CheckBox) rootView.findViewById(R.id.UseDefaultServer);
 			signUp = (Button) rootView.findViewById(R.id.buttonSignUP2);
 			signIn = (Button) rootView.findViewById(R.id.buttonSignIN2);
-			
+			ServerIP = (EditText) rootView.findViewById(R.id.OVSRServerName);
+			ServerPort = (EditText) rootView.findViewById(R.id.OVSRServerPort);
+
 	        if (settings.getBoolean("AutoName", false)) {
 	            checkBox.setChecked(true);
-	            Log.i("debug","true");
 	        }
 	        else
 	        {
 	        	checkBox.setChecked(false);
-	            Log.i("debug","false");
 	        }
 	        
 	        if (settings.getBoolean("rememberUser", false)) {
 	            checkBox2.setChecked(true);
-	            Log.i("debug","true");
 	        }
 	        else
 	        {
 	        	checkBox2.setChecked(false);
-	            Log.i("debug","false");
+	        }	
+	        
+	        if (settings.getBoolean("UseDefault", false)) {
+	            checkBox3.setChecked(true);
+            	ServerIP.setFocusable(false);
+            	ServerPort.setFocusable(false);
 	        }
-	        
-	        
+	        else
+	        {
+	        	checkBox3.setChecked(false);
+            	ServerIP.setFocusableInTouchMode(true);
+            	ServerPort.setFocusableInTouchMode(true);
+	        }
 			checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 				@Override
 				public void onCheckedChanged(CompoundButton arg0, boolean arg1) {
@@ -134,16 +155,13 @@ public class SettingsActivity extends Activity {
 				            if (arg1){
 				            	editor.putBoolean("AutoName", true);
 				                checkBox.setChecked(true);
-					            Log.i("debug","set True");
 				            }  else {
 				            	editor.putBoolean("AutoName", false);	   
 				                checkBox.setChecked(false);
-					            Log.i("debug","set False");
 				            }
 				    editor.commit();					
 				}
 			});
-			
 			checkBox2.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 				@Override
 				public void onCheckedChanged(CompoundButton arg0, boolean arg1) {
@@ -152,16 +170,31 @@ public class SettingsActivity extends Activity {
 				            if (arg1){
 				            	editor.putBoolean("rememberUser", true);
 				                checkBox2.setChecked(true);
-					            Log.i("debug","set True");
 				            }  else {
 				            	editor.putBoolean("rememberUser", false);	   
 				                checkBox2.setChecked(false);
-					            Log.i("debug","set False");
 				            }
 				    editor.commit();					
 				}
 			});
-			
+			checkBox3.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+				@Override
+				public void onCheckedChanged(CompoundButton arg0, boolean arg1) {
+					SharedPreferences.Editor editor = settings.edit();
+		            if (arg1){
+		            	editor.putBoolean("UseDefault", true);
+		            	ServerIP.setFocusable(false);
+		            	ServerPort.setFocusable(false);
+		            	editor.putString("ServerIP", "192.168.0.198");
+		            	editor.putInt("ServerPort", 64000);
+		            }  else {
+		            	editor.putBoolean("UseDefault", false);
+		            	ServerIP.setFocusableInTouchMode(true);
+		            	ServerPort.setFocusableInTouchMode(true);
+		            }		
+				    editor.commit();					
+				}
+			});		
 			signIn.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
