@@ -73,7 +73,7 @@ To setup the OVSR server, the following steps need to be followed:
 The OVSR application can connect to a default server specified in the source code. The location of this server can be changed
 with the following steps:
  * Go to your project root
- * Browse to the following locaion root/res/values
+ * Browse to the following location root/res/values
  * Open the strings.xml file
  * Adjust the following two entries:
   * defaultIP
