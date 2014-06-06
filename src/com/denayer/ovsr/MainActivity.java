@@ -250,7 +250,6 @@ public class MainActivity extends Activity {
 		myTabHost.addTab(spec3);     
 		myTabHost.addTab(spec4);
 
-
 		OpenCLObject = new OpenCL(MainActivity.this,(ImageView)findViewById(R.id.ImageView2));
 		RenderScriptObject = new RsScript(this,(ImageView)findViewById(R.id.ImageView2),TimeView);
 		LogFileObject = new LogFile(this);   
