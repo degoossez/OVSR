@@ -1090,7 +1090,6 @@ public class MainActivity extends Activity {
 					else if(message.contains("acount created"))
 					{
 						publishProgress("acount_created");
-
 					}
 					else
 					{
