@@ -24,10 +24,10 @@ import java.net.InetAddress;
 import java.net.Socket;
 
 public class TcpClient {
-	public static String DEFAULT_IP_ADDR="192.168.0.198";
-	public static int DEFAULT_PORT= 64000;
-	public static String SERVER_IP = DEFAULT_IP_ADDR; //your computer IP address
-	public static int SERVER_PORT = DEFAULT_PORT;
+	public static String DEFAULT_IP_ADDR;
+	public static int DEFAULT_PORT;
+	public static String SERVER_IP;//your computer IP address
+	public static int SERVER_PORT;
 	
 	static SharedPreferences settings;
 	
@@ -51,6 +51,10 @@ public class TcpClient {
 	 */
 	public TcpClient(Context mainContext,OnMessageReceived listener) {
 		mMessageListener = listener;
+		DEFAULT_IP_ADDR = mainContext.getResources().getString(R.string.defaultIP);
+		DEFAULT_PORT = Integer.parseInt(mainContext.getResources().getString(R.string.defaultPORT));
+		SERVER_IP = DEFAULT_IP_ADDR; 
+		SERVER_PORT = DEFAULT_PORT;
 		settings = mainContext.getSharedPreferences("Preferences", 0);
 		if(settings.getBoolean("UseDefault", true))
 		{

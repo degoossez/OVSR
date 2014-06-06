@@ -22,5 +22,8 @@
     <string name="Save_Picture">Save Image</string>
     <string name="OVSR_Server">OVSR server location</string>
     <string name="OVSR_Server_Port">OVSR server port number</string>
+    <string name="defaultIP">"192.168.1.3"</string>
+    <string name="defaultPORT">"64000"</string>
+    
     
 </resources>

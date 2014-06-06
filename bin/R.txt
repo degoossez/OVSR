@@ -120,6 +120,8 @@ int string cant_read_folder 0x7f050002
 int string choose_image 0x7f05000c
 int string content_desc 0x7f05000d
 int string create 0x7f050007
+int string defaultIP 0x7f05001e
+int string defaultPORT 0x7f05001f
 int string err 0x7f050009
 int string file_name 0x7f050005
 int string hello_world 0x7f05000b

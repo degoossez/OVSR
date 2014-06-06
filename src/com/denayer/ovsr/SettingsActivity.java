@@ -185,8 +185,8 @@ public class SettingsActivity extends Activity {
 		            	editor.putBoolean("UseDefault", true);
 		            	ServerIP.setFocusable(false);
 		            	ServerPort.setFocusable(false);
-		            	editor.putString("ServerIP", "192.168.0.198");
-		            	editor.putInt("ServerPort", 64000);
+		            	editor.putString("ServerIP", getResources().getString(R.string.defaultIP));
+		            	editor.putInt("ServerPort", Integer.parseInt(getResources().getString(R.string.defaultPORT)));
 		            }  else {
 		            	editor.putBoolean("UseDefault", false);
 		            	ServerIP.setFocusableInTouchMode(true);

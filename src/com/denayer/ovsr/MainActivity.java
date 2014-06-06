@@ -78,8 +78,8 @@ import android.widget.VideoView;
 import java.security.*;
 
 public class MainActivity extends Activity {
-	public static String DEFAULT_IP_ADDR="192.168.0.198";
-	public static String IP_ADDR=DEFAULT_IP_ADDR;
+	public static String DEFAULT_IP_ADDR;
+	public static String IP_ADDR;
 	SharedPreferences settings;
 	private Uri mImageCaptureUri;
 	private ImageView Input_Image;
@@ -160,7 +160,8 @@ public class MainActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
+		DEFAULT_IP_ADDR = getResources().getString(R.string.defaultIP);
+		IP_ADDR=DEFAULT_IP_ADDR;
 		ActionBar actionBar = getActionBar();
 		actionBar.setTitle("");
 
@@ -1154,7 +1155,9 @@ public class MainActivity extends Activity {
 				createToast("Wrong username or password", false);
 				username = "";
 				passwd = "";
-
+				
+				if(dialog.isShowing())
+					dialog.dismiss();
 			}
 			else if(values[0] == "account_error")				
 			{

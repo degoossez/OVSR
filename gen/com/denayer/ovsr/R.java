@@ -158,6 +158,8 @@ public final class R {
         public static final int choose_image=0x7f05000c;
         public static final int content_desc=0x7f05000d;
         public static final int create=0x7f050007;
+        public static final int defaultIP=0x7f05001e;
+        public static final int defaultPORT=0x7f05001f;
         public static final int err=0x7f050009;
         public static final int file_name=0x7f050005;
         public static final int hello_world=0x7f05000b;
