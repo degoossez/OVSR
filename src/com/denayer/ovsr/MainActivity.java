@@ -533,7 +533,7 @@ public class MainActivity extends Activity {
 				else if(split.length == 3)
 				{	
 					String newUser = split[0];
-					String newPas = split[1];
+					String newPas = createHash(split[1]);
 
 					Log.i("tcp account", "ACCOUNT " + newUser + " " + newPas + " ENDACCOUNT");
 					mTcpClient.sendMessage("ACCOUNT " + newUser + " " + newPas + " ENDACCOUNT");
@@ -1052,7 +1052,7 @@ public class MainActivity extends Activity {
 								} else {
 									IP_ADDR = settings.getString("ServerIP", DEFAULT_IP_ADDR);
 								}
-								status = ftpclient.ftpConnect(IP_ADDR, username, passwd, 21);
+								status = ftpclient.ftpConnect(IP_ADDR, username, createHash(passwd), 21);
 								if (status == true) {
 									Log.d("FTP", "Connection Success");
 									status = ftpclient.ftpDownload("/template.bc", getFilesDir().getPath() + "/template.bc");
