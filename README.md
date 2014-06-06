@@ -70,7 +70,7 @@ To setup the OVSR server, the following steps need to be followed:
 * If you followed the FTP tutorial exactly, the last two settings don't have to be changed 
 
 #####Changing default server
-The OVSR application can connect to a default server specified in the source code. The location of the this server can be changed
+The OVSR application can connect to a default server specified in the source code. The location of this server can be changed
 with the following steps:
  * Go to your project root
  * Browse to the following locaion root/res/values
