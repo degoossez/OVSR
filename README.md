@@ -70,9 +70,14 @@ To setup the OVSR server, the following steps need to be followed:
 * If you followed the FTP tutorial exactly, the last two settings don't have to be changed 
 
 #####Changing default server
-The OVSR application can connect to default server specified in the source code. The location of the this server can be changed
+The OVSR application can connect to a default server specified in the source code. The location of the this server can be changed
 with the following steps:
- * 
+ * Go to your project root
+ * Browse to the following locaion root/res/values
+ * Open the strings.xml file
+ * Adjust the following two entries:
+  * defaultIP
+  * defaultPORT
 
 ####Troubleshooting
 * When calling the RenderScript compiler in the server I get the following error message: **./llvm-rs-cc: error while loading shared libraries: libclang.so: cannot open shared object file: No such file or directory**
