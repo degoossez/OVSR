@@ -69,6 +69,11 @@ To setup the OVSR server, the following steps need to be followed:
  * **FTP_GROUP** group of the FTP users
 * If you followed the FTP tutorial exactly, the last two settings don't have to be changed 
 
+###Changing default server
+The OVSR application can connect to default server specified in the source code. The location of the this server can be changed
+with the following steps:
+ * 
+
 ####Troubleshooting
 * When calling the RenderScript compiler in the server I get the following error message: **./llvm-rs-cc: error while loading shared libraries: libclang.so: cannot open shared object file: No such file or directory**
  * cd /etc/ld.so.conf.d
