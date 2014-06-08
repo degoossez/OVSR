@@ -155,13 +155,29 @@
                             android:layout_weight="0.75" >
                         </EditText>
 
-                       <Button
-                           android:id="@+id/submit_button"
-                           android:layout_width="fill_parent"
-                           android:layout_height="wrap_content"
-                           android:layout_weight="0.25"
-                           android:text="Submit" />
-
+                        <LinearLayout
+	                        android:id="@+id/CodeTabButtons"
+	                        android:layout_width="match_parent"
+	                        android:layout_height="wrap_content"
+	                        android:orientation="horizontal"
+	                         >
+	                        
+	                       <Button
+	                           android:id="@+id/submit_button"
+	                           android:layout_width="0dp"
+	                           android:layout_height="wrap_content"	                           
+	                           android:text="Submit"
+	                           android:layout_weight="1"	                           
+	                            />
+	                       <Button
+	                           android:id="@+id/previous_button"
+	                           android:layout_width="0dp"
+	                           android:layout_height="fill_parent"	
+	                           android:text="Previous"                          
+	                           android:layout_weight="1"
+	                           />
+	                       
+						</LinearLayout>
                     </LinearLayout>
 
                     <LinearLayout

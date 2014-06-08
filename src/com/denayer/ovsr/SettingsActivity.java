@@ -31,7 +31,7 @@ import android.content.Context;
 
 public class SettingsActivity extends Activity {
 	static SharedPreferences settings;
-	static CheckBox checkBox, checkBox2, checkBox3;
+	static CheckBox checkBox, checkBox2, checkBox3, checkBox4ShowCode;
 	static EditText ServerIP,ServerPort;
 	static public Button signIn;
 	static public Button signUp;
@@ -64,6 +64,8 @@ public class SettingsActivity extends Activity {
 		// TODO Auto-generated method stub
 		super.onPause();
 		SharedPreferences.Editor editor = settings.edit();
+		//if not making use of default server
+		//read the IP and Port values from the edittext fields and store them in the shared preferences
 		if(!settings.getBoolean("UseDefault", false))
 		{
         	editor.putString("ServerIP", ServerIP.getText().toString());
@@ -115,6 +117,7 @@ public class SettingsActivity extends Activity {
 			checkBox = (CheckBox) rootView.findViewById(R.id.AutoName);	
 			checkBox2 = (CheckBox) rootView.findViewById(R.id.rememberUser);
 			checkBox3 = (CheckBox) rootView.findViewById(R.id.UseDefaultServer);
+			checkBox4ShowCode = (CheckBox) rootView.findViewById(R.id.showCodeBox);
 			signUp = (Button) rootView.findViewById(R.id.buttonSignUP2);
 			signIn = (Button) rootView.findViewById(R.id.buttonSignIN2);
 			ServerIP = (EditText) rootView.findViewById(R.id.OVSRServerName);
@@ -147,6 +150,16 @@ public class SettingsActivity extends Activity {
             	ServerIP.setFocusableInTouchMode(true);
             	ServerPort.setFocusableInTouchMode(true);
 	        }
+	        
+	        if(settings.getBoolean("showCode", false))
+	        {
+	        	checkBox4ShowCode.setChecked(true);
+	        }
+	        else
+	        {
+	        	checkBox4ShowCode.setChecked(false);
+
+	        }
 			checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 				@Override
 				public void onCheckedChanged(CompoundButton arg0, boolean arg1) {
@@ -173,6 +186,8 @@ public class SettingsActivity extends Activity {
 				            }  else {
 				            	editor.putBoolean("rememberUser", false);	   
 				                checkBox2.setChecked(false);
+				                editor.putString("userName","");
+				                editor.putString("passwd", "");
 				            }
 				    editor.commit();					
 				}
@@ -195,6 +210,21 @@ public class SettingsActivity extends Activity {
 				    editor.commit();					
 				}
 			});		
+			checkBox4ShowCode.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+				@Override
+				public void onCheckedChanged(CompoundButton arg0, boolean arg1) {
+					// TODO Auto-generated method stub
+					SharedPreferences.Editor editor = settings.edit();
+				            if (arg1){
+				            	editor.putBoolean("showCode", true);
+				                checkBox4ShowCode.setChecked(true);
+				            }  else {
+				            	editor.putBoolean("showCode", false);	   
+				                checkBox4ShowCode.setChecked(false);
+				            }
+				    editor.commit();					
+				}
+			});
 			signIn.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
@@ -207,6 +237,11 @@ public class SettingsActivity extends Activity {
 				    final  EditText editTextUserName=(EditText)dialog.findViewById(R.id.editTextUserNameToLogin);
 				    final  EditText editTextPassword=(EditText)dialog.findViewById(R.id.editTextPasswordToLogin);
 				    
+				    if(settings.getBoolean("rememberUser", false))
+				    {
+				    	editTextUserName.setText(settings.getString("userName", ""));
+				    	editTextPassword.setText(settings.getString("passwd", ""));
+				    }				    
 //				    editTextUserName.setText(username);
 //				    editTextPassword.setText(passwd);
 				    

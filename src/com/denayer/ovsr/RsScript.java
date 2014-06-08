@@ -501,6 +501,35 @@ public class RsScript extends Object {
 		
 		return template;
 	}
+	/*! \brief Returns the source code of the specified filter
+	*
+	* @param filtername The name of the filter
+    * @return code The code of the specified filter
+    */
+	public String getFilterCode(String filterName)
+	{
+		String code = "";
+		String file = "rs" + filterName + ".txt";
+		
+		try {
+			InputStream in = mContext.getAssets().open(file);
+			InputStreamReader inputStreamReader = new InputStreamReader(in);
+			BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+			String receiveString = "";
+			StringBuilder stringBuilder = new StringBuilder();
+
+			while ( (receiveString = bufferedReader.readLine()) != null ) {
+				stringBuilder.append(receiveString).append("\n");
+			}
+			in.close();
+			code = stringBuilder.toString();
+		} catch (IOException e) {
+			Log.e("login activity", "Can not read file: " + e.toString());
+			e.printStackTrace();
+		}
+		
+		return code;
+	}
 	
 }
 

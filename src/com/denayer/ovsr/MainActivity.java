@@ -98,6 +98,7 @@ public class MainActivity extends Activity {
 	private static final int PICK_VIDEO = 7;
 	private static final int REQUEST_PATH = 8;
 	private Button SubmitButton;
+	private Button previousButton;
 	private RadioButton RenderScriptButton;
 	private RadioButton OpenCLButton;
 	private EditText CodeField;
@@ -116,7 +117,8 @@ public class MainActivity extends Activity {
 
 	public String username = "";
 	public String passwd = "";
-
+	
+	public String previousCode = "";	//used to backup the code field
 	private TabHost myTabHost;
 
 	public boolean isImage = true;
@@ -173,12 +175,37 @@ public class MainActivity extends Activity {
 		{
 			editor.putBoolean("AutoName", false);
 			editor.commit();
-		}		
+		}	
+		if(!settings.getBoolean("rememberUser", false))
+		{
+			editor.putBoolean("rememberUser", false);
+			editor.commit();
+		}	
 		if(!settings.getBoolean("UseDefault", false))
 		{
 			editor.putBoolean("UseDefault", false);
 			editor.commit();
 		}	
+		if(!settings.getBoolean("rememberUser", false))
+		{
+			editor.putBoolean("rememberUser", false);
+			editor.commit();
+		}	
+		if(!settings.getBoolean("showCode", false))
+		{
+			editor.putBoolean("showCode", false);
+			editor.commit();
+		}		
+		if(settings.getString("userName","") == "")
+		{
+			editor.putString("username", "");
+			editor.commit();
+		}
+		if(settings.getString("passwd","") == "")
+		{
+			editor.putString("passwd", "");
+			editor.commit();
+		}
 		/*
 		 * If the saved IP is equal to the default IP or the ServerIP is not yet created
 		 * create a ServerIP sharedpref with default_ip_addr as value.
@@ -186,6 +213,7 @@ public class MainActivity extends Activity {
 		if(settings.getString("ServerIP", DEFAULT_IP_ADDR)==DEFAULT_IP_ADDR)
 		{
 			editor.putString("ServerIP", DEFAULT_IP_ADDR);
+			editor.commit();
 		}
 		else
 		{
@@ -197,6 +225,7 @@ public class MainActivity extends Activity {
 		if(settings.getInt("ServerPort", 64000)==64000)
 		{
 			editor.putInt("ServerPort", 64000);
+			editor.commit();
 		}
 		Input_Image = (ImageView)findViewById(R.id.ImageView1);
 		Output_Image = (ImageView)findViewById(R.id.ImageView2);
@@ -205,6 +234,7 @@ public class MainActivity extends Activity {
 		Input_Video.setVisibility(View.INVISIBLE);
 		Output_Video.setVisibility(View.INVISIBLE);
 		SubmitButton=(Button) findViewById(R.id.submit_button);
+		previousButton = (Button) findViewById(R.id.previous_button);
 		ConsoleView=(TextView)findViewById(R.id.ConsoleView);
 		TimeView=(TextView)findViewById(R.id.timeview);
 		NetworkView=(TextView)findViewById(R.id.networkview);
@@ -280,10 +310,24 @@ public class MainActivity extends Activity {
 						isRenderScript=true;
 						if(TcpClient.isConnected)
 						{
-
-							//if user is not logged in
-							if(username == "" && passwd == "")
+							username = "";
+							passwd = "";
+							
+							boolean tmp = false;
+							if(settings.getBoolean("rememberUser", false))
 							{
+								if(settings.getString("userName", "") == "")
+									if(settings.getString("passwd", "") == "")
+									{
+										tmp = true;
+										Log.i("main","remember user is true, but no user information stored");
+									}
+							}
+							
+							if(!settings.getBoolean("rememberUser", false) || tmp)
+							{
+								//if the user information is not saved or if it is but no login has yet happened
+								//show login dialog
 								final Dialog dialog = new Dialog(MainActivity.this);
 								dialog.setContentView(R.layout.login);
 								dialog.setTitle("Login");
@@ -317,7 +361,7 @@ public class MainActivity extends Activity {
 							}
 							else
 							{
-								sendRenderscriptMessage(username, passwd);
+								sendRenderscriptMessage(settings.getString("userName", ""), settings.getString("passwd", ""));
 							}				
 						}
 						else
@@ -379,7 +423,7 @@ public class MainActivity extends Activity {
 				createToast("connecting to " + TcpClient.SERVER_IP, false);
 
 			}
-		});
+		});		
 
 		disconnectButton.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -393,6 +437,48 @@ public class MainActivity extends Activity {
 
 			}
 		});		
+		
+		previousButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if(previousCode.equals(""))
+				{
+					createToast("No previous code available", false);
+				}
+				else
+				{
+					AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+
+				    builder.setTitle("Confirm");
+				    builder.setMessage("Are you sure you want to revert to the previous code? " +
+				    		"This will overwrite all current code and can not be " +
+				    		"undone.");
+
+				    builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+
+				        public void onClick(DialogInterface dialog, int which) {
+				            CodeField.setText(previousCode);
+				            previousCode = "";
+				            dialog.dismiss();
+				        }
+
+				    });
+
+				    builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+
+				        @Override
+				        public void onClick(DialogInterface dialog, int which) {
+				            // Do nothing
+				            dialog.dismiss();
+				        }
+				    });
+
+				    AlertDialog alert = builder.create();
+				    alert.show();
+					
+				}
+			}
+		});
 
 		Display display = getWindowManager().getDefaultDisplay();
 		Point size = new Point();
@@ -619,6 +705,16 @@ public class MainActivity extends Activity {
 								m.invoke(RenderScriptObject, null);
 								if(RenderScriptObject.getOutputBitmap()!=null && isImage)
 								{
+									if(settings.getBoolean("showCode", false))
+									{
+										if(!CodeField.getText().toString().equals(""))
+										{
+											//if code field is not empty, backup the current code
+											previousCode = CodeField.getText().toString();
+										}
+										CodeField.setText(RenderScriptObject.getFilterCode(itemsFilterBox[item]));
+									}								
+									
 									outBitmap = RenderScriptObject.getOutputBitmap();
 									Output_Image.setImageBitmap(RenderScriptObject.getOutputBitmap());
 								}
@@ -629,6 +725,16 @@ public class MainActivity extends Activity {
 							}
 							else
 							{ 
+								if(settings.getBoolean("showCode", false))
+								{
+									if(!CodeField.getText().toString().equals(""))
+									{
+										//if code field is not empty, backup the current code
+										previousCode = CodeField.getText().toString();
+									}
+									CodeField.setText(RenderScriptObject.getFilterCode(itemsFilterBox[item]));
+								}		
+								
 								if(itemsFilterBox[item]=="Saturatie")
 								{
 							        final TextView progressView = new TextView(MainActivity.this);
@@ -704,6 +810,16 @@ public class MainActivity extends Activity {
 									m.invoke(OpenCLObject, null);
 									if(OpenCLObject.getBitmap()!=null && isImage)
 									{
+										if(settings.getBoolean("showCode", false))
+										{
+											if(!CodeField.getText().toString().equals(""))
+											{
+												//if code field is not empty, backup the current code
+												previousCode = CodeField.getText().toString();
+											}
+											CodeField.setText(OpenCLObject.getFilterCode(itemsFilterBox[item]));
+										}	
+										
 										outBitmap = OpenCLObject.getBitmap();
 										Output_Image.setImageBitmap(outBitmap);
 									}
@@ -714,6 +830,16 @@ public class MainActivity extends Activity {
 								}
 								else
 								{
+									if(settings.getBoolean("showCode", false))
+									{
+										if(!CodeField.getText().toString().equals(""))
+										{
+											//if code field is not empty, backup the current code
+											previousCode = CodeField.getText().toString();
+										}
+										CodeField.setText(OpenCLObject.getFilterCode(itemsFilterBox[item]));
+									}	
+									
 									m = OpenCL.class.getDeclaredMethod("OpenCLVideo",new Class[]{String[].class});
 									if(itemsFilterBox[item]=="Saturatie")
 									{
@@ -863,6 +989,8 @@ public class MainActivity extends Activity {
 			startHistoryActivity();
 			return true;
 		case R.id.Template:
+			if(!CodeField.getText().toString().equals(""))
+				previousCode = CodeField.getText().toString();
 			if(RenderScriptButton.isChecked()) CodeField.setText(RenderScriptObject.getTemplate());
 			else CodeField.setText(OpenCLObject.getTemplate());
 			return true;
@@ -1033,6 +1161,24 @@ public class MainActivity extends Activity {
 
 					if(message.contains("Succesful"))
 					{
+						/*
+						 * the next code is needed in the following situation
+						 * the remember user option is selected but the user has not yet logged in via the login button
+						 * or during a previous session.
+						 * If we receive the Succesful message from the server,we can deduce that the send username en password
+						 * were correct and therefore can be stored to the shared preferences file
+						 */
+						if(settings.getBoolean("rememberUser", false))
+						{
+							if(username != "" && passwd != "")
+							{
+								SharedPreferences.Editor editor = settings.edit();
+								editor.putString("userName",username);
+								editor.putString("passwd", passwd);
+								editor.commit();
+							}
+						}
+						
 						ConsoleView.setText("Build Succesful");
 						mTcpClient.sendMessage("give bc");
 						Log.i("message","give bc");
@@ -1052,7 +1198,10 @@ public class MainActivity extends Activity {
 								} else {
 									IP_ADDR = settings.getString("ServerIP", DEFAULT_IP_ADDR);
 								}
-								status = ftpclient.ftpConnect(IP_ADDR, username, createHash(passwd), 21);
+								if(!settings.getBoolean("rememberUser", false))
+									status = ftpclient.ftpConnect(IP_ADDR, username, createHash(passwd), 21);
+								else
+									status = ftpclient.ftpConnect(IP_ADDR, settings.getString("userName", ""), createHash(settings.getString("passwd", "")), 21);
 								if (status == true) {
 									Log.d("FTP", "Connection Success");
 									status = ftpclient.ftpDownload("/template.bc", getFilesDir().getPath() + "/template.bc");
@@ -1093,6 +1242,16 @@ public class MainActivity extends Activity {
 					}
 					else
 					{
+						if(settings.getBoolean("rememberUser", false))
+						{
+							if(username != "" && passwd != "")
+							{
+								SharedPreferences.Editor editor = settings.edit();
+								editor.putString("userName",username);
+								editor.putString("passwd", passwd);
+								editor.commit();
+							}
+						}
 						publishProgress(message);
 						Log.i("Error","Error message: " + message);
 					}
@@ -1146,7 +1305,14 @@ public class MainActivity extends Activity {
 			}
 			else if(values[0] == "login_ok")
 			{
-				createToast("Login succesful", false);
+				if(settings.getBoolean("rememberUser", false))
+			    {
+					SharedPreferences.Editor editor = settings.edit();
+					editor.putString("userName", username);
+					editor.putString("passwd", passwd);
+					editor.commit();
+			    }	
+				createToast("Login succesful", false);				
 			}
 			else if(values[0] == "login_nok")
 			{

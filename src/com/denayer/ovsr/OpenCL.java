@@ -373,7 +373,7 @@ public class OpenCL extends Object {
 	}
      /*! \brief This function will copy a file from the assets folder specified by the argument to the execdir of the application.
       *
-      * The argument is the file name and must be located inside the assets folder. It copy's the file to make sure the OpenCL code can acces it.
+      * The argument is the file name and must be located inside the assets folder. It copies the file to make sure the OpenCL code can acces it.
       * @param f is the name of the file that has to be copied
       */
 	private void copyFile(final String f) {
@@ -534,5 +534,34 @@ public class OpenCL extends Object {
 	}
 	public interface OnUpdateProcessBar {
 		public void updateProcessBar(String message);
+	}	
+	/*! \brief Returns the source code of the specified filter
+	*
+	* @param filtername The name of the filter
+    * @return code The code of the specified filter
+    */
+	public String getFilterCode(String filterName)
+	{
+		String code = "";
+		String file = filterName + ".cl";
+		
+		try {
+			InputStream in = mContext.getAssets().open(file);
+			InputStreamReader inputStreamReader = new InputStreamReader(in);
+			BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+			String receiveString = "";
+			StringBuilder stringBuilder = new StringBuilder();
+
+			while ( (receiveString = bufferedReader.readLine()) != null ) {
+				stringBuilder.append(receiveString).append("\n");
+			}
+			in.close();
+			code = stringBuilder.toString();
+		} catch (IOException e) {
+			Log.e("login activity", "Can not read file: " + e.toString());
+			e.printStackTrace();
+		}
+		
+		return code;
 	}
 }
