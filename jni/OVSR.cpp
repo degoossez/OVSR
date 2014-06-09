@@ -382,7 +382,6 @@ void initOpenCLFromInput
 		OpenCLObjects& openCLObjects
 )
 {
-	LOGD("INIT");
 	using namespace std;
 
 	openCLObjects.isInputBufferInitialized = false;
@@ -497,7 +496,7 @@ void initOpenCLFromInput
 	 */
 	jclass MyJavaClass = (*env).FindClass("com/denayer/ovsr/OpenCL");
 	if (!MyJavaClass){
-		LOGD("Method not found in OVSR.cpp on line 598");
+		LOGD("Method not found in OVSR.cpp on line 500");
 		return;} /* method not found */
 	jmethodID setConsoleOutput = (*env).GetMethodID(MyJavaClass, "setConsoleOutput", "(Ljava/lang/String;)V");
 	(*env).CallVoidMethod(thisObject, setConsoleOutput, JavaString);
@@ -895,7 +894,7 @@ void nativeImage2DOpenCL
 
 	jclass MyJavaClass = (*env).FindClass("com/denayer/ovsr/OpenCL");
 	if (!MyJavaClass){
-		LOGD("Method not found in OVSR.cpp on line 972");
+		LOGD("Method not found in OVSR.cpp on line 897");
 		return;} /* method not found */
 	jmethodID setTimeFromJNI = (*env).GetMethodID(MyJavaClass, "setTimeFromJNI", "(F)V"); //argument is float, return time is void
 	(*env).CallVoidMethod(thisObject, setTimeFromJNI, ndrangeDuration);

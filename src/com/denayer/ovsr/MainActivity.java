@@ -84,6 +84,7 @@ public class MainActivity extends Activity {
 	private Uri mImageCaptureUri;
 	private ImageView Input_Image;
 	private ImageView Output_Image;
+	static int ScaledWidth,ScaledHeigth;
 	private VideoView Input_Video;
 	private VideoView Output_Video;
 	private Bitmap bitmap   = null;
@@ -387,7 +388,8 @@ public class MainActivity extends Activity {
 									if(OpenCLObject.getBitmap()!=null && isImage)
 									{
 										outBitmap = OpenCLObject.getBitmap();
-										Output_Image.setImageBitmap(outBitmap);
+										Bitmap ScaledBitmap = Bitmap.createScaledBitmap(outBitmap, ScaledWidth, ScaledHeigth, false);										
+										Output_Image.setImageBitmap(ScaledBitmap);
 									}
 									else
 									{
@@ -480,17 +482,16 @@ public class MainActivity extends Activity {
 			}
 		});
 
+		bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.logo);
+		OpenCLObject.setBitmap(bitmap);
+		RenderScriptObject.setInputBitmap(bitmap);
 		Display display = getWindowManager().getDefaultDisplay();
 		Point size = new Point();
 		display.getSize(size);
-		int width = size.x/2 - 15;
-		int height = size.y/2 - 15;
-		bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.logo);
-		bitmap = Bitmap.createScaledBitmap(bitmap, width, height, false);
-		Input_Image.setImageBitmap(bitmap);
-		OpenCLObject.setBitmap(bitmap);
-		RenderScriptObject.setInputBitmap(bitmap);
-
+		ScaledWidth = size.x/2 - 15;
+		ScaledHeigth= size.y/2 - 15;
+		Bitmap ScaledBitmap = Bitmap.createScaledBitmap(bitmap, ScaledWidth, ScaledHeigth, false);
+		Input_Image.setImageBitmap(ScaledBitmap);
 	}
 
 	/*! \brief Receives data from other activities via intents
@@ -586,7 +587,7 @@ public class MainActivity extends Activity {
 			FileOutputStream out = null;
 			try {
 				out = new FileOutputStream(filePath);
-				outBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+				outBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
 				createToast("Image saved!",false);	
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -644,16 +645,9 @@ public class MainActivity extends Activity {
   */
 	public void setBitmaps()
 	{
-		Display display = getWindowManager().getDefaultDisplay();
-		Point size = new Point();
-		display.getSize(size);
-		int width = size.x/2 - 15;
-		int height = size.y/2 - 15;
-		Log.i("Debug","Width: " + width + " " + "Height: " + height);
-
-		bitmap = Bitmap.createScaledBitmap(bitmap, width, height, false);
-		Input_Image.setImageBitmap(bitmap);
-		Output_Image.setImageBitmap(Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888));
+		Bitmap ScaledBitmap = Bitmap.createScaledBitmap(bitmap, ScaledWidth, ScaledHeigth, false);
+		Input_Image.setImageBitmap(ScaledBitmap);
+		Output_Image.setImageBitmap(Bitmap.createBitmap(ScaledBitmap.getWidth(), ScaledBitmap.getHeight(), Bitmap.Config.ARGB_8888));
 
 		OpenCLObject.setBitmap(bitmap);
 		RenderScriptObject.setInputBitmap(bitmap);
@@ -714,9 +708,9 @@ public class MainActivity extends Activity {
 										}
 										CodeField.setText(RenderScriptObject.getFilterCode(itemsFilterBox[item]));
 									}								
-									
 									outBitmap = RenderScriptObject.getOutputBitmap();
-									Output_Image.setImageBitmap(RenderScriptObject.getOutputBitmap());
+									Bitmap ScaledBitmap = Bitmap.createScaledBitmap(outBitmap, ScaledWidth, ScaledHeigth, false);
+									Output_Image.setImageBitmap(ScaledBitmap);
 								}
 								else
 								{
@@ -819,9 +813,9 @@ public class MainActivity extends Activity {
 											}
 											CodeField.setText(OpenCLObject.getFilterCode(itemsFilterBox[item]));
 										}	
-										
 										outBitmap = OpenCLObject.getBitmap();
-										Output_Image.setImageBitmap(outBitmap);
+										Bitmap ScaledBitmap = Bitmap.createScaledBitmap(outBitmap, ScaledWidth, ScaledHeigth, false);								
+										Output_Image.setImageBitmap(ScaledBitmap);
 									}
 									else
 									{
@@ -1072,7 +1066,7 @@ public class MainActivity extends Activity {
 					FileOutputStream out = null;
 					try {
 						out = new FileOutputStream(filePath);
-						outBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+						outBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
 						createToast("Image saved!",false);	
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -1279,7 +1273,8 @@ public class MainActivity extends Activity {
 						if(OpenCLObject.getBitmap()!=null && isImage)
 						{
 							RenderScriptObject.RenderScriptTemplate();
-							Output_Image.setImageBitmap(RenderScriptObject.getOutputBitmap()); 
+							Bitmap ScaledBitmap = Bitmap.createScaledBitmap(RenderScriptObject.getOutputBitmap(), ScaledWidth, ScaledHeigth, false);
+							Output_Image.setImageBitmap(ScaledBitmap); 
 						}
 						else
 						{

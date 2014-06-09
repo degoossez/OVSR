@@ -66,10 +66,14 @@ public class SettingsActivity extends Activity {
 		SharedPreferences.Editor editor = settings.edit();
 		//if not making use of default server
 		//read the IP and Port values from the edittext fields and store them in the shared preferences
-		if(!settings.getBoolean("UseDefault", false))
+		
+		if(!ServerPort.getText().toString().matches("") && !ServerIP.getText().toString().matches(""))
 		{
-        	editor.putString("ServerIP", ServerIP.getText().toString());
-        	editor.putInt("ServerPort", Integer.valueOf(ServerPort.getText().toString()));
+			if(!settings.getBoolean("UseDefault", false))
+			{
+	        	editor.putString("ServerIP", ServerIP.getText().toString());
+	        	editor.putInt("ServerPort", Integer.valueOf(ServerPort.getText().toString()));
+			}
 		}
 		editor.commit();
 	}
