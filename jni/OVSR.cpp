@@ -346,17 +346,35 @@ extern "C" void Java_com_denayer_ovsr_OpenCL_initOpenCL
 (
 		JNIEnv* env,
 		jobject thisObject,
-		jstring kernelName
+		jstring kernelName,
+		int dev_type
 )
 {
-	initOpenCL
-	(
-			env,
-			thisObject,
-			kernelName,
-			CL_DEVICE_TYPE_GPU,
-			openCLObjects
-	);
+	if(dev_type==1)
+	{
+		LOGD("On CPU");
+		initOpenCL
+		(
+				env,
+				thisObject,
+				kernelName,
+				CL_DEVICE_TYPE_CPU,
+				openCLObjects
+		);
+	}
+	else
+	{
+		LOGD("On GPU");
+		initOpenCL
+		(
+				env,
+				thisObject,
+				kernelName,
+				CL_DEVICE_TYPE_GPU,
+				openCLObjects
+		);
+	}
+
 }
 	/*! \brief This function prepares OpenCL to compile code from a Java string.
 	 *
@@ -881,6 +899,7 @@ void nativeImage2DOpenCL
 	SAMPLE_CHECK_ERRORS(err);
 	err = clReleaseMemObject(openCLObjects.inputBuffer);
 	SAMPLE_CHECK_ERRORS(err);
+	openCLObjects.isInputBufferInitialized = false;
 	// Make the output content be visible at the Java side by unlocking
 	// pixels in the output bitmap object.
 	AndroidBitmap_unlockPixels(env, outputBitmap);

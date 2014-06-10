@@ -811,7 +811,7 @@ public class MainActivity extends Activity {
 												//if code field is not empty, backup the current code
 												previousCode = CodeField.getText().toString();
 											}
-											CodeField.setText(OpenCLObject.getFilterCode(itemsFilterBox[item]));
+											CodeField.setText(OpenCLObject.getFilterCode(itemsFilterBox[item].toLowerCase()));
 										}	
 										outBitmap = OpenCLObject.getBitmap();
 										Bitmap ScaledBitmap = Bitmap.createScaledBitmap(outBitmap, ScaledWidth, ScaledHeigth, false);								
@@ -831,13 +831,13 @@ public class MainActivity extends Activity {
 											//if code field is not empty, backup the current code
 											previousCode = CodeField.getText().toString();
 										}
-										CodeField.setText(OpenCLObject.getFilterCode(itemsFilterBox[item]));
+										CodeField.setText(OpenCLObject.getFilterCode(itemsFilterBox[item].toLowerCase()));
 									}	
 									
 									m = OpenCL.class.getDeclaredMethod("OpenCLVideo",new Class[]{String[].class});
 									if(itemsFilterBox[item]=="Saturatie")
 									{
-										OpenCLVideoArguments[0]= itemsFilterBox[item];
+										OpenCLVideoArguments[0]= itemsFilterBox[item].toLowerCase();
 								        final TextView progressView = new TextView(MainActivity.this);
 										final Resources res = MainActivity.this.getResources();
 										final SeekBar MySeekBar = new SeekBar(MainActivity.this);
@@ -879,7 +879,7 @@ public class MainActivity extends Activity {
 									}
 									else
 									{
-										OpenCLVideoArguments[0]= itemsFilterBox[item];
+										OpenCLVideoArguments[0]= itemsFilterBox[item].toLowerCase();
 										Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
 										intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
 										intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] {"mp4", "avi","3gp","gif","mkv"});
@@ -934,6 +934,18 @@ public class MainActivity extends Activity {
 			public void onClick(View v) {
 				OpenCLButton.setChecked(true);
 				RenderScriptButton.setChecked(false);
+				final CharSequence[] items = {"GPU", "CPU"};
+				 
+				AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+				builder.setTitle("Chose device type")
+				    .setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
+				        public void onClick(DialogInterface dialogInterface, int item) {
+				        	OpenCLObject.setDeviceType(item);
+				        	OpenCLButton.setText("OpenCL on " + items[item]);
+				        	dialogInterface.dismiss();
+				        }
+				    });
+				builder.create().show();
 			}
 		});
 		ConsoleView.addTextChangedListener(new  TextWatcher() {
@@ -1533,9 +1545,10 @@ public class MainActivity extends Activity {
 							} else publishProgress(message);
 						}
 				}); 
-				//m.invoke(OpenCLObject,new Object[]{OpenCLVideoArguments});
-				String[] bla = {"sharpen",null};
-				OpenCLObject.OpenCLVideo(bla);
+				Log.e("OpenCLVideoArguments0",OpenCLVideoArguments[0]);
+				m.invoke(OpenCLObject,new Object[]{OpenCLVideoArguments});
+				//String[] bla = {"sharpen",null};
+				//OpenCLObject.OpenCLVideo(bla);
 			}
 			}catch(Exception e){
 				e.printStackTrace();
