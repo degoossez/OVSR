@@ -301,15 +301,6 @@ void initOpenCL
 		(*env).CallVoidMethod(thisObject, setConsoleOutput, JavaString);
 		return;
 	}
-	/*
-	 * Call the setConsoleOutput function.
-	 */
-	jclass MyJavaClass = (*env).FindClass("com/denayer/ovsr/OpenCL");
-	if (!MyJavaClass){
-		LOGD("METHOD NOT FOUND");
-		return;} /* method not found */
-	jmethodID setConsoleOutput = (*env).GetMethodID(MyJavaClass, "setConsoleOutput", "(Ljava/lang/String;)V");
-	(*env).CallVoidMethod(thisObject, setConsoleOutput, JavaString);
 	/* 
 	 * Step 6: Extract kernel from the built program.
 	 */
@@ -509,15 +500,6 @@ void initOpenCLFromInput
 		(*env).CallVoidMethod(thisObject, setConsoleOutput, JavaString);
 		return;
 	}
-	/*
-	 * Call the setConsoleOutput function.
-	 */
-	jclass MyJavaClass = (*env).FindClass("com/denayer/ovsr/OpenCL");
-	if (!MyJavaClass){
-		LOGD("Method not found in OVSR.cpp on line 500");
-		return;} /* method not found */
-	jmethodID setConsoleOutput = (*env).GetMethodID(MyJavaClass, "setConsoleOutput", "(Ljava/lang/String;)V");
-	(*env).CallVoidMethod(thisObject, setConsoleOutput, JavaString);
 
 	fileName = env->GetStringUTFChars(kernelName, 0);
 	char result[100];   // array to hold the result.

@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import org.bytedeco.javacpp.avcodec;
@@ -49,6 +51,8 @@ public class OpenCL extends Object {
 	String kernelName = "";
 	private OnUpdateProcessBar mGUIUpdater = null;
 	static int dev_type;
+	static LogFile LogFileObject; 
+
 	/*! \brief The OpenCL constructor.
 	 *
 	 * The constructor takes two arguments. Loads the available OpenCL library 
@@ -59,8 +63,10 @@ public class OpenCL extends Object {
 	 * @param imageView is the ImageView to put the result in
 	 */
 	public OpenCL(Context context, ImageView imageView) {
-		mContext = context; //<-- fill it with the Context you passed
+		mContext = context;
 		outputButton = imageView;
+		LogFileObject = new LogFile(mContext); 	   
+
 		try { 
 			//Odroid lib
 			System.load("/system/vendor/lib/libPVROCL.so");
@@ -100,9 +106,10 @@ public class OpenCL extends Object {
 		} 	
 	}
 	public OpenCL (Context context, ImageView imageView, OnUpdateProcessBar listener) {
-		mContext = context; //<-- fill it with the Context you passed
+		mContext = context;
 		outputButton = imageView;
 		mGUIUpdater = listener;
+		LogFileObject = new LogFile(mContext); 	   
 	}
 	/*! \brief Returns a boolean to be able to check OpenCL support in the main code
 	 *
@@ -205,8 +212,9 @@ public class OpenCL extends Object {
 		shutdownOpenCL();
 		long estimatedTime = System.nanoTime() - startTime;
 		estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
-		LogFile MyFile = new LogFile(mContext);
-		MyFile.writeToPublicFile(String.valueOf(estimatedTime), "TestResultsVideo.txt");
+		setTimeToLog(estimatedTime);
+		
+        setHistory("Edge",estimatedTime);
 	}
 	/*! \brief This function will be called when the Inverse button is clicked.
 	 *
@@ -227,8 +235,10 @@ public class OpenCL extends Object {
 		shutdownOpenCL();
 		long estimatedTime = System.nanoTime() - startTime;
 		estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
-		LogFile MyFile = new LogFile(mContext);
-		MyFile.writeToPublicFile(String.valueOf(estimatedTime), "TestResultsVideo.txt");
+		setTimeToLog(estimatedTime);
+		
+        setHistory("Inverse",estimatedTime);
+
 	}
 	/*! \brief This function will be called when the Sharpen button is clicked.
 	 *
@@ -249,8 +259,10 @@ public class OpenCL extends Object {
 		shutdownOpenCL();
 		long estimatedTime = System.nanoTime() - startTime;
 		estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
-		LogFile MyFile = new LogFile(mContext);
-		MyFile.writeToPublicFile(String.valueOf(estimatedTime), "TestResultsVideo.txt");
+		setTimeToLog(estimatedTime);
+		
+        setHistory("Sharpen",estimatedTime);
+
 	}
 	/*! \brief This function will be called when the mediaan button is clicked.
 	 *
@@ -272,8 +284,10 @@ public class OpenCL extends Object {
 		shutdownOpenCL();
 		long estimatedTime = System.nanoTime() - startTime;
 		estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
-		LogFile MyFile = new LogFile(mContext);
-		MyFile.writeToPublicFile(String.valueOf(estimatedTime), "TestResultsVideo.txt");
+		setTimeToLog(estimatedTime);
+		
+        setHistory("Median",estimatedTime);
+
 	}
 	/*! \brief This function will be called when the Blur button is clicked.
 	 *
@@ -294,8 +308,10 @@ public class OpenCL extends Object {
 		shutdownOpenCL();
 		long estimatedTime = System.nanoTime() - startTime;
 		estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
-		LogFile MyFile = new LogFile(mContext);
-		MyFile.writeToPublicFile(String.valueOf(estimatedTime), "TestResultsVideo.txt");
+		setTimeToLog(estimatedTime);
+		
+        setHistory("Blur",estimatedTime);
+
 	}
 	/*! \brief This function will be called when the saturatie button is clicked.
 	 *
@@ -368,8 +384,10 @@ public class OpenCL extends Object {
 		shutdownOpenCL();
 		long estimatedTime = System.nanoTime() - startTime;
 		estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
-		LogFile MyFile = new LogFile(mContext);
-		MyFile.writeToPublicFile(String.valueOf(estimatedTime), "TestResultsVideo.txt");   	
+		setTimeToLog(estimatedTime);   	
+		
+        setHistory("Saturation",estimatedTime);
+
 	}
 	/*! \brief This function will copy a file from the assets folder specified by the argument to the execdir of the application.
 	 *
@@ -409,6 +427,30 @@ public class OpenCL extends Object {
 		v.setText(String.valueOf(time) + " ms");
 
 	}
+	/*! \brief The setTimeToLog function sets a value to the GUI in the log window.
+	 *
+	 *@param time is the time that has to be placed in the log field
+	 */
+	public void setTimeToLog(long time)
+	{
+		View rootView = ((Activity)mContext).getWindow().getDecorView().findViewById(android.R.id.content);
+		TextView v = (TextView) rootView.findViewById(R.id.timeview);
+		v.setText(String.valueOf(time) + " ms");
+
+	}
+	/*! \brief The setTimeToLog function adds a line with information to the history file
+	 *
+	 *@param filterName the name of the executed filter
+	 *@param time the time needed to execute the filter
+	 */
+	public void setHistory(String filterName,long time)
+	{
+       String Method="RenderScript";
+		SimpleDateFormat formatter = new SimpleDateFormat("yyMMddHHmmss");
+		Date now = new Date();
+		String fileName = "RenderScript/" + filterName + formatter.format(now);
+		LogFileObject.writeToFile("\n" + Method + " : " + fileName + " : " + String.valueOf(time) + " ms", "LogFile.txt",false);
+	}
 	/*! \brief The setConsoleOutput function allows the native code to set a value to the GUI in the console window.
 	 *
 	 *@param ErrorLog is the error log that has to be placed in the console view.
@@ -442,8 +484,6 @@ public class OpenCL extends Object {
 			Log.e("login activity", "Can not read file: " + e.toString());
 			e.printStackTrace();
 		}
-
-
 		return template;
 	}
 	/*! \brief This function gives the kernelName a value.
@@ -459,12 +499,18 @@ public class OpenCL extends Object {
 	 */
 	public void codeFromFile(final String code)
 	{
+		long startTime = System.nanoTime();
 		initOpenCLFromInput(code, kernelName,dev_type);
 		nativeImage2DOpenCL(		
 				bmpOrig,
 				bmpOpenCL
 				);
 		shutdownOpenCL();		
+
+		long estimatedTime = System.nanoTime() - startTime;
+		estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
+		setTimeToLog(estimatedTime);   
+        setHistory("Run time compiled",estimatedTime);
 	}
 	public void OpenCLVideo(String[] arg)
 	{
@@ -540,9 +586,8 @@ public class OpenCL extends Object {
 				recorder.record(image);
 				counter++;
 				mGUIUpdater.updateProcessBar(String.valueOf(counter));
-			}   			
-
-			shutdownOpenCL();
+			}
+			shutdownOpenCL();		
 			recorder.stop();
 			grabber.stop();	
 			mGUIUpdater.updateProcessBar("Done");
@@ -552,6 +597,7 @@ public class OpenCL extends Object {
 		long estimatedTime = System.nanoTime() - startTime;
 		estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
 		Log.d("Time:",Long.toString(estimatedTime));
+		setTimeToLog(estimatedTime); 
 	}
 	public interface OnUpdateProcessBar {
 		public void updateProcessBar(String message);

@@ -911,12 +911,6 @@ public class MainActivity extends Activity {
 						createToast("No OpenCL support!",false);					
 					}
 				}
-				if(TimeView.getText()!="0")
-				{
-					String Method="OpenCL";
-					if(RenderScriptButton.isChecked()) Method="RenderScript";
-					LogFileObject.writeToFile("\n" + Method + " : " + fileName + " : " + TimeView.getText(), "LogFile.txt",false);
-				}
 			}
 		} );
 		final AlertDialog dialogFilterBox = builderFilterBox.create();

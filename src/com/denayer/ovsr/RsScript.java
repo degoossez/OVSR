@@ -15,13 +15,17 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -39,7 +43,7 @@ public class RsScript extends Object {
 	public ImageView outputButton;
 	public TextView mElapsedTime;
 	public MainActivity MmainThread;
-	
+	static LogFile LogFileObject; 
 	 /*! \brief Constructor
 	 *
      * 
@@ -53,7 +57,7 @@ public class RsScript extends Object {
 	   MmainThread = mActiv;	//needed for updating UI components from a subthread
 	   outputButton = imageView;
 	   mElapsedTime = view;
-	   
+	   LogFileObject = new LogFile(mContext); 	   
 	}
 	
 	/*! \brief funtion to set the input bitmap 
@@ -113,17 +117,17 @@ public class RsScript extends Object {
 	    script.invoke_filter();	
 	    rs.finish();
 	    output.copyTo(outBitmap);
-	    
-	    long estimatedTime = System.nanoTime() - startTime;
-	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
-        Log.i("koen","via java meting: " + String.valueOf(estimatedTime));
-        mElapsedTime.setText(String.valueOf(estimatedTime) + "ms");
-	    LogFile MyFile = new LogFile(mContext);
-	    MyFile.writeToPublicFile(String.valueOf(estimatedTime), "TestResultsVideo.txt");		
+	    	
         input.destroy();
         output.destroy();
         rs.destroy();
         script.destroy();
+        
+	    long estimatedTime = System.nanoTime() - startTime;
+	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
+        setTimeToLog(estimatedTime);
+        
+        setHistory("Edge",estimatedTime);
 	}
 	
 	/*! \brief executes an inverse Filter on the input image
@@ -156,18 +160,16 @@ public class RsScript extends Object {
 	    //script.forEach_root(allocIn, allocOut);
 	    rs.finish();
 	    allocOut.copyTo(outBitmap);
-	    
-	    	    
-	    long estimatedTime = System.nanoTime() - startTime;
-	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
-        Log.i("koen","via java meting: " + String.valueOf(estimatedTime));
-        mElapsedTime.setText(String.valueOf(estimatedTime) + "ms");
-	    LogFile MyFile = new LogFile(mContext);
-	    MyFile.writeToPublicFile(String.valueOf(estimatedTime), "TestResultsVideo.txt");	    
+	        
         allocOut.destroy();
         allocIn.destroy();
         rs.destroy();
         script.destroy();
+	    long estimatedTime = System.nanoTime() - startTime;
+	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
+        setTimeToLog(estimatedTime);
+        
+        setHistory("Inverse",estimatedTime);
 	}	
 	
 	/*! \brief executes a sharpen Filter on the input image
@@ -207,16 +209,16 @@ public class RsScript extends Object {
 	    
 	    output.copyTo(outBitmap);
 	    
-	    long estimatedTime = System.nanoTime() - startTime;
-	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
-        Log.i("koen","via java meting: " + String.valueOf(estimatedTime));
-        mElapsedTime.setText(String.valueOf(estimatedTime) + "ms");
-	    LogFile MyFile = new LogFile(mContext);
-	    MyFile.writeToPublicFile(String.valueOf(estimatedTime), "TestResultsVideo.txt");		
         output.destroy();
         input.destroy();
         rs.destroy();
         script.destroy();
+        
+	    long estimatedTime = System.nanoTime() - startTime;
+	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
+        setTimeToLog(estimatedTime);
+        
+        setHistory("Sharpen",estimatedTime);
 	}
 	
 	/*! \brief executes a blur Filter on the input image
@@ -253,18 +255,17 @@ public class RsScript extends Object {
 	    script.invoke_filter();	
 	    rs.finish();
 	    output.copyTo(outBitmap);
-	    
-	    long estimatedTime = System.nanoTime() - startTime;
-	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
-        Log.i("koen","via java meting: " + String.valueOf(estimatedTime));
-        mElapsedTime.setText(String.valueOf(estimatedTime) + "ms");
-	    LogFile MyFile = new LogFile(mContext);
-	    MyFile.writeToPublicFile(String.valueOf(estimatedTime), "TestResultsVideo.txt");		
+	    	
         output.destroy();
         input.destroy();
         rs.destroy();
         script.destroy();
 	
+	    long estimatedTime = System.nanoTime() - startTime;
+	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
+        setTimeToLog(estimatedTime);
+        
+        setHistory("Blur",estimatedTime);
 	}
 	
 	/*! \brief creates the seekbar for choosing a saturation value
@@ -358,17 +359,17 @@ public class RsScript extends Object {
 	    //scriptSat.forEach_root(allocIn, allocOut);
 	    rs.finish();
 	    allocOut.copyTo(bmOut);
-	    
-	    long estimatedTime = System.nanoTime() - startTime;
-	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
-        Log.i("koen","via java meting: " + String.valueOf(estimatedTime));
-        mElapsedTime.setText(String.valueOf(estimatedTime) + "ms");	    
-	    LogFile MyFile = new LogFile(mContext);
-	    MyFile.writeToPublicFile(String.valueOf(estimatedTime), "TestResultsVideo.txt");	   
+	       
         allocIn.destroy();
         allocOut.destroy();
         rs.destroy();
         scriptSat.destroy();
+       
+	    long estimatedTime = System.nanoTime() - startTime;
+	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
+        setTimeToLog(estimatedTime);
+        
+        setHistory("Saturation",estimatedTime);
         
 	    return bmOut;
 	}
@@ -407,17 +408,17 @@ public class RsScript extends Object {
 	    script.invoke_filter();	
 	    rs.finish();
 	    output.copyTo(outBitmap);
-	    
-	    long estimatedTime = System.nanoTime() - startTime;
-	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
-        Log.i("koen","via java meting: " + String.valueOf(estimatedTime));
-        mElapsedTime.setText(String.valueOf(estimatedTime) + "ms");
-	    LogFile MyFile = new LogFile(mContext);
-	    MyFile.writeToPublicFile(String.valueOf(estimatedTime), "TestResultsVideo.txt");		
+	    		
         input.destroy();
         output.destroy();
         rs.destroy();
         script.destroy();
+        
+	    long estimatedTime = System.nanoTime() - startTime;
+	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
+        setTimeToLog(estimatedTime);
+        
+        setHistory("Median",estimatedTime);
 	}
 	
 	/*! \brief executes a user defined filter on the input image
@@ -462,15 +463,16 @@ public class RsScript extends Object {
 	    rs.finish();
 	    allocOut.copyTo(outBitmap);
 	    
-	    long estimatedTime = System.nanoTime() - startTime;
-	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
-        Log.i("koen","via java meting: " + String.valueOf(estimatedTime));
-        mElapsedTime.setText(String.valueOf(estimatedTime) + "ms");
-		
         allocIn.destroy();
         allocOut.destroy();
         rs.destroy();
         script.destroy();
+        
+	    long estimatedTime = System.nanoTime() - startTime;
+	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
+        setTimeToLog(estimatedTime);
+        
+        setHistory("Run time compiled",estimatedTime);
 	}
 	
 	/*! \brief returns the RenderScript Template
@@ -530,10 +532,28 @@ public class RsScript extends Object {
 		
 		return code;
 	}
-	
+	/*! \brief The setTimeToLog function sets a value to the GUI in the log window.
+	 *
+	 *@param time is the time that has to be placed in the log field
+	 */
+	public void setTimeToLog(long time)
+	{
+		mElapsedTime.setText(String.valueOf(time) + " ms");
+	}	
+	/*! \brief The setTimeToLog function adds a line with information to the history file
+	 *
+	 *@param filterName the name of the executed filter
+	 *@param time the time needed to execute the filter
+	 */
+	public void setHistory(String filterName,long time)
+	{
+        String Method="RenderScript";
+		SimpleDateFormat formatter = new SimpleDateFormat("yyMMddHHmmss");
+		Date now = new Date();
+		String fileName = "RenderScript/" + filterName + formatter.format(now);
+		LogFileObject.writeToFile("\n" + Method + " : " + fileName + " : " + String.valueOf(time) + " ms", "LogFile.txt",false);
+	}
 }
-
-
 
 
 
