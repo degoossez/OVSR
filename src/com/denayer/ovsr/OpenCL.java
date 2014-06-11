@@ -145,7 +145,7 @@ public class OpenCL extends Object {
 	 * @param OpenCLCode is a String that contains the OpenCL code
 	 * @param kernelName is a String that contains the kernel name from the OpenCLCode
 	 */
-	private native void initOpenCLFromInput (String OpenCLCode, String kernelName);
+	private native void initOpenCLFromInput (String OpenCLCode, String kernelName,int dev_type);
 	/*! \brief Connection between Java and Native code.
 	 *
 	 * The nativeBasicOpenCL function needs an input and output bitmap and executes the kernel initialized in initOpenCL.
@@ -459,9 +459,7 @@ public class OpenCL extends Object {
 	 */
 	public void codeFromFile(final String code)
 	{
-		Log.i("Debug","OpenCL: " + code);
-
-		initOpenCLFromInput(code, kernelName);
+		initOpenCLFromInput(code, kernelName,dev_type);
 		nativeImage2DOpenCL(		
 				bmpOrig,
 				bmpOpenCL
@@ -497,10 +495,20 @@ public class OpenCL extends Object {
 			Bitmap MyBitmap = Bitmap.createBitmap(frame2.width(), frame2.height(), Bitmap.Config.ARGB_8888);   
 			Bitmap MyBitmap2 = Bitmap.createBitmap(frame2.width(), frame2.height(), Bitmap.Config.ARGB_8888);   
 			recorder.start();
-
-			copyFile( arg[0] +".cl");
+			
 			String kernelName=arg[0];
-			initOpenCL(kernelName,dev_type);	    	
+			if(!arg[1].equals("runtime"))
+			{
+				copyFile( arg[0] +".cl");
+				initOpenCL(kernelName,dev_type);
+			}
+			else
+			{
+				Log.d("Kernel code",arg[2]);
+				Log.d("Kernel Name",kernelName);
+				initOpenCLFromInput(arg[2], kernelName,dev_type);
+			}
+	    	
 			grabber.setFrameNumber(0);
 
 			while(true)

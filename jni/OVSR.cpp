@@ -548,19 +548,36 @@ extern "C" void Java_com_denayer_ovsr_OpenCL_initOpenCLFromInput
 		JNIEnv* env,
 		jobject thisObject,
 		jstring OpenCLCode,
-		jstring kernelName
+		jstring kernelName,
+		int dev_type
 )
 {
-	initOpenCLFromInput
-	(
-			env,
-			thisObject,
-			OpenCLCode,
-			kernelName,
-			CL_DEVICE_TYPE_GPU,
-			openCLObjects
-	);
+	if(dev_type==1)
+	{
+		initOpenCLFromInput
+		(
+				env,
+				thisObject,
+				OpenCLCode,
+				kernelName,
+				CL_DEVICE_TYPE_CPU,
+				openCLObjects
+		);
+	}
+	else
+	{
+		initOpenCLFromInput
+		(
+				env,
+				thisObject,
+				OpenCLCode,
+				kernelName,
+				CL_DEVICE_TYPE_GPU,
+				openCLObjects
+		);
+	}
 }
+
 	/*! \brief This function prepares OpenCL to compile code from a Java string.
 	 *
 	 * This is a regular sequence of calls to deallocate

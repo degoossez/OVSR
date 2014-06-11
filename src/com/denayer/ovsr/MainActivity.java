@@ -118,7 +118,7 @@ public class MainActivity extends Activity {
 
 	public String username = "";
 	public String passwd = "";
-	
+
 	public String previousCode = "";	//used to backup the code field
 	private TabHost myTabHost;
 
@@ -136,29 +136,29 @@ public class MainActivity extends Activity {
 	MyFTPClient ftpclient = null;
 	ProgressDialog dialog = null;
 	ProgressDialog videoProcessDialog = null;
-	
+
 	private EditVideoTask MyEditVideoATask = null;
-	private static String[] OpenCLVideoArguments = {null,null};
+	private static String[] OpenCLVideoArguments = {"","",""};
 	//item in de lijst toevoegen voor nieuwe filters toe te voegen.
 	private String [] itemsFilterBox = new String [] {"Edge", "Inverse","Sharpen","Mediaan","Saturatie","Blur"};
 
 	/*! \brief Major initialization for app behavior.
-	* In this function the initialization of the most important app components is done: class 
-	* variables are assigned, the layout with the widgets is set and various listeners are implemented.
-    * 
-    * Submit button listener: when this button is clicked, the listener behaves differently depending on which radiobutton is selected
-    *  When the RenderScript radiobutton is checked, the written code inside the app will be send to the 
-    * server for compilation. When not yet logged in, a login dialog will be shown. If the Radiobutten for OpenCL is checked
-    * the function will check the device for OpenCL support. If supported, a kernel name is asked and the code is executed.
-    * If a video is selected as input, the location to save the result can be specified with a file browser.<br>
-    * 
-    * Connect button listener: setup a connection to the server.<br>
-    * 
-    * Disconnect button listener: disconnect from server.<br>
-    * @param savedInstanceState
-    * 
-    * 
-    */
+	 * In this function the initialization of the most important app components is done: class 
+	 * variables are assigned, the layout with the widgets is set and various listeners are implemented.
+	 * 
+	 * Submit button listener: when this button is clicked, the listener behaves differently depending on which radiobutton is selected
+	 *  When the RenderScript radiobutton is checked, the written code inside the app will be send to the 
+	 * server for compilation. When not yet logged in, a login dialog will be shown. If the Radiobutten for OpenCL is checked
+	 * the function will check the device for OpenCL support. If supported, a kernel name is asked and the code is executed.
+	 * If a video is selected as input, the location to save the result can be specified with a file browser.<br>
+	 * 
+	 * Connect button listener: setup a connection to the server.<br>
+	 * 
+	 * Disconnect button listener: disconnect from server.<br>
+	 * @param savedInstanceState
+	 * 
+	 * 
+	 */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -313,7 +313,7 @@ public class MainActivity extends Activity {
 						{
 							username = "";
 							passwd = "";
-							
+
 							boolean tmp = false;
 							if(settings.getBoolean("rememberUser", false))
 							{
@@ -324,7 +324,7 @@ public class MainActivity extends Activity {
 										Log.i("main","remember user is true, but no user information stored");
 									}
 							}
-							
+
 							if(!settings.getBoolean("rememberUser", false) || tmp)
 							{
 								//if the user information is not saved or if it is but no login has yet happened
@@ -380,35 +380,44 @@ public class MainActivity extends Activity {
 							final EditText input = new EditText(MainActivity.this);
 							alert.setView(input);
 							alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int whichButton) {
-								OpenCLObject.setKernelName(input.getText().toString());
-								isRenderScript=false;								
-								if(isImage){
-									OpenCLObject.codeFromFile(CodeField.getText().toString());	
-									if(OpenCLObject.getBitmap()!=null && isImage)
-									{
-										outBitmap = OpenCLObject.getBitmap();
-										Bitmap ScaledBitmap = Bitmap.createScaledBitmap(outBitmap, ScaledWidth, ScaledHeigth, false);										
-										Output_Image.setImageBitmap(ScaledBitmap);
+								public void onClick(DialogInterface dialog, int whichButton) {
+									OpenCLObject.setKernelName(input.getText().toString());
+									isRenderScript=false;								
+									if(isImage){
+										OpenCLObject.codeFromFile(CodeField.getText().toString());	
+										if(OpenCLObject.getBitmap()!=null && isImage)
+										{
+											outBitmap = OpenCLObject.getBitmap();
+											Bitmap ScaledBitmap = Bitmap.createScaledBitmap(outBitmap, ScaledWidth, ScaledHeigth, false);										
+											Output_Image.setImageBitmap(ScaledBitmap);
+										}
+										else
+										{
+											createToast("Select image!",false);					
+										}
 									}
 									else
 									{
-										createToast("Select image!",false);					
-									}
-								}
-								else
-								{
-									Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
-									intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
-									intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] {"mp4", "avi","3gp","gif","mkv"});
-									intentLoad.putExtra("isRs", false);
-									startActivityForResult(intentLoad, REQUEST_PATH);
-								}	
+										try {
+											m = OpenCL.class.getDeclaredMethod("OpenCLVideo",new Class[]{String[].class});
+										} catch (NoSuchMethodException e) {
+											// TODO Auto-generated catch block
+											e.printStackTrace();
+										}
+										OpenCLVideoArguments[0]=input.getText().toString();
+										OpenCLVideoArguments[1]="runtime";
+										OpenCLVideoArguments[2]=CodeField.getText().toString();
+										Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
+										intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
+										intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] {"mp4", "avi","3gp","gif","mkv"});
+										intentLoad.putExtra("isRs", false);
+										startActivityForResult(intentLoad, REQUEST_PATH);
+									}	
 								}
 							});		
 							alert.show();
-							
-			
+
+
 						}
 						else createToast("No OpenCL support!",false);
 					}
@@ -439,7 +448,7 @@ public class MainActivity extends Activity {
 
 			}
 		});		
-		
+
 		previousButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -451,33 +460,33 @@ public class MainActivity extends Activity {
 				{
 					AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 
-				    builder.setTitle("Confirm");
-				    builder.setMessage("Are you sure you want to revert to the previous code? " +
-				    		"This will overwrite all current code and can not be " +
-				    		"undone.");
+					builder.setTitle("Confirm");
+					builder.setMessage("Are you sure you want to revert to the previous code? " +
+							"This will overwrite all current code and can not be " +
+							"undone.");
 
-				    builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+					builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
 
-				        public void onClick(DialogInterface dialog, int which) {
-				            CodeField.setText(previousCode);
-				            previousCode = "";
-				            dialog.dismiss();
-				        }
+						public void onClick(DialogInterface dialog, int which) {
+							CodeField.setText(previousCode);
+							previousCode = "";
+							dialog.dismiss();
+						}
 
-				    });
+					});
 
-				    builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+					builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
 
-				        @Override
-				        public void onClick(DialogInterface dialog, int which) {
-				            // Do nothing
-				            dialog.dismiss();
-				        }
-				    });
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							// Do nothing
+							dialog.dismiss();
+						}
+					});
 
-				    AlertDialog alert = builder.create();
-				    alert.show();
-					
+					AlertDialog alert = builder.create();
+					alert.show();
+
 				}
 			}
 		});
@@ -496,14 +505,14 @@ public class MainActivity extends Activity {
 
 	/*! \brief Receives data from other activities via intents
 	 *
-   * This function receives data from other activities via intents. From the resultCode variable the origin of the
-   * Invocation can be derived. The Data variable contains the data send by the intent. Depending on the resultCode
-   * the function will act differently.
-   * 
-   * @param requestCode
-   * @param resultCode integer to indicate the activity who's responsible for calling this function
-   * @param data the data from the stopped activity
-   */
+	 * This function receives data from other activities via intents. From the resultCode variable the origin of the
+	 * Invocation can be derived. The Data variable contains the data send by the intent. Depending on the resultCode
+	 * the function will act differently.
+	 * 
+	 * @param requestCode
+	 * @param resultCode integer to indicate the activity who's responsible for calling this function
+	 * @param data the data from the stopped activity
+	 */
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (resultCode != RESULT_OK) return;
@@ -639,10 +648,10 @@ public class MainActivity extends Activity {
 	}
 	/*! \brief Sets the input and output bitmap
 	 *
-  *  This function will set the input bitmap to the image view. The bitmap is scaled depending on the device's
-  *  screen resolution. A copy is also provided to the RenderScript and OpenCL objects. The output image view is set with a
-  *  bitmap of the same dimensions as the input bitmap.
-  */
+	 *  This function will set the input bitmap to the image view. The bitmap is scaled depending on the device's
+	 *  screen resolution. A copy is also provided to the RenderScript and OpenCL objects. The output image view is set with a
+	 *  bitmap of the same dimensions as the input bitmap.
+	 */
 	public void setBitmaps()
 	{
 		Bitmap ScaledBitmap = Bitmap.createScaledBitmap(bitmap, ScaledWidth, ScaledHeigth, false);
@@ -653,10 +662,10 @@ public class MainActivity extends Activity {
 		RenderScriptObject.setInputBitmap(bitmap);
 	}
 	/*! \brief Converts URI to a real file path
-	*
-	* @param contentUri the URI to be converted
-	* @return returns the file path resulting from the URI
-	*/
+	 *
+	 * @param contentUri the URI to be converted
+	 * @return returns the file path resulting from the URI
+	 */
 	public String getRealPathFromURI(Uri contentUri) {
 		String [] proj      = {MediaStore.Images.Media.DATA};
 		Cursor cursor       = getContentResolver().query( contentUri, proj, null, null,null);
@@ -670,11 +679,11 @@ public class MainActivity extends Activity {
 		return cursor.getString(column_index);
 	}
 	/*! \brief Creates choose boxes to chose a filter
-	*
-	* This function creates all the filter chose boxes specified in the itemsFilterBox string list.
-	* It also dynamicly adds onclick functions to each box and calls the correct filter for each box.
-	*
-	*/
+	 *
+	 * This function creates all the filter chose boxes specified in the itemsFilterBox string list.
+	 * It also dynamicly adds onclick functions to each box and calls the correct filter for each box.
+	 *
+	 */
 	public void createBoxes()
 	{
 		//choose box voor opencl of renderscript te selecteren
@@ -728,47 +737,47 @@ public class MainActivity extends Activity {
 									}
 									CodeField.setText(RenderScriptObject.getFilterCode(itemsFilterBox[item]));
 								}		
-								
+
 								if(itemsFilterBox[item]=="Saturatie")
 								{
-							        final TextView progressView = new TextView(MainActivity.this);
+									final TextView progressView = new TextView(MainActivity.this);
 									final Resources res = MainActivity.this.getResources();
 									final SeekBar MySeekBar = new SeekBar(MainActivity.this);
 									MySeekBar.setMax(200);
 
 									MySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){ 
-										   @Override 
-										   public void onProgressChanged(SeekBar seekBar, int progress, 
-										     boolean fromUser) { 
-											   progressView.setText(String.valueOf(progress)); 
-										   } 
-										   @Override 
-										   public void onStartTrackingTouch(SeekBar seekBar) { 
-										   } 
-										   @Override 
-										   public void onStopTrackingTouch(SeekBar seekBar) { 
-										   } 
-										       }); 
+										@Override 
+										public void onProgressChanged(SeekBar seekBar, int progress, 
+												boolean fromUser) { 
+											progressView.setText(String.valueOf(progress)); 
+										} 
+										@Override 
+										public void onStartTrackingTouch(SeekBar seekBar) { 
+										} 
+										@Override 
+										public void onStopTrackingTouch(SeekBar seekBar) { 
+										} 
+									}); 
 									AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);        
-							        builder.setMessage("saturation value")
-							               .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-							                   public void onClick(DialogInterface dialog, int id) {      
-							                	   RenderScriptObject.saturationValue = MySeekBar.getProgress();
-													Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
-													intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
-													intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] {"mp4", "avi","3gp","gif","mkv"});
-													startActivityForResult(intentLoad, REQUEST_PATH);
-							                   }
-							               });
-							        progressView.setGravity(1 | 0x10);
-							        // Create the AlertDialog object and return it
-							        AlertDialog dialog = builder.create();
-								     LinearLayout ll=new LinearLayout(MainActivity.this);
-								        ll.setOrientation(LinearLayout.VERTICAL);
-								        ll.addView(MySeekBar);
-								        ll.addView(progressView);
-								        dialog.setView(ll);
-							        dialog.show(); 									
+									builder.setMessage("saturation value")
+									.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+										public void onClick(DialogInterface dialog, int id) {      
+											RenderScriptObject.saturationValue = MySeekBar.getProgress();
+											Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
+											intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
+											intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] {"mp4", "avi","3gp","gif","mkv"});
+											startActivityForResult(intentLoad, REQUEST_PATH);
+										}
+									});
+									progressView.setGravity(1 | 0x10);
+									// Create the AlertDialog object and return it
+									AlertDialog dialog = builder.create();
+									LinearLayout ll=new LinearLayout(MainActivity.this);
+									ll.setOrientation(LinearLayout.VERTICAL);
+									ll.addView(MySeekBar);
+									ll.addView(progressView);
+									dialog.setView(ll);
+									dialog.show(); 									
 								}
 								else
 								{
@@ -833,49 +842,49 @@ public class MainActivity extends Activity {
 										}
 										CodeField.setText(OpenCLObject.getFilterCode(itemsFilterBox[item].toLowerCase()));
 									}	
-									
+
 									m = OpenCL.class.getDeclaredMethod("OpenCLVideo",new Class[]{String[].class});
 									if(itemsFilterBox[item]=="Saturatie")
 									{
 										OpenCLVideoArguments[0]= itemsFilterBox[item].toLowerCase();
-								        final TextView progressView = new TextView(MainActivity.this);
+										final TextView progressView = new TextView(MainActivity.this);
 										final Resources res = MainActivity.this.getResources();
 										final SeekBar MySeekBar = new SeekBar(MainActivity.this);
 										MySeekBar.setMax(200);
 
 										MySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){ 
-											   @Override 
-											   public void onProgressChanged(SeekBar seekBar, int progress, 
-											     boolean fromUser) { 
-												   progressView.setText(String.valueOf(progress)); 
-											   } 
-											   @Override 
-											   public void onStartTrackingTouch(SeekBar seekBar) { 
-											   } 
-											   @Override 
-											   public void onStopTrackingTouch(SeekBar seekBar) { 
-											   } 
-											       }); 
+											@Override 
+											public void onProgressChanged(SeekBar seekBar, int progress, 
+													boolean fromUser) { 
+												progressView.setText(String.valueOf(progress)); 
+											} 
+											@Override 
+											public void onStartTrackingTouch(SeekBar seekBar) { 
+											} 
+											@Override 
+											public void onStopTrackingTouch(SeekBar seekBar) { 
+											} 
+										}); 
 										AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);        
-								        builder.setMessage("saturation value")
-								               .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-								                   public void onClick(DialogInterface dialog, int id) {      
-								                	   OpenCLObject.saturatie = MySeekBar.getProgress();
-														Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
-														intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
-														intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] {"mp4", "avi","3gp","gif","mkv"});
-														startActivityForResult(intentLoad, REQUEST_PATH);
-								                   }
-								               });
-								        progressView.setGravity(1 | 0x10);
-								        // Create the AlertDialog object and return it
-								        AlertDialog dialog = builder.create();
-									     LinearLayout ll=new LinearLayout(MainActivity.this);
-									        ll.setOrientation(LinearLayout.VERTICAL);
-									        ll.addView(MySeekBar);
-									        ll.addView(progressView);
-									        dialog.setView(ll);
-								        dialog.show(); 									
+										builder.setMessage("saturation value")
+										.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+											public void onClick(DialogInterface dialog, int id) {      
+												OpenCLObject.saturatie = MySeekBar.getProgress();
+												Intent intentLoad = new Intent(getBaseContext(), FileDialog.class);
+												intentLoad.putExtra(FileDialog.START_PATH, Environment.getExternalStorageDirectory() + File.separator + android.os.Environment.DIRECTORY_DCIM);
+												intentLoad.putExtra(FileDialog.FORMAT_FILTER, new String[] {"mp4", "avi","3gp","gif","mkv"});
+												startActivityForResult(intentLoad, REQUEST_PATH);
+											}
+										});
+										progressView.setGravity(1 | 0x10);
+										// Create the AlertDialog object and return it
+										AlertDialog dialog = builder.create();
+										LinearLayout ll=new LinearLayout(MainActivity.this);
+										ll.setOrientation(LinearLayout.VERTICAL);
+										ll.addView(MySeekBar);
+										ll.addView(progressView);
+										dialog.setView(ll);
+										dialog.show(); 									
 									}
 									else
 									{
@@ -935,16 +944,16 @@ public class MainActivity extends Activity {
 				OpenCLButton.setChecked(true);
 				RenderScriptButton.setChecked(false);
 				final CharSequence[] items = {"GPU", "CPU"};
-				 
+
 				AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 				builder.setTitle("Chose device type")
-				    .setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
-				        public void onClick(DialogInterface dialogInterface, int item) {
-				        	OpenCLObject.setDeviceType(item);
-				        	OpenCLButton.setText("OpenCL on " + items[item]);
-				        	dialogInterface.dismiss();
-				        }
-				    });
+				.setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialogInterface, int item) {
+						OpenCLObject.setDeviceType(item);
+						OpenCLButton.setText("OpenCL on " + items[item]);
+						dialogInterface.dismiss();
+					}
+				});
 				builder.create().show();
 			}
 		});
@@ -967,11 +976,11 @@ public class MainActivity extends Activity {
 		});
 		//einde radio buttons
 	}
-		/*! \brief Displays a small message on the screen
-		 *
-		 *  @param Message This is the message.
-		 *  @param isLong controls the duration the message is shown
-		 */
+	/*! \brief Displays a small message on the screen
+	 *
+	 *  @param Message This is the message.
+	 *  @param isLong controls the duration the message is shown
+	 */
 	public void createToast(String Message,boolean isLong)
 	{
 		Context context = getApplicationContext();
@@ -1104,21 +1113,21 @@ public class MainActivity extends Activity {
 		}
 	}
 	/*! \brief Starts the history activity.
-	*
-	*/
+	 *
+	 */
 	public void startHistoryActivity()
 	{
 		Intent intent = new Intent(this,DisplayMessageActivty.class);
 		startActivity(intent);
 	}
 	/*! \brief Decodes and resizes a file to the largest possible bitmap.
-	*
-	* This function resizes the bitmap from a file to a specified size and uses as less memory as possible.
-	* @param f is the directory to the image file to be converted
-	* @param Req_Height is the required hight
-	* @param Req_Width is the required width
-	* @return The bitmap from the file
-	*/
+	 *
+	 * This function resizes the bitmap from a file to a specified size and uses as less memory as possible.
+	 * @param f is the directory to the image file to be converted
+	 * @param Req_Height is the required hight
+	 * @param Req_Width is the required width
+	 * @return The bitmap from the file
+	 */
 	public static Bitmap decodeAndResizeFile(File f,int Req_Height, int Req_Width) {
 		try {
 			// Decode image size
@@ -1147,16 +1156,16 @@ public class MainActivity extends Activity {
 	public class ConnectTask extends AsyncTask<String, String, TcpClient> {
 		/*! \brief Processing of incoming TCP messages
 		 *
-	   * A new TCPClient object is created, and the interface onMessageReceived is implemented. Here incoming TCP messages
-	   * are received and can be processed. The communication with the server is always initiated by the client, which means
-	   * when we receive a message we know a request has been send by the user. 
-	   * If the response is "Successful" the RenderScript code is successfully compiled by the server and we
-	   * ask the server if the bytecode is present on the FTP server. If the server sends "UPLOADED" communication 
-	   * is made with the FTP server and the bytecode is downloaded to the application.<br>
-	   * Besides the runtime compilation, we also receive feedback from the server concerning login requests and account creation.
-	   * @param message the message received from the server
-	   * 
-	   */
+		 * A new TCPClient object is created, and the interface onMessageReceived is implemented. Here incoming TCP messages
+		 * are received and can be processed. The communication with the server is always initiated by the client, which means
+		 * when we receive a message we know a request has been send by the user. 
+		 * If the response is "Successful" the RenderScript code is successfully compiled by the server and we
+		 * ask the server if the bytecode is present on the FTP server. If the server sends "UPLOADED" communication 
+		 * is made with the FTP server and the bytecode is downloaded to the application.<br>
+		 * Besides the runtime compilation, we also receive feedback from the server concerning login requests and account creation.
+		 * @param message the message received from the server
+		 * 
+		 */
 		@Override
 		protected TcpClient doInBackground(String... message) {
 			//we create a TCPClient object
@@ -1184,7 +1193,7 @@ public class MainActivity extends Activity {
 								editor.commit();
 							}
 						}
-						
+
 						ConsoleView.setText("Build Succesful");
 						mTcpClient.sendMessage("give bc");
 						Log.i("message","give bc");
@@ -1267,14 +1276,14 @@ public class MainActivity extends Activity {
 
 			return null;
 		}
-	/*! \brief Update parts of the app
+		/*! \brief Update parts of the app
 		 * When the function publisProgress is called, this funtion gets executed. 
 		 * By checking the value variable, we know from where the publisProgress function was called, and can 
 		 * update the state of the app accordingly. This can be as simple as showing a Toast letting the user know
 		 * his login was successful.
-	   * @param values used to determine which part to update
-	   * 
-	   */	
+		 * @param values used to determine which part to update
+		 * 
+		 */	
 		@Override
 		protected void onProgressUpdate(String... values) {
 			super.onProgressUpdate(values);
@@ -1313,12 +1322,12 @@ public class MainActivity extends Activity {
 			else if(values[0] == "login_ok")
 			{
 				if(settings.getBoolean("rememberUser", false))
-			    {
+				{
 					SharedPreferences.Editor editor = settings.edit();
 					editor.putString("userName", username);
 					editor.putString("passwd", passwd);
 					editor.commit();
-			    }	
+				}	
 				createToast("Login succesful", false);				
 			}
 			else if(values[0] == "login_nok")
@@ -1326,7 +1335,7 @@ public class MainActivity extends Activity {
 				createToast("Wrong username or password", false);
 				username = "";
 				passwd = "";
-				
+
 				if(dialog.isShowing())
 					dialog.dismiss();
 			}
@@ -1347,10 +1356,10 @@ public class MainActivity extends Activity {
 		}
 	}
 	/* \brief Converts bytes to their hex value
-	*
-	* @param a is the array of bytes to be converted
-	* @return Returns the String form of the bytes
-	*/
+	 *
+	 * @param a is the array of bytes to be converted
+	 * @return Returns the String form of the bytes
+	 */
 	String byteArrayToHex(byte[] a) {
 		StringBuilder sb = new StringBuilder();
 		for(byte b: a)
@@ -1360,10 +1369,10 @@ public class MainActivity extends Activity {
 
 	final protected static char[] hexArray = "0123456789abcdef".toCharArray();
 	/* \brief Converts byte to its hex value
-	*
-	* @param bytes are the bytes to be converted
-	* @return Returns the String form of the byte
-	*/
+	 *
+	 * @param bytes are the bytes to be converted
+	 * @return Returns the String form of the byte
+	 */
 	public static String bytesToHex(byte[] bytes) {
 		char[] hexChars = new char[bytes.length * 2];
 		for ( int j = 0; j < bytes.length; j++ ) {
@@ -1376,12 +1385,12 @@ public class MainActivity extends Activity {
 
 	/*! \brief Creates a MD5 hash of the password
 	 *
-   * Converts the password to a MD5 hash, used for security reasons. Because the Hash consists of hex values 
-   * who need to be send over TCP, it's necessary to convert the byte array to a String. The resulting string
-   * will be two times as long because each byte in hex is represented as two characters e.g. 01, 0A etc.
-   * @param passwd The password used to create the hash value
-   * @return strHash The resulting hash as a hex presented string
-   */
+	 * Converts the password to a MD5 hash, used for security reasons. Because the Hash consists of hex values 
+	 * who need to be send over TCP, it's necessary to convert the byte array to a String. The resulting string
+	 * will be two times as long because each byte in hex is represented as two characters e.g. 01, 0A etc.
+	 * @param passwd The password used to create the hash value
+	 * @return strHash The resulting hash as a hex presented string
+	 */
 	public String createHash(String passwd)
 	{
 		//create hash
@@ -1409,14 +1418,14 @@ public class MainActivity extends Activity {
 	}
 	/*! \brief Message for the server used for the runtime compilation of RenderScript
 	 *
-  * This function will be called when the user clicks on the submitbutton with the RenderScript Radiobutton selected.<br>
-  * The message, beginning with the STARTPACKAGE tag, will contain the username and the hashed password. This is send
-  * over TCP to the server, followed by the code from the code field in the app, which is send line per line. The end
-  * of the message is indicated with the ENDPACKAGE tag.
-  *  
-  * @param username name of the user
-  * @param passwd the password of the user
-  */
+	 * This function will be called when the user clicks on the submitbutton with the RenderScript Radiobutton selected.<br>
+	 * The message, beginning with the STARTPACKAGE tag, will contain the username and the hashed password. This is send
+	 * over TCP to the server, followed by the code from the code field in the app, which is send line per line. The end
+	 * of the message is indicated with the ENDPACKAGE tag.
+	 *  
+	 * @param username name of the user
+	 * @param passwd the password of the user
+	 */
 	public void sendRenderscriptMessage(String username, String passwd)
 	{
 		dialog = new ProgressDialog(MainActivity.this);
@@ -1458,22 +1467,22 @@ public class MainActivity extends Activity {
 	}
 	public class EditVideoTask	 extends AsyncTask<String, String, Long> {
 		/*! \brief Opens the video file and calls the right RenderScript or OpenCL filter.
-		*
-		* This is the doInBackground function of an AsyncTask. It's build this way to show the user the app did not crash but it is processing a video.
-		* If this would be a normal function, the screen will go black and the user would get no feedback.
-		* The function will first call the publishProgress to show the user the app is busy and not crashing. 
-		* Then it will open the video from the videoPath, check the frame length and create a FFmpegFrameRecorder to be able to save the image.
-		* The grabbers frame will be converted into a Java bitmap and a RenderScript or OpenCL filter will be called. The filter to use will be specified by the createBoxes function.
-		* Each frame will be saved in the recorder and saved to a file when all frames have been edited.
-		*
-		* @param message is not used
-		* @return It will always return 0
-		*/
+		 *
+		 * This is the doInBackground function of an AsyncTask. It's build this way to show the user the app did not crash but it is processing a video.
+		 * If this would be a normal function, the screen will go black and the user would get no feedback.
+		 * The function will first call the publishProgress to show the user the app is busy and not crashing. 
+		 * Then it will open the video from the videoPath, check the frame length and create a FFmpegFrameRecorder to be able to save the image.
+		 * The grabbers frame will be converted into a Java bitmap and a RenderScript or OpenCL filter will be called. The filter to use will be specified by the createBoxes function.
+		 * Each frame will be saved in the recorder and saved to a file when all frames have been edited.
+		 *
+		 * @param message is not used
+		 * @return It will always return 0
+		 */
 		@Override
 		protected Long doInBackground(String... message) {
 			try {
-			if(isRenderScript)
-			{
+				if(isRenderScript)
+				{
 					publishProgress("Load");
 					FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(videoPath); 
 					grabber.start();
@@ -1529,12 +1538,12 @@ public class MainActivity extends Activity {
 					grabber.stop();	
 					RenderScriptObject.saturationValue=-1;
 					publishProgress("Done");		
-			}
-			else
-			{
-				OpenCLObject = new OpenCL(MainActivity.this,(ImageView)findViewById(R.id.ImageView2),new OpenCL.OnUpdateProcessBar() {
-					@Override
-					public void updateProcessBar(String message) {
+				}
+				else
+				{
+					OpenCLObject = new OpenCL(MainActivity.this,(ImageView)findViewById(R.id.ImageView2),new OpenCL.OnUpdateProcessBar() {
+						@Override
+						public void updateProcessBar(String message) {
 							if(message.contains("Load")){
 								publishProgress("Load");
 							} else if(message.contains("Start")) {
@@ -1544,23 +1553,22 @@ public class MainActivity extends Activity {
 								publishProgress("Done");
 							} else publishProgress(message);
 						}
-				}); 
-				Log.e("OpenCLVideoArguments0",OpenCLVideoArguments[0]);
-				m.invoke(OpenCLObject,new Object[]{OpenCLVideoArguments});
-				//String[] bla = {"sharpen",null};
-				//OpenCLObject.OpenCLVideo(bla);
-			}
+					}); 
+					m.invoke(OpenCLObject,new Object[]{OpenCLVideoArguments});
+					//String[] bla = {"sharpen",null};
+					//OpenCLObject.OpenCLVideo(bla);
+				}
 			}catch(Exception e){
 				e.printStackTrace();
 			}
 			return null;
 		}
 		/*! \brief This onProgressUpdate function is linked to the doInBackground function of the EditVideoTask task.
-		* 	It is the link between the asynctask and the GUI
-		* 
-		* When publishProgress is called, this function will be called. It will update the GUI specified by the values argument.
-		* @param values is a string list and is a way to controle the output of this function
-		*/
+		 * 	It is the link between the asynctask and the GUI
+		 * 
+		 * When publishProgress is called, this function will be called. It will update the GUI specified by the values argument.
+		 * @param values is a string list and is a way to controle the output of this function
+		 */
 		@Override
 		protected void onProgressUpdate(String... values) {
 			super.onProgressUpdate(values);

@@ -7,7 +7,7 @@
  *
  *THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
-*/
+ */
 package com.denayer.ovsr;
 
 import android.app.Activity;
@@ -37,27 +37,26 @@ public class SettingsActivity extends Activity {
 	static public Button signUp;
 	public static Context con;
 	public static SettingsActivity act;
-	
+
 	/*! \brief Constructor
 	 *
-    * sets the layout of the settings activity 
-    * @param savedInstanceState
-    * 
-    */
+	 * sets the layout of the settings activity 
+	 * @param savedInstanceState
+	 * 
+	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_settings);
-		
+
 		if (savedInstanceState == null) {
 			getFragmentManager().beginTransaction()
 			.add(R.id.container, new PlaceholderFragment()).commit();
 		}
 		settings = getSharedPreferences("Preferences", 0);
-		
+
 		con = this;
 		act = this;
-		
 	}
 	@Override
 	protected void onPause() {
@@ -66,32 +65,32 @@ public class SettingsActivity extends Activity {
 		SharedPreferences.Editor editor = settings.edit();
 		//if not making use of default server
 		//read the IP and Port values from the edittext fields and store them in the shared preferences
-		
+
 		if(!ServerPort.getText().toString().matches("") && !ServerIP.getText().toString().matches(""))
 		{
 			if(!settings.getBoolean("UseDefault", false))
 			{
-	        	editor.putString("ServerIP", ServerIP.getText().toString());
-	        	editor.putInt("ServerPort", Integer.valueOf(ServerPort.getText().toString()));
+				editor.putString("ServerIP", ServerIP.getText().toString());
+				editor.putInt("ServerPort", Integer.valueOf(ServerPort.getText().toString()));
 			}
 		}
 		editor.commit();
 	}
 	/*! \brief creates the options menu
 	 *
-    * 
-    * @param menu    
-    */
+	 * 
+	 * @param menu    
+	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.settings, menu);
 		return true;
 	}
-   /*! \brief react on user menu selection
-   *
-   * 
-   * @param item item from menu that is selected  
-   */
+	/*! \brief react on user menu selection
+	 *
+	 * 
+	 * @param item item from menu that is selected  
+	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
@@ -101,14 +100,14 @@ public class SettingsActivity extends Activity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
-	  /*! \brief initialization when creating the view
-	   * 
-	   * initializes the settings window. Read the previous state from the shared preferences and update
-	   * the settings accordingly.
-	   * Listeners for the widgets are defined here. Login information is send back to the main activity for 
-	   * further processing.
-	   * 
-	   */
+	/*! \brief initialization when creating the view
+	 * 
+	 * initializes the settings window. Read the previous state from the shared preferences and update
+	 * the settings accordingly.
+	 * Listeners for the widgets are defined here. Login information is send back to the main activity for 
+	 * further processing.
+	 * 
+	 */
 	public static class PlaceholderFragment extends Fragment {
 
 		public PlaceholderFragment() {
@@ -127,56 +126,56 @@ public class SettingsActivity extends Activity {
 			ServerIP = (EditText) rootView.findViewById(R.id.OVSRServerName);
 			ServerPort = (EditText) rootView.findViewById(R.id.OVSRServerPort);
 
-	        if (settings.getBoolean("AutoName", false)) {
-	            checkBox.setChecked(true);
-	        }
-	        else
-	        {
-	        	checkBox.setChecked(false);
-	        }
-	        
-	        if (settings.getBoolean("rememberUser", false)) {
-	            checkBox2.setChecked(true);
-	        }
-	        else
-	        {
-	        	checkBox2.setChecked(false);
-	        }	
-	        
-	        if (settings.getBoolean("UseDefault", false)) {
-	            checkBox3.setChecked(true);
-            	ServerIP.setFocusable(false);
-            	ServerPort.setFocusable(false);
-	        }
-	        else
-	        {
-	        	checkBox3.setChecked(false);
-            	ServerIP.setFocusableInTouchMode(true);
-            	ServerPort.setFocusableInTouchMode(true);
-	        }
-	        
-	        if(settings.getBoolean("showCode", false))
-	        {
-	        	checkBox4ShowCode.setChecked(true);
-	        }
-	        else
-	        {
-	        	checkBox4ShowCode.setChecked(false);
+			if (settings.getBoolean("AutoName", false)) {
+				checkBox.setChecked(true);
+			}
+			else
+			{
+				checkBox.setChecked(false);
+			}
 
-	        }
+			if (settings.getBoolean("rememberUser", false)) {
+				checkBox2.setChecked(true);
+			}
+			else
+			{
+				checkBox2.setChecked(false);
+			}	
+
+			if (settings.getBoolean("UseDefault", false)) {
+				checkBox3.setChecked(true);
+				ServerIP.setFocusable(false);
+				ServerPort.setFocusable(false);
+			}
+			else
+			{
+				checkBox3.setChecked(false);
+				ServerIP.setFocusableInTouchMode(true);
+				ServerPort.setFocusableInTouchMode(true);
+			}
+
+			if(settings.getBoolean("showCode", false))
+			{
+				checkBox4ShowCode.setChecked(true);
+			}
+			else
+			{
+				checkBox4ShowCode.setChecked(false);
+
+			}
 			checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 				@Override
 				public void onCheckedChanged(CompoundButton arg0, boolean arg1) {
 					// TODO Auto-generated method stub
 					SharedPreferences.Editor editor = settings.edit();
-				            if (arg1){
-				            	editor.putBoolean("AutoName", true);
-				                checkBox.setChecked(true);
-				            }  else {
-				            	editor.putBoolean("AutoName", false);	   
-				                checkBox.setChecked(false);
-				            }
-				    editor.commit();					
+					if (arg1){
+						editor.putBoolean("AutoName", true);
+						checkBox.setChecked(true);
+					}  else {
+						editor.putBoolean("AutoName", false);	   
+						checkBox.setChecked(false);
+					}
+					editor.commit();					
 				}
 			});
 			checkBox2.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -184,34 +183,34 @@ public class SettingsActivity extends Activity {
 				public void onCheckedChanged(CompoundButton arg0, boolean arg1) {
 					// TODO Auto-generated method stub
 					SharedPreferences.Editor editor = settings.edit();
-				            if (arg1){
-				            	editor.putBoolean("rememberUser", true);
-				                checkBox2.setChecked(true);
-				            }  else {
-				            	editor.putBoolean("rememberUser", false);	   
-				                checkBox2.setChecked(false);
-				                editor.putString("userName","");
-				                editor.putString("passwd", "");
-				            }
-				    editor.commit();					
+					if (arg1){
+						editor.putBoolean("rememberUser", true);
+						checkBox2.setChecked(true);
+					}  else {
+						editor.putBoolean("rememberUser", false);	   
+						checkBox2.setChecked(false);
+						editor.putString("userName","");
+						editor.putString("passwd", "");
+					}
+					editor.commit();					
 				}
 			});
 			checkBox3.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 				@Override
 				public void onCheckedChanged(CompoundButton arg0, boolean arg1) {
 					SharedPreferences.Editor editor = settings.edit();
-		            if (arg1){
-		            	editor.putBoolean("UseDefault", true);
-		            	ServerIP.setFocusable(false);
-		            	ServerPort.setFocusable(false);
-		            	editor.putString("ServerIP", getResources().getString(R.string.defaultIP));
-		            	editor.putInt("ServerPort", Integer.parseInt(getResources().getString(R.string.defaultPORT)));
-		            }  else {
-		            	editor.putBoolean("UseDefault", false);
-		            	ServerIP.setFocusableInTouchMode(true);
-		            	ServerPort.setFocusableInTouchMode(true);
-		            }		
-				    editor.commit();					
+					if (arg1){
+						editor.putBoolean("UseDefault", true);
+						ServerIP.setFocusable(false);
+						ServerPort.setFocusable(false);
+						editor.putString("ServerIP", getResources().getString(R.string.defaultIP));
+						editor.putInt("ServerPort", Integer.parseInt(getResources().getString(R.string.defaultPORT)));
+					}  else {
+						editor.putBoolean("UseDefault", false);
+						ServerIP.setFocusableInTouchMode(true);
+						ServerPort.setFocusableInTouchMode(true);
+					}		
+					editor.commit();					
 				}
 			});		
 			checkBox4ShowCode.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -219,14 +218,14 @@ public class SettingsActivity extends Activity {
 				public void onCheckedChanged(CompoundButton arg0, boolean arg1) {
 					// TODO Auto-generated method stub
 					SharedPreferences.Editor editor = settings.edit();
-				            if (arg1){
-				            	editor.putBoolean("showCode", true);
-				                checkBox4ShowCode.setChecked(true);
-				            }  else {
-				            	editor.putBoolean("showCode", false);	   
-				                checkBox4ShowCode.setChecked(false);
-				            }
-				    editor.commit();					
+					if (arg1){
+						editor.putBoolean("showCode", true);
+						checkBox4ShowCode.setChecked(true);
+					}  else {
+						editor.putBoolean("showCode", false);	   
+						checkBox4ShowCode.setChecked(false);
+					}
+					editor.commit();					
 				}
 			});
 			signIn.setOnClickListener(new View.OnClickListener() {
@@ -235,74 +234,72 @@ public class SettingsActivity extends Activity {
 
 					final Dialog dialog = new Dialog(con);
 					dialog.setContentView(R.layout.login);
-				    dialog.setTitle("Login");
+					dialog.setTitle("Login");
 
-				    // get the Refferences of views
-				    final  EditText editTextUserName=(EditText)dialog.findViewById(R.id.editTextUserNameToLogin);
-				    final  EditText editTextPassword=(EditText)dialog.findViewById(R.id.editTextPasswordToLogin);
-				    
-				    if(settings.getBoolean("rememberUser", false))
-				    {
-				    	editTextUserName.setText(settings.getString("userName", ""));
-				    	editTextPassword.setText(settings.getString("passwd", ""));
-				    }				    
-//				    editTextUserName.setText(username);
-//				    editTextPassword.setText(passwd);
-				    
+					// get the Refferences of views
+					final  EditText editTextUserName=(EditText)dialog.findViewById(R.id.editTextUserNameToLogin);
+					final  EditText editTextPassword=(EditText)dialog.findViewById(R.id.editTextPasswordToLogin);
+
+					if(settings.getBoolean("rememberUser", false))
+					{
+						editTextUserName.setText(settings.getString("userName", ""));
+						editTextPassword.setText(settings.getString("passwd", ""));
+					}				    
+
 					Button btnSignIn=(Button)dialog.findViewById(R.id.buttonSignIn);						
-					
+
 					// Set On ClickListener
 					btnSignIn.setOnClickListener(new View.OnClickListener() {
-						
+
 						public void onClick(View v) {
 							// get The User name and Password
 							String username=editTextUserName.getText().toString();
 							String passwd=editTextPassword.getText().toString();						
-							
+
 							Intent returnIntent = new Intent();
 							returnIntent.putExtra("login",username + " " + passwd);
 							act.setResult(RESULT_OK,returnIntent);     
-							
+
 							dialog.dismiss();
 							act.finish();
-							
-							
-							
-							
+
+
+
+
 						}
 					});
-					
+
 					dialog.show();
-				
+
 
 				}
 			});
-			
+
 			signUp.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
 
 					final Dialog dialog = new Dialog(con);
 					dialog.setContentView(R.layout.signup);
-				    dialog.setTitle("Create account");				    
-				    
-				    final  EditText editTextUserName=(EditText)dialog.findViewById(R.id.editTextUserName);
-				    final  EditText editTextPassword=(EditText)dialog.findViewById(R.id.singUpEditTextPassword);
-				    final  EditText editTextConfirmPassword=(EditText)dialog.findViewById(R.id.singUpEditTextConfirmPassword);
-				    
+					dialog.setTitle("Create account");				    
+
+					final  EditText editTextUserName=(EditText)dialog.findViewById(R.id.editTextUserName);
+					final  EditText editTextPassword=(EditText)dialog.findViewById(R.id.singUpEditTextPassword);
+					final  EditText editTextConfirmPassword=(EditText)dialog.findViewById(R.id.singUpEditTextConfirmPassword);
+
 					Button btncreate=(Button)dialog.findViewById(R.id.buttonCreateAccount);		
-					
+
 					btncreate.setOnClickListener(new View.OnClickListener() {
-						
+
 						public void onClick(View v) {
 							// get The User name and Password	
-							
+
 							String username=editTextUserName.getText().toString();
 							String passwd=editTextPassword.getText().toString();
 							String passwdConfirm=editTextConfirmPassword.getText().toString();
 
 							Log.i("create",username + "/" + passwd + "/" + passwdConfirm  +"/");
-							
+
 							if(passwd.equals(passwdConfirm))
 							{							
 								Intent returnIntent = new Intent();
@@ -315,17 +312,15 @@ public class SettingsActivity extends Activity {
 							{
 								Log.i("account error","confirm passwd error");
 							}
-							
 						}
 					});
-					
-					dialog.show();
-
-				    
-
+					dialog.show();			    
 				}
 			});
-					
+
+			ServerIP.setText(settings.getString("ServerIP", getResources().getString(R.string.defaultIP)));
+			ServerPort.setText(Integer.toString(settings.getInt("ServerPort", Integer.parseInt(getResources().getString(R.string.defaultPORT)))));
+
 			return rootView;
 		}
 	}	
