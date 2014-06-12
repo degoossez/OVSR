@@ -16,6 +16,7 @@ public final class R {
 		public static final int icon = 0x7f020008;
 	}
 	public static final class id {
+		public static final int ExitButton = 0x7f0a003b;
 		public static final int fdButtonCancel = 0x7f0a0020;
 		public static final int fdButtonCreate = 0x7f0a0021;
 		public static final int fdButtonNew = 0x7f0a001b;
@@ -33,6 +34,7 @@ public final class R {
 	public static final class layout {
 		public static final int file_dialog_main = 0x7f030003;
 		public static final int file_dialog_row = 0x7f030004;
+		public static final int menu = 0x7f030007;
 	}
 	public static final class string {
 		public static final int app_name = 0x7f050000;

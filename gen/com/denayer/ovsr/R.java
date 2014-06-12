@@ -42,21 +42,22 @@ public final class R {
     }
     public static final class id {
         public static final int AutoName=0x7f0a0028;
-        public static final int Camera=0x7f0a0047;
+        public static final int Camera=0x7f0a0048;
         public static final int CodeTab=0x7f0a000a;
         public static final int CodeTabButtons=0x7f0a000c;
         public static final int ConsoleTab=0x7f0a000f;
         public static final int ConsoleView=0x7f0a0010;
         public static final int DefaultSmallTV=0x7f0a0036;
         public static final int DefaultTV=0x7f0a0035;
-        public static final int Delete=0x7f0a0041;
-        public static final int File=0x7f0a0043;
+        public static final int Delete=0x7f0a0042;
+        public static final int ExitButton=0x7f0a003b;
+        public static final int File=0x7f0a0044;
         public static final int FilterButton=0x7f0a0008;
-        public static final int History=0x7f0a0042;
-        public static final int Home=0x7f0a0040;
+        public static final int History=0x7f0a0043;
+        public static final int Home=0x7f0a0041;
         public static final int ImageView1=0x7f0a0002;
         public static final int ImageView2=0x7f0a0004;
-        public static final int LoadF=0x7f0a0045;
+        public static final int LoadF=0x7f0a0046;
         public static final int LogField=0x7f0a0001;
         public static final int LogTab=0x7f0a0011;
         public static final int NetworkTab=0x7f0a0013;
@@ -64,19 +65,19 @@ public final class R {
         public static final int OVSRPort=0x7f0a0033;
         public static final int OVSRServerName=0x7f0a0032;
         public static final int OVSRServerPort=0x7f0a0034;
-        public static final int Picture=0x7f0a0049;
+        public static final int Picture=0x7f0a004a;
         public static final int RememberUserText=0x7f0a0029;
-        public static final int Save=0x7f0a004a;
-        public static final int SaveF=0x7f0a0044;
-        public static final int Settings=0x7f0a003f;
+        public static final int Save=0x7f0a004b;
+        public static final int SaveF=0x7f0a0045;
+        public static final int Settings=0x7f0a0040;
         public static final int SmallTextRememberUser=0x7f0a002a;
         public static final int SmallTextShowCode=0x7f0a002d;
-        public static final int Template=0x7f0a0046;
+        public static final int Template=0x7f0a0047;
         public static final int UseDefaultServer=0x7f0a0037;
-        public static final int Video=0x7f0a0048;
+        public static final int Video=0x7f0a0049;
         public static final int VideoView1=0x7f0a0003;
         public static final int VideoView2=0x7f0a0005;
-        public static final int buttonCreateAccount=0x7f0a003e;
+        public static final int buttonCreateAccount=0x7f0a003f;
         public static final int buttonSignIN2=0x7f0a002f;
         public static final int buttonSignIn=0x7f0a003a;
         public static final int buttonSignUP2=0x7f0a0030;
@@ -85,7 +86,7 @@ public final class R {
         public static final int disconnect_button=0x7f0a0016;
         public static final int editText1=0x7f0a000b;
         public static final int editTextPasswordToLogin=0x7f0a0039;
-        public static final int editTextUserName=0x7f0a003b;
+        public static final int editTextUserName=0x7f0a003c;
         public static final int editTextUserNameToLogin=0x7f0a0038;
         public static final int fdButtonCancel=0x7f0a0020;
         public static final int fdButtonCreate=0x7f0a0021;
@@ -108,8 +109,8 @@ public final class R {
         public static final int scrollView1=0x7f0a0000;
         public static final int showCodeBox=0x7f0a002e;
         public static final int showCodeText=0x7f0a002c;
-        public static final int singUpEditTextConfirmPassword=0x7f0a003d;
-        public static final int singUpEditTextPassword=0x7f0a003c;
+        public static final int singUpEditTextConfirmPassword=0x7f0a003e;
+        public static final int singUpEditTextPassword=0x7f0a003d;
         public static final int submit_button=0x7f0a000d;
         public static final int tabhost=0x7f0a0009;
         public static final int textView1=0x7f0a0026;
@@ -125,7 +126,8 @@ public final class R {
         public static final int file_dialog_row=0x7f030004;
         public static final int fragment_settings=0x7f030005;
         public static final int login=0x7f030006;
-        public static final int signup=0x7f030007;
+        public static final int menu=0x7f030007;
+        public static final int signup=0x7f030008;
     }
     public static final class menu {
         public static final int display_message_activty=0x7f090000;
