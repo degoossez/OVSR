@@ -435,8 +435,7 @@ public class OpenCL extends Object {
 	{
 		View rootView = ((Activity)mContext).getWindow().getDecorView().findViewById(android.R.id.content);
 		TextView v = (TextView) rootView.findViewById(R.id.timeview);
-		v.setText(String.valueOf(time) + " ms");
-
+		v.setText(String.valueOf(time) + " ms" + "\n" + "Resolution: " + bmpOrig.getWidth() + " x " + bmpOrig.getHeight());
 	}
 	/*! \brief The setTimeToLog function adds a line with information to the history file
 	 *

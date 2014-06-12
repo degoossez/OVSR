@@ -538,7 +538,8 @@ public class RsScript extends Object {
 	 */
 	public void setTimeToLog(long time)
 	{
-		mElapsedTime.setText(String.valueOf(time) + " ms");
+		mElapsedTime.setText(String.valueOf(time) + " ms" + "\n" + "Resolution: " + inBitmap.getWidth() + " x " + inBitmap.getHeight());
+
 	}	
 	/*! \brief The setTimeToLog function adds a line with information to the history file
 	 *
