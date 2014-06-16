@@ -7,9 +7,11 @@
         android:showAsAction="never"
         android:title="@string/action_settings"/>
     <item android:id="@+id/History"
-          android:title="@string/History" />
+          android:title="@string/History"
+          android:orderInCategory="2" />
     <item android:id="@+id/File"
-          android:title="@string/File" >
+          android:title="@string/File"
+          android:orderInCategory="1" >
         <menu>
           <item android:id="@+id/SaveF"
           android:title="@string/SaveF" >
@@ -19,9 +21,15 @@
           </item>
         </menu>
     </item>
+    <item
+        android:id="@+id/FTP"
+        android:orderInCategory="4"
+        android:showAsAction="never"
+        android:title="@string/FTP"/>
     
     <item android:id="@+id/Template"
-          android:title="@string/Template" />
+          android:title="@string/Template" 
+          android:orderInCategory="3"/>
     
         <item android:id="@+id/Camera"
           android:icon="@drawable/ic_action_camera"
@@ -38,5 +46,10 @@
         <item android:id="@+id/Save"
           android:icon="@drawable/ic_action_save"
           android:title="@string/Save_Picture"
-          android:showAsAction="always"/>       
+          android:showAsAction="always"/>  
+          <item android:id="@+id/networkStatus"
+          android:icon="@drawable/ic_action_network_cell"
+          android:title="@string/network_status"
+          android:showAsAction="always"
+          />         
 </menu>

@@ -45,6 +45,8 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
+import android.graphics.PorterDuff.Mode;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -98,6 +100,7 @@ public class MainActivity extends Activity {
 	private static final int SETTINGS = 6;
 	private static final int PICK_VIDEO = 7;
 	private static final int REQUEST_PATH = 8;
+	private static final int FTP_CODE = 9;
 	private Button SubmitButton;
 	private Button previousButton;
 	private RadioButton RenderScriptButton;
@@ -115,9 +118,12 @@ public class MainActivity extends Activity {
 	RsScript RenderScriptObject;
 	LogFile LogFileObject;   
 	private Button connectButton, disconnectButton;
+	boolean isFtpLogin = false;
 
 	public String username = "";
 	public String passwd = "";
+	public String username2 = "";
+	public String passwd2 = "";
 
 	public String previousCode = "";	//used to backup the code field
 	private TabHost myTabHost;
@@ -136,6 +142,7 @@ public class MainActivity extends Activity {
 	MyFTPClient ftpclient = null;
 	ProgressDialog dialog = null;
 	ProgressDialog videoProcessDialog = null;
+	Menu mMenu;	//to acces the actionbar
 
 	private EditVideoTask MyEditVideoATask = null;
 	private static String[] OpenCLVideoArguments = {"","",""};
@@ -431,8 +438,12 @@ public class MainActivity extends Activity {
 			public void onClick(View v) {
 
 				new ConnectTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-				createToast("connecting to " + TcpClient.SERVER_IP, false);
-
+				if(settings.getBoolean("UseDefault", true)) {
+					createToast("connecting to " + DEFAULT_IP_ADDR, false);
+				} else {
+					createToast("connecting to " + settings.getString("ServerIP", DEFAULT_IP_ADDR), false);
+				}
+	
 			}
 		});		
 
@@ -643,6 +654,26 @@ public class MainActivity extends Activity {
 				createToast("Not connected", false);
 
 
+		}
+		else if(requestCode == FTP_CODE)
+		{
+			String str = data.getStringExtra("filename");
+			Log.i("main", "FTP : filename = " + str);
+			String code = LogFileObject.readFromFile("", str);
+			if(!CodeField.getText().toString().equals(""))
+			{
+				//if code field is not empty, backup the current code
+				previousCode = CodeField.getText().toString();
+			}
+			CodeField.setText(code);
+			file = new File(getFilesDir().getPath() + "/" + str);
+			if(file.exists())
+			{
+				Log.i("tag","delete temp file from FTP after reading");
+				file.delete();
+			}
+			myTabHost.setCurrentTabByTag("Code");
+			createToast("Download Succesful", false);
 		}
 		System.gc();
 	}
@@ -940,7 +971,7 @@ public class MainActivity extends Activity {
 				final CharSequence[] items = {"GPU", "CPU"};
 
 				AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-				builder.setTitle("Chose device type")
+				builder.setTitle("Choose device type")
 				.setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialogInterface, int item) {
 						OpenCLObject.setDeviceType(item);
@@ -987,7 +1018,13 @@ public class MainActivity extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.main, menu);
+		inflater.inflate(R.menu.main, menu);	
+		mMenu = menu;
+		MenuItem it = mMenu.findItem(R.id.networkStatus);              
+        Drawable d = getResources().getDrawable(R.drawable.ic_action_network_cell);            
+        int iconColor = android.graphics.Color.RED;                          
+        d.setColorFilter( iconColor, Mode.MULTIPLY);          
+        it.setIcon(d);
 		return true;
 	}
 	@Override
@@ -1018,6 +1055,74 @@ public class MainActivity extends Activity {
 		case R.id.Settings:
 			Intent intent = new Intent(this,SettingsActivity.class);
 			startActivityForResult(intent, SETTINGS);
+			return true;
+		case R.id.FTP:
+			if(TcpClient.isConnected)
+			{
+				
+
+				boolean tmp = false;
+				if(settings.getBoolean("rememberUser", false))
+				{
+					if(settings.getString("userName", "") == "")
+						if(settings.getString("passwd", "") == "")
+						{
+							tmp = true;
+							Log.i("main","remember user is true, but no user information stored");
+						}
+				}
+
+				if(!settings.getBoolean("rememberUser", false) || tmp)
+				{
+					//if the user information is not saved or if it is but no login has yet happened
+					//show login dialog
+					final Dialog dialog = new Dialog(MainActivity.this);
+					dialog.setContentView(R.layout.login);
+					dialog.setTitle("Login");
+
+					// get the Refferences of views
+					final  EditText editTextUserName=(EditText)dialog.findViewById(R.id.editTextUserNameToLogin);
+					final  EditText editTextPassword=(EditText)dialog.findViewById(R.id.editTextPasswordToLogin);
+					
+					editTextUserName.setText("");
+					editTextPassword.setText("");
+
+					Button btnSignIn=(Button)dialog.findViewById(R.id.buttonSignIn);
+
+					// Set On ClickListener
+					btnSignIn.setOnClickListener(new View.OnClickListener() {
+
+						public void onClick(View v) {
+							username2 = "";
+							passwd2 = "";
+							// get The User name and Password
+							username2=editTextUserName.getText().toString();
+							passwd2=editTextPassword.getText().toString();
+
+							String hash = createHash(passwd2);						
+
+							Log.i("tcp send","LOGIN " + username2 + " " + hash + " ENDLOGIN");
+							mTcpClient.sendMessage("LOGIN " + username2 + " " + hash + " ENDLOGIN");
+							isFtpLogin = true;
+
+							dialog.dismiss();								
+
+						}
+					});
+
+					dialog.show();
+				}
+				else
+				{
+					Intent intentFTP = new Intent(this,FTPActivity.class);							
+					intentFTP.putExtra("user", settings.getString("userName", ""));
+					intentFTP.putExtra("pas", settings.getString("passwd", ""));
+					startActivityForResult(intentFTP, FTP_CODE);
+				}				
+				
+			}
+			else
+				createToast("Not connected", false);
 			return true;
 		case R.id.Camera:
 			Input_Image.setVisibility(View.VISIBLE);
@@ -1102,6 +1207,8 @@ public class MainActivity extends Activity {
 			}
 			else createToast("Video is already saved", false);
 			return true;
+		case R.id.networkStatus:
+			myTabHost.setCurrentTabByTag("Network");            
 		default:
 			return super.onOptionsItemSelected(item);
 		}
@@ -1163,7 +1270,8 @@ public class MainActivity extends Activity {
 		@Override
 		protected TcpClient doInBackground(String... message) {
 			//we create a TCPClient object
-			mTcpClient = new TcpClient(MainActivity.this, new TcpClient.OnMessageReceived() {
+			mTcpClient = new TcpClient(mMenu, MainActivity.this, NetworkView, new TcpClient.OnMessageReceived() {
+			
 				@Override
 				public void messageReceived(String message) {				
 					Log.i("message","messageReceived: " + message);
@@ -1322,7 +1430,24 @@ public class MainActivity extends Activity {
 					editor.putString("passwd", passwd);
 					editor.commit();
 				}	
-				createToast("Login succesful", false);				
+				createToast("Login succesful", false);
+				
+				if(isFtpLogin)
+				{					
+					isFtpLogin = false;
+					//start intent
+					if(settings.getBoolean("rememberUser", false))
+					{
+						SharedPreferences.Editor editor = settings.edit();
+						editor.putString("userName", username2);
+						editor.putString("passwd", passwd2);
+						editor.commit();
+					}	
+					Intent intentFTP = new Intent(MainActivity.this,FTPActivity.class);							
+					intentFTP.putExtra("user", username2);
+					intentFTP.putExtra("pas", passwd2);
+					startActivityForResult(intentFTP, FTP_CODE);
+				}
 			}
 			else if(values[0] == "login_nok")
 			{
@@ -1330,8 +1455,12 @@ public class MainActivity extends Activity {
 				username = "";
 				passwd = "";
 
-				if(dialog.isShowing())
-					dialog.dismiss();
+				if(dialog != null)
+				{
+					if(dialog.isShowing())
+						dialog.dismiss();
+				}
+				isFtpLogin = false;
 			}
 			else if(values[0] == "account_error")				
 			{

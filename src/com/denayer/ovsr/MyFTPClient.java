@@ -12,6 +12,7 @@ package com.denayer.ovsr;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
 
 import org.apache.commons.net.ftp.*;
 
@@ -89,8 +90,10 @@ public class MyFTPClient {
 	 */
 	public String ftpGetCurrentWorkingDirectory()
 	{
+		Log.i("TAG", "inside getCurrentWorkingDir");
 	    try {
 	        String workingDir = mFTPClient.printWorkingDirectory();
+	        Log.i("TAG", workingDir);
 	        return workingDir;
 	    } catch(Exception e) {
 	        Log.d(TAG, "Error: could not get current working directory.");
@@ -120,9 +123,11 @@ public class MyFTPClient {
 	/*! \brief Method to list all files in a directory
 	 * 	
 	 * @param dir_path is the path to list all files from
+	 * @param list list containing the name of all RenderScript files
 	 */
-	public void ftpPrintFilesList(String dir_path)
+	public ArrayList<String> ftpPrintFilesList(String dir_path)
 	{
+		ArrayList<String> list = new ArrayList<String>();
 	    try {
 	        FTPFile[] ftpFiles = mFTPClient.listFiles(dir_path);
 	        int length = ftpFiles.length;
@@ -133,6 +138,11 @@ public class MyFTPClient {
 
 	            if (isFile) {
 	                Log.i(TAG, "File : " + name);
+	                String[] split = name.split("\\.");
+	                if(split[1].equals("rs"))
+	                {
+	                	list.add(name);
+	                }
 	            }
 	            else {
 	                Log.i(TAG, "Directory : " + name);
@@ -141,6 +151,7 @@ public class MyFTPClient {
 	    } catch(Exception e) {
 	        e.printStackTrace();
 	    }
+	    return list;
 	} 
 	/*! \brief Method to create new directory
 	 * 	

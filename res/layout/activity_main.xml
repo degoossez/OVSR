@@ -167,7 +167,8 @@
 	                           android:layout_width="0dp"
 	                           android:layout_height="wrap_content"	                           
 	                           android:text="Submit"
-	                           android:layout_weight="1"	                           
+	                           android:layout_weight="1"
+	                           android:gravity="center"	                           
 	                            />
 	                       <Button
 	                           android:id="@+id/previous_button"
@@ -175,6 +176,7 @@
 	                           android:layout_height="fill_parent"	
 	                           android:text="Previous"                          
 	                           android:layout_weight="1"
+	                           android:gravity="center"
 	                           />
 	                       
 						</LinearLayout>

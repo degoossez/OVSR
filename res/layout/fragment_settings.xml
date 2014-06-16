@@ -149,32 +149,7 @@
                         android:layout_weight="9" />
                 </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent"
-                    android:layout_marginTop="10dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:weightSum="2" >
-
-                    <Button
-                        android:id="@+id/buttonSignIN2"
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        style="?android:attr/buttonStyleSmall"
-                        android:onClick="signIn"
-                        android:text="Sign In"/>
-
-                    <Button
-                        android:id="@+id/buttonSignUP2"
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        style="?android:attr/buttonStyleSmall"
-                        android:text="Sign Up"/>
-                    
-                </LinearLayout>
+                
             </LinearLayout>
 
             <View
@@ -258,7 +233,34 @@
                 android:layout_height="1dip"
                 android:layout_marginTop="5dp"
                 android:background="#505050" />
+            <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:weightSum="2" >
+
+                    <Button
+                        android:id="@+id/buttonSignIN2"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        style="?android:attr/buttonStyleSmall"
+                        android:onClick="signIn"
+                        android:text="Sign In"/>
+
+                    <Button
+                        android:id="@+id/buttonSignUP2"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        style="?android:attr/buttonStyleSmall"
+                        android:text="Sign Up"/>
+                    
+                </LinearLayout>
         </LinearLayout>
+        
     </ScrollView>
 
 </RelativeLayout>

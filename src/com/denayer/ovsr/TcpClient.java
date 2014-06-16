@@ -12,7 +12,12 @@ package com.denayer.ovsr;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.PorterDuff.Mode;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.TextView;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -45,14 +50,21 @@ public class TcpClient {
 	public DataInputStream mByteStream;
 	public static boolean isByte = false;
 	private byte[] mByteServerMessage = new byte[64000];
+	private Menu mMenu;
+	private Context con; 
+	private MainActivity mAct;
+	private TextView networkLog;	//network textView from MainActivity
+	private boolean bl = false;
 
 	/*! \brief Constructor of the class. OnMessagedReceived listens for the messages received from server
 	 * @param listener is a listener for the OnMessageReceived. The listener is created in Java and is passed to be able to call the listener from the TcpClient functions.
 	 */
-	public TcpClient(Context mainContext,OnMessageReceived listener) {
+	public TcpClient(Menu m, MainActivity mainContext,TextView view, OnMessageReceived listener) {
+		Log.i("tcpClient","constructor TcpClient");
 		mMessageListener = listener;
 		DEFAULT_IP_ADDR = mainContext.getResources().getString(R.string.defaultIP);
 		DEFAULT_PORT = Integer.parseInt(mainContext.getResources().getString(R.string.defaultPORT));
+		//Log.i("tcp", DEFAULT_IP_ADDR + " " + String.valueOf(DEFAULT_PORT));
 		SERVER_IP = DEFAULT_IP_ADDR; 
 		SERVER_PORT = DEFAULT_PORT;
 		settings = mainContext.getSharedPreferences("Preferences", 0);
@@ -66,6 +78,10 @@ public class TcpClient {
 			SERVER_IP = settings.getString("ServerIP", DEFAULT_IP_ADDR);
 			SERVER_PORT = settings.getInt("ServerPort", DEFAULT_PORT);
 		}
+		mMenu = m;
+		con = mainContext;
+		mAct = mainContext;
+		networkLog = view;
 	}
 
 	/*! \brief Sends the message entered by client to the server
@@ -95,6 +111,19 @@ public class TcpClient {
 		mServerMessage = null;
 
 		isConnected = false;
+		mAct.runOnUiThread(new Runnable() {
+		     @Override
+		     public void run() {
+
+		    	 MenuItem it = mMenu.findItem(R.id.networkStatus);              
+			        Drawable d = con.getResources().getDrawable(R.drawable.ic_action_network_cell);            
+			        int iconColor = android.graphics.Color.RED;                          
+			        d.setColorFilter( iconColor, Mode.MULTIPLY);          
+			        it.setIcon(d);
+			        networkLog.setText("Connection closed");
+			        bl = true;
+		    }
+		});
 
 	}
 	/*! \brief Thread that listens for incomming data.
@@ -105,7 +134,7 @@ public class TcpClient {
 	 */
 	public void run() {
 
-		mRun = true;
+		mRun = true;		
 
 		try {
 			//here you must put your computer's IP address.
@@ -115,6 +144,20 @@ public class TcpClient {
 
 			//create a socket to make the connection with the server
 			Socket socket = new Socket(serverAddr, SERVER_PORT);
+			
+			mAct.runOnUiThread(new Runnable() {
+			     @Override
+			     public void run() {
+
+			    	 MenuItem it = mMenu.findItem(R.id.networkStatus);              
+				        Drawable d = con.getResources().getDrawable(R.drawable.ic_action_network_cell);            
+				        int iconColor = android.graphics.Color.GREEN;                          
+				        d.setColorFilter( iconColor, Mode.MULTIPLY);          
+				        it.setIcon(d);
+				        networkLog.setText("Connection established");
+
+			    }
+			});
 
 			try {
 				isConnected = true;
@@ -124,7 +167,7 @@ public class TcpClient {
 				//receives the message which the server sends back
 				mBufferIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				mByteStream = new DataInputStream(socket.getInputStream());
-				
+
 				//in this while the client listens for the messages sent by the server
 				while (mRun) {
 					mServerMessage = mBufferIn.readLine();
@@ -138,6 +181,23 @@ public class TcpClient {
 			} catch (Exception e) {
 
 				Log.e("TCP", "S: Error", e);
+				isConnected = false;
+				mAct.runOnUiThread(new Runnable() {
+				     @Override
+				     public void run() {
+
+				    	 MenuItem it = mMenu.findItem(R.id.networkStatus);              
+					        Drawable d = con.getResources().getDrawable(R.drawable.ic_action_network_cell);            
+					        int iconColor = android.graphics.Color.RED;                          
+					        d.setColorFilter( iconColor, Mode.MULTIPLY);          
+					        it.setIcon(d);
+					        if(!bl)					        
+					        	networkLog.setText("Connection lost");
+					        else
+					        	bl = false;					        
+
+				    }
+				});
 
 			} finally {
 				//the socket must be closed. It is not possible to reconnect to this socket
@@ -148,6 +208,20 @@ public class TcpClient {
 		} catch (Exception e) {
 
 			Log.e("TCP", "C: Error", e);
+			isConnected = false;
+			mAct.runOnUiThread(new Runnable() {
+			     @Override
+			     public void run() {
+
+			    	 MenuItem it = mMenu.findItem(R.id.networkStatus);              
+				        Drawable d = con.getResources().getDrawable(R.drawable.ic_action_network_cell);            
+				        int iconColor = android.graphics.Color.RED;                          
+				        d.setColorFilter( iconColor, Mode.MULTIPLY);          
+				        it.setIcon(d);
+				        networkLog.setText("Connection failed");
+
+			    }
+			});
 
 		}
 

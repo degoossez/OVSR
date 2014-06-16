@@ -472,7 +472,7 @@ public class RsScript extends Object {
 	    estimatedTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
         setTimeToLog(estimatedTime);
         
-        setHistory("Run time compiled",estimatedTime);
+        setHistory("Runtime compiled",estimatedTime);
 	}
 	
 	/*! \brief returns the RenderScript Template

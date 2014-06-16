@@ -39,6 +39,11 @@
             android:label="@string/title_activity_settings"
             android:windowSoftInputMode="stateHidden" >
         </activity>
+        <activity
+            android:name="com.denayer.ovsr.FTPActivity"
+            android:label="@string/title_activity_ftp"
+            android:windowSoftInputMode="stateHidden" >
+        </activity>
     </application>
 
 </manifest>
