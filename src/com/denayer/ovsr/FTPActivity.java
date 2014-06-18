@@ -7,6 +7,7 @@ import java.util.List;
 import com.denayer.ovsr.SettingsActivity.PlaceholderFragment;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -44,6 +45,7 @@ public class FTPActivity extends Activity {
 	SharedPreferences settings;
 	String IP;
 	Intent intent;
+	ProgressDialog mDialog;
 	
 	private ArrayList<String> rsFileList = new ArrayList<String>();	 
 	 
@@ -80,6 +82,14 @@ public class FTPActivity extends Activity {
 		} else {
 			IP = settings.getString("ServerIP", getResources().getString(R.string.defaultIP));
 		}
+		
+		mDialog = new ProgressDialog(FTPActivity.this);
+		mDialog.setMessage("Loading filelist.");	
+		mDialog.setCancelable(false);
+		mDialog.setCanceledOnTouchOutside(false);
+		mDialog.show();
+		
+		
 		mThread = new Thread() {
 			
 			@Override
@@ -109,6 +119,7 @@ public class FTPActivity extends Activity {
 						    	 myListView.setAdapter(myArrayAdapter);
 						    	 downloadButton.setText("Download");
 						 		 downloadButton.setClickable(true);
+						 		 mDialog.dismiss();
 	
 						    }
 						});
@@ -119,6 +130,7 @@ public class FTPActivity extends Activity {
 						     @Override
 						     public void run() {
 						    	 downloadButton.setText("Connection error");
+						 		 mDialog.dismiss();
 	
 						    }
 						});
